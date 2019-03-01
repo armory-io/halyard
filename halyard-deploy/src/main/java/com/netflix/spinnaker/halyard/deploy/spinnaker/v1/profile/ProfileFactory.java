@@ -78,7 +78,7 @@ abstract public class ProfileFactory {
    * @return true if the target service supports decryption of secrets
    */
   protected boolean supportsSecretDecryption(String deploymentName) {
-    String force = System.getProperty("SPINNAKER_FORCE_ENCRYPTED");
+    String force = System.getenv("SPINNAKER_FORCE_ENCRYPTED");
     if (isWithKorkDecryption() && force != null && force.equals("true")) {
       return true;
     }
