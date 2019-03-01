@@ -54,10 +54,34 @@ abstract public class ProfileFactory {
   }
 
   /**
+   * Temporary until services are correctly whitelisted in each profile factory
+   * @return true if the service implements decryption via kork
+   */
+  protected boolean isWithKorkDecryption() {
+    switch(this.getArtifact()) {
+      case CLOUDDRIVER:
+      case GATE:
+      case IGOR:
+      case ECHO:
+      case FIAT:
+      case FRONT50:
+      case KAYENTA:
+      case ORCA:
+      case ROSCO:
+        return true;
+    }
+    return false;
+  }
+
+  /**
    * @param deploymentName
    * @return true if the target service supports decryption of secrets
    */
   protected boolean supportsSecretDecryption(String deploymentName) {
+    String force = System.getProperty("SPINNAKER_FORCE_ENCRYPTED");
+    if (isWithKorkDecryption() && force != null && force.equals("true")) {
+      return true;
+    }
     String minVersion = getMinimumSecretDecryptionVersion(deploymentName);
     if (minVersion == null) {
       return false;
