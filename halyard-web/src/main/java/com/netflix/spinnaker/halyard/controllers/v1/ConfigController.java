@@ -18,6 +18,7 @@ package com.netflix.spinnaker.halyard.controllers.v1;
 
 import com.netflix.spinnaker.halyard.config.config.v1.HalconfigParser;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Halconfig;
+import com.netflix.spinnaker.halyard.config.model.v1.node.Providers;
 import com.netflix.spinnaker.halyard.config.services.v1.ConfigService;
 import com.netflix.spinnaker.halyard.core.DaemonResponse;
 import com.netflix.spinnaker.halyard.core.DaemonResponse.StaticRequestBuilder;
@@ -26,9 +27,12 @@ import com.netflix.spinnaker.halyard.core.problem.v1.ProblemSet;
 import com.netflix.spinnaker.halyard.core.tasks.v1.DaemonTask;
 import com.netflix.spinnaker.halyard.core.tasks.v1.DaemonTaskHandler;
 import lombok.RequiredArgsConstructor;
+import net.minidev.json.JSONObject;
+
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /** Reports the entire contents of ~/.hal/config */
@@ -47,9 +51,14 @@ public class ConfigController {
 
   @RequestMapping(value = "/currentDeployment", method = RequestMethod.GET)
   DaemonTask<Halconfig, String> currentDeployment() {
-    StaticRequestBuilder<String> builder =
-        new StaticRequestBuilder<>(configService::getCurrentDeployment);
+    StaticRequestBuilder<String> builder = new StaticRequestBuilder<>(configService::getCurrentDeployment);
     return DaemonTaskHandler.submitTask(builder::build, "Get current deployment");
+  }
+
+  @RequestMapping(value = "/metadata", method = RequestMethod.GET)
+  @ResponseBody
+  public JSONObject getMetadata() {
+    return Providers.providersMetadata();
   }
 
   @RequestMapping(value = "/currentDeployment", method = RequestMethod.PUT)
