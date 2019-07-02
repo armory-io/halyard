@@ -67,14 +67,3 @@ task updateDocs(dependsOn: generateDocs) {
 }
 
 tasks.check.dependsOn(checkDocs)
-
-task generateJson(type: Exec ) {
-  workingDir "$projectDir"
-  commandLine './hal', '--json'
-  standardOutput new ByteArrayOutputStream()
-  doLast {
-    new File("$projectDir/../docs/schema.json").withWriter { writer ->
-      writer.write(standardOutput.toString())
-    }
-  }
-}
