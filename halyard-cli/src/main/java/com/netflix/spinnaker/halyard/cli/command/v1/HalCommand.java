@@ -49,9 +49,6 @@ public class HalCommand extends NestableCommand {
   @Parameter(names = "--docs", description = "Print markdown docs for the hal CLI.")
   private boolean docs;
 
-  @Parameter(names = "--json", description = "Generate json")
-  private boolean json;
-
   public HalCommand() {
     registerSubcommand(new AdminCommand());
     registerSubcommand(new BackupCommand());
@@ -79,26 +76,22 @@ public class HalCommand extends NestableCommand {
 
   @Override
   protected void executeThis() {
-    if (json) {
-      System.out.println(generateJson());
-    } else {
-      if (docs) {
-        System.out.println(generateDocs());
-      }
-      if (version) {
-        System.out.println(getVersion());
-      }
-      if (printBashCompletion) {
-        System.out.println(commandCompletor());
-      }
+    if (docs) {
+      System.out.println(generateDocs());
+    }
+    if (version) {
+      System.out.println(getVersion());
+    }
+    if (printBashCompletion) {
+      System.out.println(commandCompletor());
+    }
 
-      if (healthy) {
-        System.exit(Daemon.isHealthy() ? 0 : -1);
-      }
+    if (healthy) {
+      System.exit(Daemon.isHealthy() ? 0 : -1);
+    }
 
-      if (!version && !printBashCompletion && !docs) {
-        showHelp();
-      }
+    if (!version && !printBashCompletion && !docs) {
+      showHelp();
     }
   }
 }
