@@ -24,12 +24,13 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class HalconfigDirectoryStructure {
-  @Autowired @Getter String halconfigDirectory;
+  @Autowired @Getter @Setter String halconfigDirectory;
 
   public Path getLogsPath(String deploymentName) {
     return ensureRelativeHalDirectory(deploymentName, "service-logs");

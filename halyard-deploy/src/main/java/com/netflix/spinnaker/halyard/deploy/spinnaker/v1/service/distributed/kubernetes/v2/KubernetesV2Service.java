@@ -34,6 +34,7 @@ import com.netflix.spinnaker.halyard.core.registry.v1.Versions;
 import com.netflix.spinnaker.halyard.core.resource.v1.JinjaJarResource;
 import com.netflix.spinnaker.halyard.core.resource.v1.TemplatedResource;
 import com.netflix.spinnaker.halyard.deploy.deployment.v1.AccountDeploymentDetails;
+import com.netflix.spinnaker.halyard.deploy.deployment.v1.KubernetesManifestExecutor;
 import com.netflix.spinnaker.halyard.deploy.services.v1.ArtifactService;
 import com.netflix.spinnaker.halyard.deploy.services.v1.GenerateService;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
@@ -170,7 +171,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T> {
   }
 
   default String getResourceYaml(
-      KubernetesV2Executor executor,
+      KubernetesManifestExecutor executor,
       AccountDeploymentDetails<KubernetesAccount> details,
       GenerateService.ResolvedConfiguration resolvedConfiguration) {
     ServiceSettings settings = resolvedConfiguration.getServiceSettings(getService());
@@ -201,7 +202,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T> {
   }
 
   default String getPodSpecYaml(
-      KubernetesV2Executor executor,
+      KubernetesManifestExecutor executor,
       AccountDeploymentDetails<KubernetesAccount> details,
       GenerateService.ResolvedConfiguration resolvedConfiguration) {
     SpinnakerRuntimeSettings runtimeSettings = resolvedConfiguration.getRuntimeSettings();
@@ -497,7 +498,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T> {
   }
 
   default List<ConfigSource> stageConfig(
-      KubernetesV2Executor executor,
+      KubernetesManifestExecutor executor,
       AccountDeploymentDetails<KubernetesAccount> details,
       GenerateService.ResolvedConfiguration resolvedConfiguration) {
     Map<String, Profile> profiles =
@@ -566,7 +567,6 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T> {
 
       KubernetesV2Utils.SecretSpec spec =
           executor
-              .getKubernetesV2Utils()
               .createSecretSpec(
                   namespace, getService().getCanonicalName(), secretNamePrefix, files);
       executor.replace(spec.resource.toString());
@@ -587,7 +587,6 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T> {
 
       KubernetesV2Utils.SecretSpec spec =
           executor
-              .getKubernetesV2Utils()
               .createSecretSpec(
                   namespace, getService().getCanonicalName(), secretNamePrefix, files);
       executor.replace(spec.resource.toString());

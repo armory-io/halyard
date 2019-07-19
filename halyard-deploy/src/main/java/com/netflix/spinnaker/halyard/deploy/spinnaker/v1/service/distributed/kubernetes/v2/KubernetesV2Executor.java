@@ -31,11 +31,13 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.netflix.spinnaker.halyard.deploy.deployment.v1.KubernetesManifestExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 @Slf4j
-public class KubernetesV2Executor {
+public class KubernetesV2Executor extends KubernetesManifestExecutor {
   private KubernetesAccount account;
   private JobExecutor executor;
   private KubernetesV2Utils kubernetesV2Utils;

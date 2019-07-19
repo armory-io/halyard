@@ -1,0 +1,7 @@
+kind: List
+apiVersion: v1
+items: [
+ {% for i in items %}
+ {{i}}
+ {% endfor %}
+]

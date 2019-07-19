@@ -61,6 +61,11 @@ import org.yaml.snakeyaml.scanner.ScannerException;
 @Slf4j
 @Component
 public class HalconfigParser {
+  private static ThreadLocal<File> directoryOverride = new ThreadLocal<>();
+
+  public static void setDirectoryOverride(File directory) {
+    directoryOverride.set(directory);
+  }
 
   @Autowired String halconfigPath;
 
@@ -108,8 +113,14 @@ public class HalconfigParser {
   }
 
   private InputStream getHalconfigStream() throws FileNotFoundException {
-    String path = useBackup ? backupHalconfigPath : halconfigPath;
-    return new FileInputStream(new File(path));
+    File file;
+    if (directoryOverride.get() != null) {
+      file = new File(directoryOverride.get(), "config");
+    } else {
+      String path = useBackup ? backupHalconfigPath : halconfigPath;
+      file = new File(path);
+    }
+    return new FileInputStream(file);
   }
 
   /**
