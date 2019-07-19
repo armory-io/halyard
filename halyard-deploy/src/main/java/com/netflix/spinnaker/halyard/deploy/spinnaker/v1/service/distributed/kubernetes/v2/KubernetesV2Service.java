@@ -566,9 +566,8 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T> {
               .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
       KubernetesV2Utils.SecretSpec spec =
-          executor
-              .createSecretSpec(
-                  namespace, getService().getCanonicalName(), secretNamePrefix, files);
+          executor.createSecretSpec(
+              namespace, getService().getCanonicalName(), secretNamePrefix, files);
       executor.replace(spec.resource.toString());
       configSources.add(new ConfigSource().setId(spec.name).setMountPath(mountPath).setEnv(env));
     }
@@ -586,9 +585,8 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T> {
           .forEach(s -> files.add(s));
 
       KubernetesV2Utils.SecretSpec spec =
-          executor
-              .createSecretSpec(
-                  namespace, getService().getCanonicalName(), secretNamePrefix, files);
+          executor.createSecretSpec(
+              namespace, getService().getCanonicalName(), secretNamePrefix, files);
       executor.replace(spec.resource.toString());
       configSources.add(
           new ConfigSource()

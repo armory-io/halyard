@@ -44,7 +44,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
@@ -356,12 +355,8 @@ public class DeploymentController extends DeploymentsGrpc.DeploymentsImplBase {
         .execute(validationSettings);
   }
 
-  @RequestMapping(
-          value = "/manifests",
-          method = RequestMethod.POST)
-  String getCombinedDeploymentManifests(
-          MultipartHttpServletRequest request) throws IOException {
+  @RequestMapping(value = "/manifests", method = RequestMethod.POST)
+  String getCombinedDeploymentManifests(MultipartHttpServletRequest request) throws IOException {
     return manifestGenerator.generateManifestList(request);
   }
-
 }
