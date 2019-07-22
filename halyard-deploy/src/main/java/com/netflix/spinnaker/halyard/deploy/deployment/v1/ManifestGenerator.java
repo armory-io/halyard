@@ -47,17 +47,16 @@ public class ManifestGenerator {
 
   @Autowired VersionsService versionsService;
 
-  public String generateManifestList(MultipartHttpServletRequest request) throws IOException {
+  @Autowired Yaml yamlParser;
+
+  public String generateManifestList(MultipartHttpServletRequest request) {
     try {
       generateService =
           new RequestGenerateService(
               deploymentService, serviceProviderFactory, spinnakerServices, configParser);
-      HalconfigParser.setDirectoryOverride(generateService.getBaseDirectory());
       generateService.prepare(request);
       Halconfig halConfig = halconfigParser.getHalconfig();
 
-      //      DeploymentConfiguration deploymentConfiguration =
-      // extractDeploymentConfiguration(request);
       DeploymentConfiguration deploymentConfiguration =
           halConfig.getDeploymentConfigurations().get(0);
       AccountDeploymentDetails<KubernetesAccount> deploymentDetails =
@@ -73,14 +72,17 @@ public class ManifestGenerator {
       GenerateService.ResolvedConfiguration resolvedConfiguration =
           generateService.generateConfig("default", serviceTypes);
 
-      return buildManifestList(
-          serviceProvider, deploymentDetails, resolvedConfiguration, serviceTypes);
+      ManifestList manifestList =
+          buildManifestList(
+              serviceProvider, deploymentDetails, resolvedConfiguration, serviceTypes);
+
+      return manifestListAsString(manifestList);
     } finally {
-      HalconfigParser.setDirectoryOverride(null);
+      generateService.cleanup();
     }
   }
 
-  protected String buildManifestList(
+  protected ManifestList buildManifestList(
       KubectlServiceProvider serviceProvider,
       AccountDeploymentDetails<KubernetesAccount> deploymentDetails,
       GenerateService.ResolvedConfiguration resolvedConfiguration,
@@ -128,7 +130,12 @@ public class ManifestGenerator {
               list.addManifest(resourceDefinition);
             });
 
-    return list.asListKind();
+    return list;
+  }
+
+  protected String manifestListAsString(ManifestList manifestList) {
+    Map map = objectMapper.convertValue(manifestList, Map.class);
+    return yamlParser.dump(map);
   }
 
   protected DeploymentConfiguration parseDeploymentConfiguration(InputStream inputStream) {

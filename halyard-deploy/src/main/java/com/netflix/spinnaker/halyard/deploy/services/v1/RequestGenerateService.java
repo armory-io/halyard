@@ -2,6 +2,7 @@ package com.netflix.spinnaker.halyard.deploy.services.v1;
 
 import com.google.common.io.Files;
 import com.netflix.spinnaker.halyard.config.config.v1.HalconfigDirectoryStructure;
+import com.netflix.spinnaker.halyard.config.config.v1.HalconfigParser;
 import com.netflix.spinnaker.halyard.config.services.v1.DeploymentService;
 import com.netflix.spinnaker.halyard.deploy.config.v1.ConfigParser;
 import com.netflix.spinnaker.halyard.deploy.deployment.v1.ServiceProviderFactory;
@@ -25,17 +26,14 @@ public class RequestGenerateService extends GenerateService {
     this.configParser = configParser;
     this.spinnakerServices = spinnakerServices;
     this.serviceProviderFactory = serviceProviderFactory;
-    setupTempStructure();
-  }
-
-  private void setupTempStructure() {
-    baseDirectory = Files.createTempDir();
+    this.baseDirectory = Files.createTempDir();
     this.halconfigPath = baseDirectory.getAbsolutePath();
     this.halconfigDirectoryStructure =
         new HalconfigDirectoryStructure().setHalconfigDirectory(halconfigPath);
   }
 
   public void prepare(MultipartHttpServletRequest request) {
+    HalconfigParser.setDirectoryOverride(baseDirectory);
     request.getFileMap().entrySet().stream()
         .forEach(
             et -> {
@@ -48,5 +46,9 @@ public class RequestGenerateService extends GenerateService {
                 throw new RuntimeException(e);
               }
             });
+  }
+
+  public void cleanup() {
+    HalconfigParser.setDirectoryOverride(null);
   }
 }
