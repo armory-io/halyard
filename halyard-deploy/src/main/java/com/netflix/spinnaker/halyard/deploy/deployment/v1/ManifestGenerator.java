@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +29,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.yaml.snakeyaml.Yaml;
 
 @Component
+@Slf4j
 public class ManifestGenerator {
 
   @Autowired ServiceProviderFactory serviceProviderFactory;
@@ -49,12 +52,16 @@ public class ManifestGenerator {
 
   @Autowired Yaml yamlParser;
 
-  public String generateManifestList(MultipartHttpServletRequest request) {
+  public String generateManifestList(MultipartHttpServletRequest request) throws IOException {
     try {
+      log.info("Generating manifests from incoming request");
       generateService =
           new RequestGenerateService(
               deploymentService, serviceProviderFactory, spinnakerServices, configParser);
+      log.info("Preparing Halyard configuration");
       generateService.prepare(request);
+
+      log.info("Parsing Halyard config");
       Halconfig halConfig = halconfigParser.getHalconfig();
 
       DeploymentConfiguration deploymentConfiguration =
@@ -69,13 +76,16 @@ public class ManifestGenerator {
               .map(SpinnakerService::getType)
               .collect(Collectors.toList());
 
+      log.info("Resolving configuration");
       GenerateService.ResolvedConfiguration resolvedConfiguration =
           generateService.generateConfig("default", serviceTypes);
 
+      log.info("Generating manifests for " + serviceTypes.size() + " services");
       ManifestList manifestList =
           buildManifestList(
               serviceProvider, deploymentDetails, resolvedConfiguration, serviceTypes);
 
+      log.info("Generated " + manifestList.getItems().size() + " manifests");
       return manifestListAsString(manifestList);
     } finally {
       generateService.cleanup();

@@ -41,6 +41,7 @@ import com.netflix.spinnaker.halyard.proto.DeploymentsGrpc;
 import com.netflix.spinnaker.halyard.util.v1.GenericGetRequest;
 import com.netflix.spinnaker.halyard.util.v1.GenericUpdateRequest;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -355,7 +356,7 @@ public class DeploymentController extends DeploymentsGrpc.DeploymentsImplBase {
   }
 
   @RequestMapping(value = "/manifests", method = RequestMethod.POST)
-  String getCombinedDeploymentManifests(MultipartHttpServletRequest request) {
+  String getCombinedDeploymentManifests(MultipartHttpServletRequest request) throws IOException {
     return manifestGenerator.generateManifestList(request);
   }
 }
