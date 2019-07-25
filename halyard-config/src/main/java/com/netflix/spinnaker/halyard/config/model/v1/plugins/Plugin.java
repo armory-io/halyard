@@ -25,7 +25,7 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class Plugin extends Node {
   public String name;
-  public boolean enabled;
+  public Boolean enabled;
   public String manifestLocation;
   public HashMap<String, Object> options;
 

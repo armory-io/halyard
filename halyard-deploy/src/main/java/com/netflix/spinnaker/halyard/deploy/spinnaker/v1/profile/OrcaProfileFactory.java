@@ -18,16 +18,27 @@ package com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile;
 
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Features;
+import com.netflix.spinnaker.halyard.config.model.v1.node.Plugins;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Webhook;
+import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.aws.AwsProvider;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.integrations.IntegrationsConfigWrapper;
+import java.io.*;
+import java.net.URL;
+import java.util.*;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.Yaml;
 
+@Slf4j
 @Component
 public class OrcaProfileFactory extends SpringProfileFactory {
   @Override
@@ -73,6 +84,50 @@ public class OrcaProfileFactory extends SpringProfileFactory {
     profile.appendContents("pipelineTemplates.enabled: " + pipelineTemplates);
     // For backward compatibility
     profile.appendContents("pipelineTemplate.enabled: " + pipelineTemplates);
+
+    // Loading Plugin Information
+    Yaml yaml = new Yaml();
+    final List<Plugin> plugins = deploymentConfiguration.getPlugins().getPlugin();
+    Map<String, Object> fullyRenderedYaml = new LinkedHashMap<>();
+    Map<String, Object> pluginMetadata = new LinkedHashMap<>();
+
+    for(Plugin plugin : plugins) {
+      if(!plugin.getEnabled()) {
+        log.info("Plugin " + plugin.getName() + ", not enabled");
+        continue;
+      }
+
+      String manifestLocation = plugin.getManifestLocation();
+      if(Objects.equals(manifestLocation, null)) {
+        log.info("Plugin " + plugin.getName() + ", has no manifest file");
+        continue;
+      }
+
+      InputStream manifestContents;
+      try {
+        if(manifestLocation.startsWith("http:") || manifestLocation.startsWith("https:")) {
+          URL url = new URL(manifestLocation);
+          manifestContents = url.openStream();
+        } else {
+          manifestContents = new FileInputStream(manifestLocation);
+        }
+
+        Map<String, Object> manifest = yaml.load(manifestContents);
+
+        pluginMetadata.put((String) manifest.get("name"), manifest.get("options"));
+        if(!Objects.equals(plugin.getOptions(), null)) {
+          pluginMetadata.put((String) manifest.get("name"), plugin.getOptions());
+        }
+      } catch (IOException e) {
+        log.error("Cannot get plugin manifest file from: " + manifestLocation);
+        log.error(e.getMessage());
+      }
+    }
+
+    fullyRenderedYaml.put("plugins", pluginMetadata);
+
+    profile.appendContents(
+        yamlToString(deploymentConfiguration.getName(), profile, fullyRenderedYaml));
   }
 
   @Data

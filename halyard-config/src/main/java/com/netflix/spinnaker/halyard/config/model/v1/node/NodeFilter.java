@@ -331,6 +331,11 @@ public class NodeFilter implements Cloneable {
     return this;
   }
 
+  public NodeFilter setPlugins() {
+    matchers.add(Node.thisNodeAcceptor(Plugins.class));
+    return this;
+  }
+
   public NodeFilter() {
     withAnyHalconfigFile();
   }
