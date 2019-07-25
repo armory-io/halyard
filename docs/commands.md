@@ -10500,6 +10500,7 @@ hal plugins add PLUGIN [parameters]
 #### Parameters
 `PLUGIN`: The name of the plugin to operate on.
  * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--enabled`: (*Default*: `false`) The location of the plugin's manifest file.
  * `--manifest-location`: (*Required*) The location of the plugin's manifest file.
  * `--no-validate`: (*Default*: `false`) Skip validation.
 
