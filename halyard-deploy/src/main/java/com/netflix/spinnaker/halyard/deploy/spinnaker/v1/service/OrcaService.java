@@ -76,11 +76,12 @@ public abstract class OrcaService extends SpringService<OrcaService.Orca> {
 
     profiles.add(profile);
 
-    //Plugins
+    // Plugins
     String pluginFilename = "plugin.yml";
     String pluginPath = Paths.get(getConfigOutputPath(), pluginFilename).toString();
     Profile pluginProfile =
-        pluginProfileFactory.getProfile(pluginFilename, pluginPath, deploymentConfiguration, endpoints);
+        pluginProfileFactory.getProfile(
+            pluginFilename, pluginPath, deploymentConfiguration, endpoints);
     profiles.add(pluginProfile);
     return profiles;
   }

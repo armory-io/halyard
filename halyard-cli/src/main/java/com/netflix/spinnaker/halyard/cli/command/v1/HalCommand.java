@@ -18,6 +18,7 @@ package com.netflix.spinnaker.halyard.cli.command.v1;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import com.netflix.spinnaker.halyard.cli.command.v1.plugins.PluginCommand;
 import com.netflix.spinnaker.halyard.cli.services.v1.Daemon;
 import java.util.Optional;
 import lombok.AccessLevel;
@@ -58,6 +59,7 @@ public class HalCommand extends NestableCommand {
     registerSubcommand(new TaskCommand());
     registerSubcommand(new VersionCommand());
     registerSubcommand(new SpinCommand());
+    registerSubcommand(new PluginCommand());
   }
 
   static String getVersion() {

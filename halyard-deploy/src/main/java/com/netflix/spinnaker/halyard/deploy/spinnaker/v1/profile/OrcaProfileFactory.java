@@ -18,7 +18,6 @@ package com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile;
 
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Features;
-import com.netflix.spinnaker.halyard.config.model.v1.node.Plugins;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Webhook;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.aws.AwsProvider;
@@ -91,21 +90,21 @@ public class OrcaProfileFactory extends SpringProfileFactory {
     Map<String, Object> fullyRenderedYaml = new LinkedHashMap<>();
     Map<String, Object> pluginMetadata = new LinkedHashMap<>();
 
-    for(Plugin plugin : plugins) {
-      if(!plugin.getEnabled()) {
+    for (Plugin plugin : plugins) {
+      if (!plugin.getEnabled()) {
         log.info("Plugin " + plugin.getName() + ", not enabled");
         continue;
       }
 
       String manifestLocation = plugin.getManifestLocation();
-      if(Objects.equals(manifestLocation, null)) {
+      if (Objects.equals(manifestLocation, null)) {
         log.info("Plugin " + plugin.getName() + ", has no manifest file");
         continue;
       }
 
       InputStream manifestContents;
       try {
-        if(manifestLocation.startsWith("http:") || manifestLocation.startsWith("https:")) {
+        if (manifestLocation.startsWith("http:") || manifestLocation.startsWith("https:")) {
           URL url = new URL(manifestLocation);
           manifestContents = url.openStream();
         } else {
@@ -115,7 +114,7 @@ public class OrcaProfileFactory extends SpringProfileFactory {
         Map<String, Object> manifest = yaml.load(manifestContents);
 
         pluginMetadata.put((String) manifest.get("name"), manifest.get("options"));
-        if(!Objects.equals(plugin.getOptions(), null)) {
+        if (!Objects.equals(plugin.getOptions(), null)) {
           pluginMetadata.put((String) manifest.get("name"), plugin.getOptions());
         }
       } catch (IOException e) {
