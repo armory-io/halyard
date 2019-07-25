@@ -543,6 +543,11 @@
  * [**hal deploy details**](#hal-deploy-details)
  * [**hal deploy diff**](#hal-deploy-diff)
  * [**hal deploy rollback**](#hal-deploy-rollback)
+ * [**hal plugins**](#hal-plugins)
+ * [**hal plugins add**](#hal-plugins-add)
+ * [**hal plugins delete**](#hal-plugins-delete)
+ * [**hal plugins edit**](#hal-plugins-edit)
+ * [**hal plugins list**](#hal-plugins-list)
  * [**hal shutdown**](#hal-shutdown)
  * [**hal spin**](#hal-spin)
  * [**hal spin install**](#hal-spin-install)
@@ -586,6 +591,7 @@ hal [parameters] [subcommands]
  * `backup`: Backup and restore (remote or local) copies of your halconfig and all required files.
  * `config`: Configure, validate, and view your halconfig.
  * `deploy`: Manage the deployment of Spinnaker. This includes where it's deployed, what the infrastructure footprint looks like, what the currently running deployment looks like, etc...
+ * `plugins`: Show Spinnaker's configured plugins.
  * `shutdown`: Shutdown the halyard daemon.
  * `spin`: Manage the lifecycle of spin CLI.
  * `task`: This set of commands exposes utilities of dealing with Halyard's task engine.
@@ -10459,6 +10465,91 @@ hal deploy rollback [parameters]
  * `--exclude-service-names`: (*Default*: `[]`) When supplied, do not install or update the specified Spinnaker services.
  * `--no-validate`: (*Default*: `false`) Skip validation.
  * `--service-names`: (*Default*: `[]`) When supplied, only install or update the specified Spinnaker services.
+
+
+---
+## hal plugins
+
+Show Spinnaker's configured plugins.
+
+#### Usage
+```
+hal plugins [parameters] [subcommands]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+#### Subcommands
+ * `add`: Add a plugin
+ * `delete`: Delete n plugin
+ * `edit`: Edit a plugin
+ * `list`: List all plugins
+
+---
+## hal plugins add
+
+Add a plugin
+
+#### Usage
+```
+hal plugins add PLUGIN [parameters]
+```
+
+#### Parameters
+`PLUGIN`: The name of the plugin to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--manifest-location`: (*Required*) The location of the plugin's manifest file.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal plugins delete
+
+Delete n plugin
+
+#### Usage
+```
+hal plugins delete PLUGIN [parameters]
+```
+
+#### Parameters
+`PLUGIN`: The name of the plugin to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal plugins edit
+
+Edit a plugin
+
+#### Usage
+```
+hal plugins edit PLUGIN [parameters]
+```
+
+#### Parameters
+`PLUGIN`: The name of the plugin to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--manifest-location`: The location of the plugin's manifest file.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal plugins list
+
+List all plugins
+
+#### Usage
+```
+hal plugins list [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
 
 
 ---
