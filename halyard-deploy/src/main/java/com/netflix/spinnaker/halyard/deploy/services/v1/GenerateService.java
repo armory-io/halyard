@@ -57,8 +57,6 @@ public class GenerateService {
 
   @Autowired protected ServiceProviderFactory serviceProviderFactory;
 
-  @Autowired protected String halconfigPath;
-
   @Autowired protected HalconfigDirectoryStructure halconfigDirectoryStructure;
 
   @Autowired protected List<SpinnakerService> spinnakerServices = new ArrayList<>();
@@ -99,7 +97,7 @@ public class GenerateService {
     DaemonTaskHandler.newStage("Generating all Spinnaker profile files and endpoints");
     log.info(
         "Generating config from \""
-            + halconfigPath
+            + halconfigDirectoryStructure.getHalconfigPath()
             + "\" with deploymentName \""
             + deploymentName
             + "\"");
