@@ -57,7 +57,7 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
         Map<String, Object> metadata = new LinkedHashMap<>();
 
         metadata.put("name", manifest.get("name"));
-        metadata.put("jars", p.getEnabled());
+        metadata.put("enabled", p.getEnabled());
         metadata.put("jars", manifest.get("jars"));
         pluginMetadata.add(metadata);
       } catch (IOException e) {
