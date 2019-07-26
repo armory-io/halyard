@@ -22,5 +22,4 @@ public class Plugins extends Node {
 
   private List<Plugin> plugin = new ArrayList<>();
   private boolean enabled;
-
 }

@@ -26,10 +26,9 @@ import com.netflix.spinnaker.halyard.models.v1.ValidationSettings;
 import com.netflix.spinnaker.halyard.util.v1.GenericDeleteRequest;
 import com.netflix.spinnaker.halyard.util.v1.GenericGetRequest;
 import com.netflix.spinnaker.halyard.util.v1.GenericUpdateRequest;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/v1/config/deployments/{deploymentName:.+}/plugins")
@@ -57,8 +56,7 @@ public class PluginsController {
       @ModelAttribute ValidationSettings validationSettings) {
     return GenericGetRequest.<Plugin>builder()
         .getter(() -> pluginService.getPlugin(deploymentName, pluginName))
-        .validator(
-            () -> pluginService.validatePlugin(deploymentName, pluginName))
+        .validator(() -> pluginService.validatePlugin(deploymentName, pluginName))
         .description("Get the " + pluginName + " plugin")
         .build()
         .execute(validationSettings);
@@ -73,8 +71,7 @@ public class PluginsController {
     return GenericUpdateRequest.<Plugin>builder(halconfigParser)
         .stagePath(halconfigDirectoryStructure.getStagingPath(deploymentName))
         .updater(t -> pluginService.setPlugin(deploymentName, pluginName, t))
-        .validator(
-            () -> pluginService.validatePlugin(deploymentName, pluginName))
+        .validator(() -> pluginService.validatePlugin(deploymentName, pluginName))
         .description("Edit the " + pluginName + " plugin")
         .build()
         .execute(validationSettings, plugin);
@@ -88,10 +85,7 @@ public class PluginsController {
     return GenericUpdateRequest.<Plugin>builder(halconfigParser)
         .stagePath(halconfigDirectoryStructure.getStagingPath(deploymentName))
         .updater(t -> pluginService.addPlugin(deploymentName, t))
-        .validator(
-            () ->
-                pluginService.validatePlugin(
-                    deploymentName, plugin.getName()))
+        .validator(() -> pluginService.validatePlugin(deploymentName, plugin.getName()))
         .description("Add the " + plugin.getName() + " plugin")
         .build()
         .execute(validationSettings, plugin);

@@ -37,16 +37,15 @@ public class EditPluginCommand extends AbstractHasPluginCommand {
       description = "The location of the plugin's manifest file.")
   private String manifestLocation;
 
-  @Parameter(
-    names = "--enabled",
-    description = "To enable or disable the plugin")
+  @Parameter(names = "--enabled", description = "To enable or disable the plugin")
   private Boolean enabled = false;
 
   @Override
   protected void executeThis() {
     String currentDeployment = getCurrentDeployment();
     String name = getPlugin();
-    Plugin plugin = new Plugin().setName(name).setManifestLocation(manifestLocation).setEnabled(enabled);
+    Plugin plugin =
+        new Plugin().setName(name).setManifestLocation(manifestLocation).setEnabled(enabled);
 
     new OperationHandler<Void>()
         .setFailureMesssage("Failed to edit plugin " + name + ".")

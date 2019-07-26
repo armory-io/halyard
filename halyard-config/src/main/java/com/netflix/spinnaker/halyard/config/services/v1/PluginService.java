@@ -18,18 +18,17 @@ package com.netflix.spinnaker.halyard.config.services.v1;
 
 import com.netflix.spinnaker.halyard.config.error.v1.ConfigNotFoundException;
 import com.netflix.spinnaker.halyard.config.error.v1.IllegalConfigException;
-import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
-import com.netflix.spinnaker.halyard.config.model.v1.node.Plugins;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.NodeFilter;
+import com.netflix.spinnaker.halyard.config.model.v1.node.Plugins;
+import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.config.problem.v1.ConfigProblemBuilder;
 import com.netflix.spinnaker.halyard.core.error.v1.HalException;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.core.problem.v1.ProblemSet;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -56,17 +55,14 @@ public class PluginService {
   }
 
   public Plugin getPlugin(String deploymentName, String pluginName) {
-    NodeFilter filter =
-        new NodeFilter().setDeployment(deploymentName).setPlugin(pluginName);
-    List<Plugin> matchingPlugins =
-        lookupService.getMatchingNodesOfType(filter, Plugin.class);
+    NodeFilter filter = new NodeFilter().setDeployment(deploymentName).setPlugin(pluginName);
+    List<Plugin> matchingPlugins = lookupService.getMatchingNodesOfType(filter, Plugin.class);
 
     switch (matchingPlugins.size()) {
       case 0:
         throw new ConfigNotFoundException(
             new ConfigProblemBuilder(
-                    Problem.Severity.FATAL,
-                    "No plugin with name \"" + pluginName + "\" was found")
+                    Problem.Severity.FATAL, "No plugin with name \"" + pluginName + "\" was found")
                 .setRemediation("Create a new plugin with name\"" + pluginName + "\"")
                 .build());
       case 1:
@@ -84,8 +80,7 @@ public class PluginService {
     }
   }
 
-  public void setPlugin(
-      String deploymentName, String pluginName, Plugin newPlugin) {
+  public void setPlugin(String deploymentName, String pluginName, Plugin newPlugin) {
     List<Plugin> plugins = getAllPlugins(deploymentName);
     for (int i = 0; i < plugins.size(); i++) {
       if (plugins.get(i).getNodeName().equals(pluginName)) {
@@ -95,21 +90,18 @@ public class PluginService {
     }
     throw new HalException(
         new ConfigProblemBuilder(
-                Problem.Severity.FATAL,
-                "Plugin \"" + pluginName + "\" wasn't found")
+                Problem.Severity.FATAL, "Plugin \"" + pluginName + "\" wasn't found")
             .build());
   }
 
   public void deletePlugin(String deploymentName, String pluginName) {
     List<Plugin> plugins = getAllPlugins(deploymentName);
-    boolean removed =
-        plugins.removeIf(plugin -> plugin.getName().equals(pluginName));
+    boolean removed = plugins.removeIf(plugin -> plugin.getName().equals(pluginName));
 
     if (!removed) {
       throw new HalException(
           new ConfigProblemBuilder(
-                  Problem.Severity.FATAL,
-                  "Plugin \"" + pluginName + "\" wasn't found")
+                  Problem.Severity.FATAL, "Plugin \"" + pluginName + "\" wasn't found")
               .build());
     }
   }
@@ -125,8 +117,7 @@ public class PluginService {
   }
 
   public ProblemSet validatePlugin(String deploymentName, String pluginName) {
-    NodeFilter filter =
-        new NodeFilter().setDeployment(deploymentName).setPlugin(pluginName);
+    NodeFilter filter = new NodeFilter().setDeployment(deploymentName).setPlugin(pluginName);
     return validateService.validateMatchingFilter(filter);
   }
 }
