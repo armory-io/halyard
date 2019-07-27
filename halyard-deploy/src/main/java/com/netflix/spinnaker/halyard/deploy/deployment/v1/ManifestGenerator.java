@@ -1,3 +1,20 @@
+/*
+ * Copyright 2019, Armory
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ */
 package com.netflix.spinnaker.halyard.deploy.deployment.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -5,10 +22,8 @@ import com.netflix.spinnaker.halyard.config.config.v1.HalconfigParser;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Halconfig;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.kubernetes.KubernetesAccount;
-import com.netflix.spinnaker.halyard.config.services.v1.DeploymentService;
 import com.netflix.spinnaker.halyard.config.services.v1.VersionsService;
 import com.netflix.spinnaker.halyard.core.registry.v1.BillOfMaterials;
-import com.netflix.spinnaker.halyard.deploy.config.v1.ConfigParser;
 import com.netflix.spinnaker.halyard.deploy.services.v1.GenerateService;
 import com.netflix.spinnaker.halyard.deploy.services.v1.RequestGenerateService;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.ServiceSettings;
@@ -17,14 +32,11 @@ import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.Sid
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.v2.KubectlServiceProvider;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.v2.KubernetesV2Service;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.yaml.snakeyaml.Yaml;
 
@@ -34,17 +46,7 @@ public class ManifestGenerator {
 
   @Autowired ServiceProviderFactory serviceProviderFactory;
 
-  @Autowired Yaml yaml;
-
   @Autowired ObjectMapper objectMapper;
-
-  RequestGenerateService generateService;
-
-  @Autowired DeploymentService deploymentService;
-
-  @Autowired List<SpinnakerService> spinnakerServices = new ArrayList<>();
-
-  @Autowired ConfigParser configParser;
 
   @Autowired HalconfigParser halconfigParser;
 
@@ -52,14 +54,13 @@ public class ManifestGenerator {
 
   @Autowired Yaml yamlParser;
 
+  @Autowired GenerateService generateService;
+
   public String generateManifestList(MultipartHttpServletRequest request) throws IOException {
+    RequestGenerateService fileRequestService = new RequestGenerateService();
     try {
-      log.info("Generating manifests from incoming request");
-      generateService =
-          new RequestGenerateService(
-              deploymentService, serviceProviderFactory, spinnakerServices, configParser);
-      log.info("Preparing Halyard configuration");
-      generateService.prepare(request);
+      log.info("Preparing Halyard configuration from incoming request");
+      fileRequestService.prepare(request);
 
       log.info("Parsing Halyard config");
       Halconfig halConfig = halconfigParser.getHalconfig();
@@ -81,31 +82,24 @@ public class ManifestGenerator {
           generateService.generateConfig("default", serviceTypes);
 
       log.info("Generating manifests for " + serviceTypes.size() + " services");
-      ManifestList manifestList =
+      Map<String, ManifestList> manifestListMap =
           buildManifestList(
               serviceProvider, deploymentDetails, resolvedConfiguration, serviceTypes);
 
-      log.info("Generated " + manifestList.getItems().size() + " manifests");
-      return manifestListAsString(manifestList);
+      log.info("Generated manifests for " + manifestListMap.size() + " services");
+      return manifestMapAsString(manifestListMap);
     } finally {
-      generateService.cleanup();
+      fileRequestService.cleanup();
     }
   }
 
-  protected ManifestList buildManifestList(
+  protected Map<String, ManifestList> buildManifestList(
       KubectlServiceProvider serviceProvider,
       AccountDeploymentDetails<KubernetesAccount> deploymentDetails,
       GenerateService.ResolvedConfiguration resolvedConfiguration,
       List<SpinnakerService.Type> serviceTypes) {
     List<KubernetesV2Service> services = serviceProvider.getServicesByPriority(serviceTypes);
-    ManifestList list = new ManifestList();
-    KubernetesManifestExecutor executor =
-        new KubernetesManifestExecutor() {
-          @Override
-          public void replace(String manifest) {
-            list.addManifest(manifest);
-          }
-        };
+    Map<String, ManifestList> manifestListMap = new HashMap<>();
 
     services.stream()
         .forEach(
@@ -128,37 +122,35 @@ public class ManifestGenerator {
                   && settings.getSkipLifeCycleManagement()) {
                 return;
               }
-
-              String namespaceDefinition = service.getNamespaceYaml(resolvedConfiguration);
-              list.addManifest(namespaceDefinition);
+              ManifestList list = new ManifestList();
+              KubernetesManifestExecutor executor =
+                  new KubernetesManifestExecutor() {
+                    @Override
+                    public void replace(String manifest) {
+                      list.getResourceManifests().add(manifest);
+                    }
+                  };
 
               String serviceDefinition = service.getServiceYaml(resolvedConfiguration);
-              list.addManifest(serviceDefinition);
+              list.setServiceManifest(serviceDefinition);
 
               String resourceDefinition =
                   service.getResourceYaml(executor, deploymentDetails, resolvedConfiguration);
-              list.addManifest(resourceDefinition);
+              list.setDeploymentManifest(resourceDefinition);
+              manifestListMap.put(service.getService().getCanonicalName(), list);
             });
 
-    return list;
+    return manifestListMap;
   }
 
-  protected String manifestListAsString(ManifestList manifestList) {
-    Map map = objectMapper.convertValue(manifestList, Map.class);
-    return yamlParser.dump(map);
-  }
+  protected String manifestMapAsString(Map<String, ManifestList> manifestListMap) {
+    Map<String, Object> map =
+        manifestListMap.entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getAsObject()));
 
-  protected DeploymentConfiguration parseDeploymentConfiguration(InputStream inputStream) {
-    return objectMapper.convertValue(yaml.load(inputStream), DeploymentConfiguration.class);
-  }
-
-  protected DeploymentConfiguration extractDeploymentConfiguration(
-      MultipartHttpServletRequest request) throws IOException {
-    List<MultipartFile> files = request.getFiles("config");
-    if (files.size() != 1) {
-      throw new IllegalArgumentException("Expected one file under config, found: " + files.size());
-    }
-    return parseDeploymentConfiguration(files.get(0).getInputStream());
+    Map<String, Object> gMap = new HashMap<>();
+    gMap.put("config", map);
+    return yamlParser.dump(gMap);
   }
 
   protected AccountDeploymentDetails<KubernetesAccount> getDeploymentDetails(

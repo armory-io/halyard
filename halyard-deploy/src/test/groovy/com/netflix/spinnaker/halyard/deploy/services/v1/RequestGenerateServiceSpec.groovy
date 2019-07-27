@@ -1,8 +1,5 @@
 package com.netflix.spinnaker.halyard.deploy.services.v1
 
-import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration
-import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentEnvironment
-import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.v1.ResourceBuilder
 import org.springframework.mock.web.MockMultipartFile
 import spock.lang.Specification
 

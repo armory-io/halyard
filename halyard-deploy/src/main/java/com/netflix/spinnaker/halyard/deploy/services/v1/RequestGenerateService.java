@@ -1,16 +1,27 @@
+/*
+ * Copyright 2019, Armory
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License")
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ *
+ */
 package com.netflix.spinnaker.halyard.deploy.services.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.Files;
 import com.netflix.spinnaker.halyard.config.config.v1.HalconfigDirectoryStructure;
-import com.netflix.spinnaker.halyard.config.config.v1.HalconfigParser;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Halconfig;
-import com.netflix.spinnaker.halyard.config.services.v1.DeploymentService;
-import com.netflix.spinnaker.halyard.deploy.config.v1.ConfigParser;
-import com.netflix.spinnaker.halyard.deploy.deployment.v1.ServiceProviderFactory;
-import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.SpinnakerService;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,32 +32,20 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.yaml.snakeyaml.Yaml;
 
-public class RequestGenerateService extends GenerateService {
-  private final static String CONFIG_KEY = "config";
-  @Getter File baseDirectory;
+public class RequestGenerateService {
+  private static final String CONFIG_KEY = "config";
+  protected @Getter File baseDirectory;
 
-
-  public RequestGenerateService(
-          DeploymentService deploymentService,
-          ServiceProviderFactory serviceProviderFactory,
-          List<SpinnakerService> spinnakerServices,
-          ConfigParser configParser) {
-    this.deploymentService = deploymentService;
-    this.configParser = configParser;
-    this.spinnakerServices = spinnakerServices;
-    this.serviceProviderFactory = serviceProviderFactory;
+  public RequestGenerateService() {
     this.baseDirectory = Files.createTempDir();
-    this.halconfigPath = baseDirectory.getAbsolutePath();
-    this.halconfigDirectoryStructure =
-        new HalconfigDirectoryStructure().setHalconfigDirectory(halconfigPath);
   }
 
   public void prepare(MultipartHttpServletRequest request) throws IOException {
-    HalconfigParser.setDirectoryOverride(baseDirectory);
+    HalconfigDirectoryStructure.setDirectoryOverride(baseDirectory.getAbsolutePath());
     // Get the config first
-    DeploymentConfiguration deploymentConfiguration = parseDeploymentConfiguration(request.getFile(CONFIG_KEY));
+    DeploymentConfiguration deploymentConfiguration =
+        parseDeploymentConfiguration(request.getFile(CONFIG_KEY));
     writeHalConfig(deploymentConfiguration);
-
 
     // Loop through all files
     request.getFileMap().entrySet().stream()
@@ -68,7 +67,7 @@ public class RequestGenerateService extends GenerateService {
   }
 
   public void cleanup() {
-    HalconfigParser.setDirectoryOverride(null);
+    HalconfigDirectoryStructure.setDirectoryOverride(null);
   }
 
   protected File getTargetFile(DeploymentConfiguration deploymentConfiguration, String paramKey) {
@@ -80,11 +79,12 @@ public class RequestGenerateService extends GenerateService {
     return new File(baseDirectory, deploymentConfiguration.getName() + File.separator + path);
   }
 
-
-  protected void writeHalConfig(DeploymentConfiguration deploymentConfiguration) throws IOException {
+  protected void writeHalConfig(DeploymentConfiguration deploymentConfiguration)
+      throws IOException {
     Yaml yaml = new Yaml();
     ObjectMapper objectMapper = new ObjectMapper();
     Halconfig config = new Halconfig();
+    config.getDeploymentConfigurations().clear();
     config.getDeploymentConfigurations().add(deploymentConfiguration);
     config.setCurrentDeployment(deploymentConfiguration.getName());
 
@@ -93,14 +93,16 @@ public class RequestGenerateService extends GenerateService {
     outputStream.write(yaml.dump(objectMapper.convertValue(config, Map.class)).getBytes());
   }
 
-  protected DeploymentConfiguration parseDeploymentConfiguration(MultipartFile deploymentConfigFile) throws IOException {
+  protected DeploymentConfiguration parseDeploymentConfiguration(MultipartFile deploymentConfigFile)
+      throws IOException {
     if (deploymentConfigFile == null) {
       throw new IllegalArgumentException("No deployment configuration file provided.");
     }
     Yaml yaml = new Yaml();
     ObjectMapper objectMapper = new ObjectMapper();
     Object obj = yaml.load(new ByteArrayInputStream(deploymentConfigFile.getBytes()));
-    DeploymentConfiguration deploymentConfiguration = objectMapper.convertValue(obj, DeploymentConfiguration.class);
+    DeploymentConfiguration deploymentConfiguration =
+        objectMapper.convertValue(obj, DeploymentConfiguration.class);
     if (deploymentConfiguration.getName() == null) {
       deploymentConfiguration.setName("default");
     }
