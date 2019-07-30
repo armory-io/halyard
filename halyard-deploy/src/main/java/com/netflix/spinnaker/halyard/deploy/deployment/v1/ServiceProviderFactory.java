@@ -63,6 +63,8 @@ public class ServiceProviderFactory {
         return localGitServiceProvider;
       case Distributed:
         return createDeployableServiceProvider(deploymentConfiguration);
+      case Operator:
+        return createOperatorServiceProvider(deploymentConfiguration);
       default:
         throw new IllegalArgumentException("Unrecognized deployment type " + type);
     }
@@ -103,5 +105,31 @@ public class ServiceProviderFactory {
         throw new IllegalArgumentException(
             "No Clustered Simple Deployment for " + providerType.getName());
     }
+  }
+
+  private SpinnakerServiceProvider createOperatorServiceProvider(
+          DeploymentConfiguration deploymentConfiguration) {
+    DeploymentEnvironment deploymentEnvironment =
+            deploymentConfiguration.getDeploymentEnvironment();
+
+    String accountName = deploymentEnvironment.getAccountName();
+
+    if (accountName == null || accountName.isEmpty()) {
+      Account account =
+              accountService.getAnyProviderAccount(deploymentConfiguration.getName(), accountName);
+      if (account != null) {
+        Provider.ProviderType providerType = ((Provider) account.getParent()).providerType();
+        if (providerType !=  Provider.ProviderType.KUBERNETES ||
+                account.getProviderVersion() != Provider.ProviderVersion.V2) {
+          throw new HalException(
+                  new ConfigProblemBuilder(
+                          Problem.Severity.FATAL,
+                          "Deployment account must be a Kubernetes v2 provider.")
+                          .build());
+
+        }
+      }
+    }
+    return kubectlServiceProvider;
   }
 }
