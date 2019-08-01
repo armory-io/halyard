@@ -31,6 +31,8 @@ import com.netflix.spinnaker.halyard.core.registry.v1.Versions;
 import com.netflix.spinnaker.halyard.core.tasks.v1.DaemonTask;
 import com.netflix.spinnaker.halyard.core.tasks.v1.DaemonTaskHandler;
 import com.netflix.spinnaker.halyard.deploy.deployment.v1.DeployOption;
+import com.netflix.spinnaker.halyard.deploy.deployment.v1.DeploymentCRDGenerator;
+import com.netflix.spinnaker.halyard.deploy.deployment.v1.DeploymentManifestGenerator;
 import com.netflix.spinnaker.halyard.deploy.deployment.v1.ManifestGenerator;
 import com.netflix.spinnaker.halyard.deploy.services.v1.DeployService;
 import com.netflix.spinnaker.halyard.deploy.services.v1.GenerateService;
@@ -64,6 +66,8 @@ public class DeploymentController extends DeploymentsGrpc.DeploymentsImplBase {
   private final HalconfigDirectoryStructure halconfigDirectoryStructure;
   private final HalconfigParser halconfigParser;
   private final ManifestGenerator manifestGenerator;
+  private final DeploymentManifestGenerator deploymentManifestGenerator;
+  private final DeploymentCRDGenerator deploymentCRDGenerator;
 
   @RequestMapping(value = "/{deploymentName:.+}", method = RequestMethod.GET)
   DaemonTask<Halconfig, DeploymentConfiguration> deploymentConfiguration(
@@ -358,5 +362,19 @@ public class DeploymentController extends DeploymentsGrpc.DeploymentsImplBase {
   @RequestMapping(value = "/manifests", method = RequestMethod.POST)
   String getCombinedDeploymentManifests(MultipartHttpServletRequest request) throws IOException {
     return manifestGenerator.generateManifestList(request);
+  }
+
+  @RequestMapping(value = "/{deploymentName:.+}/manifests/", method = RequestMethod.GET)
+  String generateManifests(
+      @PathVariable String deploymentName, @ModelAttribute ValidationSettings validationSettings) {
+    DeploymentConfiguration config = deploymentService.getDeploymentConfiguration(deploymentName);
+    return deploymentManifestGenerator.generateManifestList(config);
+  }
+
+  @RequestMapping(value = "/{deploymentName:.+}/deploy/manifests/", method = RequestMethod.GET)
+  String generateDeploymentManifests(
+      @PathVariable String deploymentName, @ModelAttribute ValidationSettings validationSettings) {
+    DeploymentConfiguration config = deploymentService.getDeploymentConfiguration(deploymentName);
+    return deploymentCRDGenerator.generateCR(config);
   }
 }

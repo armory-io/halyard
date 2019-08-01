@@ -47,10 +47,9 @@ public class DeploymentEnvironment extends Node {
         "Deploy Spinnaker locally (on the machine running the daemon) "
             + "using `git` to fetch all the service's code to be built & run."),
     BakeDebian(
-            "Deploy Spinnaker locally but only with the necessary config "
-                    + "to be baked into a VM image later."),
-    Operator(
-        "Deploy Spinnaker via a pre-installed Kubernetes operator.");
+        "Deploy Spinnaker locally but only with the necessary config "
+            + "to be baked into a VM image later."),
+    Operator("Deploy Spinnaker via a pre-installed Kubernetes operator.");
 
     @Getter final String description;
 
