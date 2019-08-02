@@ -17,7 +17,6 @@
 package com.netflix.spinnaker.halyard.cli.command.v1.plugins;
 
 import com.beust.jcommander.Parameters;
-import com.netflix.spinnaker.halyard.cli.command.v1.config.AbstractConfigCommand;
 import com.netflix.spinnaker.halyard.cli.services.v1.Daemon;
 import com.netflix.spinnaker.halyard.cli.services.v1.OperationHandler;
 import com.netflix.spinnaker.halyard.cli.ui.v1.AnsiUi;
@@ -27,7 +26,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 
 @Parameters(separators = "=")
-public class ListPluginsCommand extends AbstractConfigCommand {
+public class ListPluginsCommand extends AbstractPluginCommand {
   @Getter(AccessLevel.PUBLIC)
   private String commandName = "list";
 

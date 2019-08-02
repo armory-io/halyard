@@ -21,18 +21,13 @@ public class PluginEnableDisableCommandBuilder implements CommandBuilder {
   }
 
   @Parameters(separators = "=")
-  private static class PluginEnableDisableCommand extends NestableCommand {
+  private static class PluginEnableDisableCommand extends AbstractPluginCommand {
     private PluginEnableDisableCommand(boolean enable) {
       this.enable = enable;
     }
 
     @Getter(AccessLevel.PROTECTED)
     boolean enable;
-
-    @Parameter(
-        names = {"--no-validate"},
-        description = "Skip validation.")
-    public boolean noValidate = false;
 
     @Override
     public String getShortDescription() {
@@ -57,19 +52,6 @@ public class PluginEnableDisableCommandBuilder implements CommandBuilder {
           .setFailureMesssage("Failed to " + getCommandName() + " all plugins")
           .setOperation(Daemon.setPluginEnableDisable(currentDeployment, !noValidate, enable))
           .get();
-    }
-
-    protected String getCurrentDeployment() {
-      String deployment = GlobalConfigOptions.getGlobalConfigOptions().getDeployment();
-      if (StringUtils.isEmpty(deployment)) {
-        deployment =
-            new OperationHandler<String>()
-                .setFailureMesssage("Failed to get deployment name.")
-                .setOperation(Daemon.getCurrentDeployment())
-                .get();
-      }
-
-      return deployment;
     }
   }
 }

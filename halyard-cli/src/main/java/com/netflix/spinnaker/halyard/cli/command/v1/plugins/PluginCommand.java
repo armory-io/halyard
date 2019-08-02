@@ -17,12 +17,11 @@
 package com.netflix.spinnaker.halyard.cli.command.v1.plugins;
 
 import com.beust.jcommander.Parameters;
-import com.netflix.spinnaker.halyard.cli.command.v1.config.AbstractConfigCommand;
 import lombok.AccessLevel;
 import lombok.Getter;
 
 @Parameters(separators = "=")
-public class PluginCommand extends AbstractConfigCommand {
+public class PluginCommand extends AbstractPluginCommand {
   @Getter(AccessLevel.PUBLIC)
   private String commandName = "plugins";
 

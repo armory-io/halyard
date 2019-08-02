@@ -10536,6 +10536,7 @@ hal plugins disable [parameters]
 ```
 
 #### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
  * `--no-validate`: (*Default*: `false`) Skip validation.
 
 
@@ -10568,6 +10569,7 @@ hal plugins enable [parameters]
 ```
 
 #### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
  * `--no-validate`: (*Default*: `false`) Skip validation.
 
 
