@@ -111,6 +111,13 @@ public class PluginService {
     plugins.add(newPlugin);
   }
 
+  public void setPluginsEnabled(String deploymentName, boolean validate, boolean enable) {
+    DeploymentConfiguration deploymentConfiguration =
+              deploymentService.getDeploymentConfiguration(deploymentName);
+    Plugins plugins = deploymentConfiguration.getPlugins();
+    plugins.setEnabled(enable);
+  }
+
   public ProblemSet validateAllPlugins(String deploymentName) {
     NodeFilter filter = new NodeFilter().setDeployment(deploymentName).withAnyPlugin();
     return validateService.validateMatchingFilter(filter);

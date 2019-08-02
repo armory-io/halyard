@@ -23,6 +23,7 @@ import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.config.services.v1.PluginService;
 import com.netflix.spinnaker.halyard.core.tasks.v1.DaemonTask;
 import com.netflix.spinnaker.halyard.models.v1.ValidationSettings;
+import com.netflix.spinnaker.halyard.util.v1.GenericEnableDisableRequest;
 import com.netflix.spinnaker.halyard.util.v1.GenericDeleteRequest;
 import com.netflix.spinnaker.halyard.util.v1.GenericGetRequest;
 import com.netflix.spinnaker.halyard.util.v1.GenericUpdateRequest;
@@ -103,5 +104,18 @@ public class PluginsController {
         .description("Delete the " + pluginName + " plugin")
         .build()
         .execute(validationSettings);
+  }
+
+  @RequestMapping(value = "/enabled", method = RequestMethod.PUT)
+  DaemonTask<Halconfig, Void> setPluginsEnabled(
+      @PathVariable String deploymentName,
+      @ModelAttribute ValidationSettings validationSettings,
+      @RequestBody Boolean enabled) {
+    return GenericEnableDisableRequest.builder(halconfigParser)
+        .updater(t -> pluginService.setPluginsEnabled(deploymentName, false, enabled))
+        .validator(() -> pluginService.validateAllPlugins(deploymentName))
+        .description("Enable or disable plugins")
+        .build()
+        .execute(validationSettings, enabled);
   }
 }

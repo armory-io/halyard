@@ -546,7 +546,9 @@
  * [**hal plugins**](#hal-plugins)
  * [**hal plugins add**](#hal-plugins-add)
  * [**hal plugins delete**](#hal-plugins-delete)
+ * [**hal plugins disable**](#hal-plugins-disable)
  * [**hal plugins edit**](#hal-plugins-edit)
+ * [**hal plugins enable**](#hal-plugins-enable)
  * [**hal plugins list**](#hal-plugins-list)
  * [**hal shutdown**](#hal-shutdown)
  * [**hal spin**](#hal-spin)
@@ -10484,7 +10486,9 @@ hal plugins [parameters] [subcommands]
 #### Subcommands
  * `add`: Add a plugin
  * `delete`: Delete n plugin
+ * `disable`: Enable or disable all plugins
  * `edit`: Edit a plugin
+ * `enable`: Enable or disable all plugins
  * `list`: List all plugins
 
 ---
@@ -10522,6 +10526,20 @@ hal plugins delete PLUGIN [parameters]
 
 
 ---
+## hal plugins disable
+
+Enable or disable all plugins
+
+#### Usage
+```
+hal plugins disable [parameters]
+```
+
+#### Parameters
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
 ## hal plugins edit
 
 Edit a plugin
@@ -10536,6 +10554,20 @@ hal plugins edit PLUGIN [parameters]
  * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
  * `--enable`: To enable or disable the plugin
  * `--manifest-location`: The location of the plugin's manifest file.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal plugins enable
+
+Enable or disable all plugins
+
+#### Usage
+```
+hal plugins enable [parameters]
+```
+
+#### Parameters
  * `--no-validate`: (*Default*: `false`) Skip validation.
 
 
