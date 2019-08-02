@@ -28,26 +28,26 @@ import org.apache.commons.lang3.StringUtils;
 @Parameters(separators = "=")
 public abstract class AbstractPluginCommand extends NestableCommand {
   @Parameter(
-  names = {"--no-validate"},
-  description = "Skip validation.")
-    public boolean noValidate = false;
+      names = {"--no-validate"},
+      description = "Skip validation.")
+  public boolean noValidate = false;
 
   @Parameter(
-  names = {"--deployment"},
-  description =
-  "If supplied, use this Halyard deployment. This will _not_ create a new deployment.")
-    public void setDeployment(String deployment) {
-      GlobalConfigOptions.getGlobalConfigOptions().setDeployment(deployment);
-    }
+      names = {"--deployment"},
+      description =
+          "If supplied, use this Halyard deployment. This will _not_ create a new deployment.")
+  public void setDeployment(String deployment) {
+    GlobalConfigOptions.getGlobalConfigOptions().setDeployment(deployment);
+  }
 
   protected String getCurrentDeployment() {
     String deployment = GlobalConfigOptions.getGlobalConfigOptions().getDeployment();
     if (StringUtils.isEmpty(deployment)) {
       deployment =
-        new OperationHandler<String>()
-        .setFailureMesssage("Failed to get deployment name.")
-        .setOperation(Daemon.getCurrentDeployment())
-        .get();
+          new OperationHandler<String>()
+              .setFailureMesssage("Failed to get deployment name.")
+              .setOperation(Daemon.getCurrentDeployment())
+              .get();
     }
 
     return deployment;
