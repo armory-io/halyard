@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Google, Inc.
+ * Copyright 2019 Armory, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -63,7 +63,7 @@ public class PluginService {
         throw new ConfigNotFoundException(
             new ConfigProblemBuilder(
                     Problem.Severity.FATAL, "No plugin with name \"" + pluginName + "\" was found")
-                .setRemediation("Create a new plugin with name\"" + pluginName + "\"")
+                .setRemediation("Create a new plugin with name \"" + pluginName + "\"")
                 .build());
       case 1:
         return matchingPlugins.get(0);

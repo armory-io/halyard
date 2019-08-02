@@ -19,6 +19,9 @@ package com.netflix.spinnaker.halyard.cli.command.v1.plugins;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.netflix.spinnaker.halyard.cli.command.v1.config.AbstractConfigCommand;
+import com.netflix.spinnaker.halyard.cli.services.v1.Daemon;
+import com.netflix.spinnaker.halyard.cli.services.v1.OperationHandler;
+import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,16 +36,15 @@ public abstract class AbstractHasPluginCommand extends AbstractConfigCommand {
     return "plugin";
   }
 
-  public String getPlugin(String defaultName) {
-    try {
-      return getPlugin();
-    } catch (IllegalArgumentException e) {
-      return defaultName;
-    }
+  public Plugin getPlugin() {
+    return new OperationHandler<Plugin>()
+            .setFailureMesssage("Failed to get plugin")
+            .setOperation(Daemon.getPlugin(getCurrentDeployment(), plugins.get(0), false))
+            .get();
   }
 
-  public String getPlugin() {
-    switch (plugins.size()) {
+  public String getPluginName() {
+    switch(plugins.size()) {
       case 0:
         throw new IllegalArgumentException("No plugin supplied");
       case 1:

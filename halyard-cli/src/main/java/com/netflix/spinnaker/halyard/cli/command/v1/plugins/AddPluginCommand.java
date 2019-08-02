@@ -39,14 +39,16 @@ public class AddPluginCommand extends AbstractHasPluginCommand {
   private String manifestLocation;
 
   @Parameter(names = "--enable", description = "To enable or disable the plugin")
-  private Boolean enable = false;
+  private String enable;
 
   @Override
   protected void executeThis() {
     String currentDeployment = getCurrentDeployment();
-    String name = getPlugin();
-    Plugin plugin =
-        new Plugin().setName(name).setManifestLocation(manifestLocation).setEnabled(enable);
+    String name = getPluginName();
+    Plugin plugin = new Plugin()
+      .setName(name)
+      .setEnabled(isSet(enable) ? Boolean.parseBoolean(enable) : false)
+      .setManifestLocation(manifestLocation);
 
     new OperationHandler<Void>()
         .setFailureMesssage("Failed to add plugin: " + name + ".")

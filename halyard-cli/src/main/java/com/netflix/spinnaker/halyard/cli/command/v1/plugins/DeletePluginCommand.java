@@ -19,6 +19,7 @@ package com.netflix.spinnaker.halyard.cli.command.v1.plugins;
 import com.beust.jcommander.Parameters;
 import com.netflix.spinnaker.halyard.cli.services.v1.Daemon;
 import com.netflix.spinnaker.halyard.cli.services.v1.OperationHandler;
+import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -33,7 +34,8 @@ public class DeletePluginCommand extends AbstractHasPluginCommand {
   @Override
   protected void executeThis() {
     String currentDeployment = getCurrentDeployment();
-    String name = getPlugin();
+    Plugin plugin = getPlugin();
+    String name = plugin.getName();
 
     new OperationHandler<Void>()
         .setFailureMesssage("Failed to delete plugin " + name + ".")
