@@ -46,7 +46,8 @@ public class EditPluginCommand extends AbstractHasPluginCommand {
     Plugin plugin = getPlugin();
 
     plugin.setEnabled(isSet(enable) ? Boolean.parseBoolean(enable) : plugin.getEnabled());
-    plugin.setManifestLocation(isSet(manifestLocation) ? manifestLocation : plugin.getManifestLocation());
+    plugin.setManifestLocation(
+        isSet(manifestLocation) ? manifestLocation : plugin.getManifestLocation());
 
     new OperationHandler<Void>()
         .setFailureMesssage("Failed to edit plugin " + plugin.getName() + ".")

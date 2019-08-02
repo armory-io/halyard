@@ -38,13 +38,13 @@ public abstract class AbstractHasPluginCommand extends AbstractConfigCommand {
 
   public Plugin getPlugin() {
     return new OperationHandler<Plugin>()
-            .setFailureMesssage("Failed to get plugin")
-            .setOperation(Daemon.getPlugin(getCurrentDeployment(), plugins.get(0), false))
-            .get();
+        .setFailureMesssage("Failed to get plugin")
+        .setOperation(Daemon.getPlugin(getCurrentDeployment(), plugins.get(0), false))
+        .get();
   }
 
   public String getPluginName() {
-    switch(plugins.size()) {
+    switch (plugins.size()) {
       case 0:
         throw new IllegalArgumentException("No plugin supplied");
       case 1:

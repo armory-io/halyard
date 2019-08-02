@@ -1355,8 +1355,7 @@ public class Daemon {
   public static Supplier<Void> setPluginEnableDisable(
       String deploymentName, boolean validate, boolean enable) {
     return () -> {
-      ResponseUnwrapper.get(
-          getService().setPluginsEnabled(deploymentName, validate, enable));
+      ResponseUnwrapper.get(getService().setPluginsEnabled(deploymentName, validate, enable));
       return null;
     };
   }

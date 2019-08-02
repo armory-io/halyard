@@ -45,10 +45,11 @@ public class AddPluginCommand extends AbstractHasPluginCommand {
   protected void executeThis() {
     String currentDeployment = getCurrentDeployment();
     String name = getPluginName();
-    Plugin plugin = new Plugin()
-      .setName(name)
-      .setEnabled(isSet(enable) ? Boolean.parseBoolean(enable) : false)
-      .setManifestLocation(manifestLocation);
+    Plugin plugin =
+        new Plugin()
+            .setName(name)
+            .setEnabled(isSet(enable) ? Boolean.parseBoolean(enable) : false)
+            .setManifestLocation(manifestLocation);
 
     new OperationHandler<Void>()
         .setFailureMesssage("Failed to add plugin: " + name + ".")

@@ -909,8 +909,7 @@ public interface DaemonService {
       @Query("validate") boolean validate,
       @Body Plugin plugin);
 
-  @PUT(
-      "/v1/config/deployments/{deploymentName}/plugins/enabled/")
+  @PUT("/v1/config/deployments/{deploymentName}/plugins/enabled/")
   DaemonTask<Halconfig, Void> setPluginsEnabled(
       @Path("deploymentName") String deploymentName,
       @Query("validate") boolean validate,

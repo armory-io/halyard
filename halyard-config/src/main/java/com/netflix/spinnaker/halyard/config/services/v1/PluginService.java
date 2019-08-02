@@ -113,7 +113,7 @@ public class PluginService {
 
   public void setPluginsEnabled(String deploymentName, boolean validate, boolean enable) {
     DeploymentConfiguration deploymentConfiguration =
-              deploymentService.getDeploymentConfiguration(deploymentName);
+        deploymentService.getDeploymentConfiguration(deploymentName);
     Plugins plugins = deploymentConfiguration.getPlugins();
     plugins.setEnabled(enable);
   }
