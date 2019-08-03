@@ -17,11 +17,10 @@
 package com.netflix.spinnaker.halyard.cli.command.v1.plugins;
 
 import com.beust.jcommander.Parameters;
+import com.netflix.spinnaker.halyard.cli.command.v1.AbstractEnableDisableCommand;
 import com.netflix.spinnaker.halyard.cli.command.v1.CommandBuilder;
 import com.netflix.spinnaker.halyard.cli.command.v1.NestableCommand;
-import com.netflix.spinnaker.halyard.cli.command.v1.AbstractEnableDisableCommand;
 import com.netflix.spinnaker.halyard.cli.services.v1.Daemon;
-import com.netflix.spinnaker.halyard.cli.services.v1.OperationHandler;
 import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.Getter;
