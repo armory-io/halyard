@@ -18,6 +18,7 @@ package com.netflix.spinnaker.halyard.cli.command.v1.plugins;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import com.netflix.spinnaker.halyard.cli.command.v1.config.AbstractConfigCommand;
 import com.netflix.spinnaker.halyard.cli.services.v1.Daemon;
 import com.netflix.spinnaker.halyard.cli.services.v1.OperationHandler;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
@@ -26,7 +27,7 @@ import java.util.List;
 
 /** An abstract definition for commands that accept plugins as a main parameter */
 @Parameters(separators = "=")
-public abstract class AbstractHasPluginCommand extends AbstractPluginCommand {
+public abstract class AbstractHasPluginCommand extends AbstractConfigCommand {
   @Parameter(description = "The name of the plugin to operate on.", arity = 1)
   List<String> plugins = new ArrayList<>();
 

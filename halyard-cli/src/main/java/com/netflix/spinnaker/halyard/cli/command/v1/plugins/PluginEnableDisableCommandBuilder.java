@@ -19,8 +19,10 @@ package com.netflix.spinnaker.halyard.cli.command.v1.plugins;
 import com.beust.jcommander.Parameters;
 import com.netflix.spinnaker.halyard.cli.command.v1.CommandBuilder;
 import com.netflix.spinnaker.halyard.cli.command.v1.NestableCommand;
+import com.netflix.spinnaker.halyard.cli.command.v1.AbstractEnableDisableCommand;
 import com.netflix.spinnaker.halyard.cli.services.v1.Daemon;
 import com.netflix.spinnaker.halyard.cli.services.v1.OperationHandler;
+import java.util.function.Supplier;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,7 +36,12 @@ public class PluginEnableDisableCommandBuilder implements CommandBuilder {
   }
 
   @Parameters(separators = "=")
-  private static class PluginEnableDisableCommand extends AbstractPluginCommand {
+  private static class PluginEnableDisableCommand extends AbstractEnableDisableCommand {
+    @Override
+    public String getTargetName() {
+      return "Plugins";
+    }
+
     private PluginEnableDisableCommand(boolean enable) {
       this.enable = enable;
     }
@@ -48,23 +55,10 @@ public class PluginEnableDisableCommandBuilder implements CommandBuilder {
     }
 
     @Override
-    public String getCommandName() {
-      return isEnable() ? "enable" : "disable";
-    }
-
-    private String indicativePastPerfectAction() {
-      return isEnable() ? "enabled" : "disabled";
-    }
-
-    @Override
-    protected void executeThis() {
+    protected Supplier<Void> getOperationSupplier() {
       String currentDeployment = getCurrentDeployment();
       boolean enable = isEnable();
-      new OperationHandler<Void>()
-          .setSuccessMessage("Successfully " + indicativePastPerfectAction() + " all plugins")
-          .setFailureMesssage("Failed to " + getCommandName() + " all plugins")
-          .setOperation(Daemon.setPluginEnableDisable(currentDeployment, !noValidate, enable))
-          .get();
+      return Daemon.setPluginEnableDisable(currentDeployment, !noValidate, enable);
     }
   }
 }
