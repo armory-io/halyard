@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package com.netflix.spinnaker.halyard.cli.command.v1.plugins;
+package com.netflix.spinnaker.halyard.cli.command.v1;
 
 import com.beust.jcommander.Parameters;
 import com.netflix.spinnaker.halyard.cli.command.v1.config.AbstractConfigCommand;
+import com.netflix.spinnaker.halyard.cli.command.v1.plugins.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 
