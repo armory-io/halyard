@@ -24,6 +24,10 @@ import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import lombok.AccessLevel;
 import lombok.Getter;
 
+import java.util.HashMap;
+import java.util.Map;
+import com.beust.jcommander.DynamicParameter;
+
 @Parameters(separators = "=")
 public class AddPluginCommand extends AbstractHasPluginCommand {
   @Getter(AccessLevel.PUBLIC)
@@ -41,6 +45,11 @@ public class AddPluginCommand extends AbstractHasPluginCommand {
   @Parameter(names = "--enable", description = "To enable or disable the plugin")
   private String enable;
 
+  @DynamicParameter(
+      names = "-O",
+      description = "Options for plugin. Must be key=value. Strings only!")
+  private HashMap<String, Object> options = new HashMap<>();
+
   @Override
   protected void executeThis() {
     String currentDeployment = getCurrentDeployment();
@@ -48,6 +57,7 @@ public class AddPluginCommand extends AbstractHasPluginCommand {
     Plugin plugin =
         new Plugin()
             .setName(name)
+            .setOptions(options)
             .setEnabled(isSet(enable) ? Boolean.parseBoolean(enable) : false)
             .setManifestLocation(manifestLocation);
 
