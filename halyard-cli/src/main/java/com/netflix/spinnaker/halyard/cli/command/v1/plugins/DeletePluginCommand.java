@@ -29,7 +29,7 @@ public class DeletePluginCommand extends AbstractHasPluginCommand {
   private String commandName = "delete";
 
   @Getter(AccessLevel.PUBLIC)
-  private String shortDescription = "Delete n plugin";
+  private String shortDescription = "Delete a plugin";
 
   @Override
   protected void executeThis() {
