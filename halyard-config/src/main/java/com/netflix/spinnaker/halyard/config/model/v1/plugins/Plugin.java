@@ -83,10 +83,6 @@ public class Plugin extends Node {
     }
 
     String[] keys = key.split("\\.", 2);
-    if (keys.length != 2) {
-      throw new IllegalArgumentException("Invalid yaml: " + key);
-    }
-
     opts.put(keys[0], parseOptions(keys[1], value));
     return opts;
   }

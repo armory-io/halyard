@@ -39,8 +39,8 @@ public class EditPluginCommand extends AbstractHasPluginCommand {
       description = "The location of the plugin's manifest file.")
   private String manifestLocation;
 
-  @Parameter(names = "--enable", description = "To enable or disable the plugin")
-  private String enable;
+  @Parameter(names = "--enabled", description = "To enable or disable the plugin.")
+  private String enabled;
 
   @DynamicParameter(
       names = "-O",
@@ -52,7 +52,7 @@ public class EditPluginCommand extends AbstractHasPluginCommand {
     String currentDeployment = getCurrentDeployment();
     Plugin plugin = getPlugin();
 
-    plugin.setEnabled(isSet(enable) ? Boolean.parseBoolean(enable) : plugin.getEnabled());
+    plugin.setEnabled(isSet(enabled) ? Boolean.parseBoolean(enabled) : plugin.getEnabled());
     plugin.setManifestLocation(
         isSet(manifestLocation) ? manifestLocation : plugin.getManifestLocation());
     HashMap<String, Object> parsedOptions = plugin.generateOptions(options);

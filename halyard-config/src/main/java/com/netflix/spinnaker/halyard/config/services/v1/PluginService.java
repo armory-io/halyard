@@ -107,7 +107,16 @@ public class PluginService {
   }
 
   public void addPlugin(String deploymentName, Plugin newPlugin) {
+    String newPluginName = newPlugin.getName();
     List<Plugin> plugins = getAllPlugins(deploymentName);
+    for (Plugin plugin : plugins) {
+      if (plugin.getName().equals(newPluginName)) {
+        throw new HalException(
+            new ConfigProblemBuilder(
+                    Problem.Severity.FATAL, "Plugin \"" + newPluginName + "\" already exists")
+                .build());
+      }
+    }
     plugins.add(newPlugin);
   }
 
