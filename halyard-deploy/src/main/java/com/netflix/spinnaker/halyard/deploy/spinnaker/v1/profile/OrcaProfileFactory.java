@@ -113,10 +113,7 @@ public class OrcaProfileFactory extends SpringProfileFactory {
 
         Map<String, Object> manifest = yaml.load(manifestContents);
         String pluginName = (String) manifest.get("name");
-
-        HashMap<String, Object> userOpts = plugin.getOptions();
-        HashMap<String, Object> options = (HashMap<String, Object>) manifest.get("options");
-        pluginMetadata.put(pluginName, plugin.merge(options, userOpts));
+        pluginMetadata.put(pluginName, manifest.get("options"));
       } catch (IOException e) {
         log.error("Cannot get plugin manifest file from: " + manifestLocation);
         log.error(e.getMessage());

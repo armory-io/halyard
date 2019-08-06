@@ -43,9 +43,6 @@ public class AddPluginCommand extends AbstractHasPluginCommand {
   @Parameter(names = "--enable", description = "To enable or disable the plugin.")
   private String enable;
 
-  @DynamicParameter(names = "-O", description = "Set custom options, must be key=value format.")
-  private HashMap<String, Object> options = new HashMap<>();
-
   @Override
   protected void executeThis() {
     String currentDeployment = getCurrentDeployment();
@@ -55,7 +52,6 @@ public class AddPluginCommand extends AbstractHasPluginCommand {
             .setName(name)
             .setEnabled(isSet(enable) ? Boolean.parseBoolean(enable) : false)
             .setManifestLocation(manifestLocation);
-    plugin.setOptions(options);
 
     new OperationHandler<Void>()
         .setFailureMesssage("Failed to add plugin: " + name + ".")
