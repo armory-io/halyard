@@ -17,13 +17,8 @@
 package com.netflix.spinnaker.halyard.config.model.v1.plugins;
 
 import com.netflix.spinnaker.halyard.config.model.v1.node.Node;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Setter;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
