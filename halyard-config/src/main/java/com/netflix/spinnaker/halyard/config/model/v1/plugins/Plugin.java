@@ -36,8 +36,7 @@ public class Plugin extends Node {
 
   public void setOptions(HashMap<String, Object> options) {
     for (Map.Entry<String, Object> entry : options.entrySet()) {
-      String key = entry.getKey();
-      this.options.putAll(parseOptions(key, entry.getValue()));
+      this.options.putAll(parseOptions(entry.getKey(), entry.getValue()));
     }
   }
 
@@ -48,16 +47,12 @@ public class Plugin extends Node {
 
   private HashMap<String, Object> parseOptions(String key, Object value) {
     HashMap<String, Object> opts = new HashMap<>();
-    if (!key.contains("\\.")) {
+    if (!key.contains(".")) {
       opts.put(key, value);
       return opts;
     }
 
     String[] keys = key.split("\\.", 2);
-    if (keys.length != 2) {
-      throw new IllegalArgumentException("Invalid yaml: " + key);
-    }
-
     opts.put(keys[0], parseOptions(keys[1], value));
     return opts;
   }

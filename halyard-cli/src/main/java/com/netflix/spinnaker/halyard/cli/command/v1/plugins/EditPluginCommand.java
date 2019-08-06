@@ -39,23 +39,26 @@ public class EditPluginCommand extends AbstractHasPluginCommand {
       description = "The location of the plugin's manifest file.")
   private String manifestLocation;
 
-  @Parameter(names = "--enable", description = "To enable or disable the plugin")
-  private String enable;
+  @Parameter(names = "--enabled", description = "To enable or disable the plugin.")
+  private String enabled;
 
-  @DynamicParameter(
-      names = "-O",
-      description = "Options for plugin. Must be key=value. Strings only!")
-  private HashMap<String, Object> options;
+  @DynamicParameter(names = "-O", description = "Set custom options, must be key=value format.")
+  private HashMap<String, Object> options = new HashMap<>();
 
   @Override
   protected void executeThis() {
     String currentDeployment = getCurrentDeployment();
     Plugin plugin = getPlugin();
 
-    plugin.setEnabled(isSet(enable) ? Boolean.parseBoolean(enable) : plugin.getEnabled());
+    plugin.setEnabled(isSet(enabled) ? Boolean.parseBoolean(enabled) : plugin.getEnabled());
     plugin.setManifestLocation(
         isSet(manifestLocation) ? manifestLocation : plugin.getManifestLocation());
-    plugin.setOptions(isSet(options) ? options : plugin.getOptions());
+    System.out.println("current options: " + plugin.getOptions());
+    System.out.println("received options: " + options);
+    HashMap<String, Object> finalOptions = new HashMap<>();
+    if (isSet(options)) {
+      plugin.setOptions(options);
+    }
 
     new OperationHandler<Void>()
         .setFailureMesssage("Failed to edit plugin " + plugin.getName() + ".")
