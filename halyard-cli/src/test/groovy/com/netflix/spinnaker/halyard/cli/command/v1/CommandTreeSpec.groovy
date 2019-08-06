@@ -41,7 +41,7 @@ import com.netflix.spinnaker.halyard.cli.command.v1.plugins.AddPluginCommand
 import com.netflix.spinnaker.halyard.cli.command.v1.plugins.DeletePluginCommand
 import com.netflix.spinnaker.halyard.cli.command.v1.plugins.EditPluginCommand
 import com.netflix.spinnaker.halyard.cli.command.v1.plugins.ListPluginsCommand
-import com.netflix.spinnaker.halyard.cli.command.v1.plugins.PluginCommand
+import com.netflix.spinnaker.halyard.cli.command.v1.PluginCommand
 import spock.lang.Specification
 import spock.lang.Unroll
 
