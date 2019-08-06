@@ -20,14 +20,21 @@ package com.netflix.spinnaker.halyard.deploy.deployment.v1;
 import com.netflix.spinnaker.halyard.config.config.v1.HalconfigDirectoryStructure;
 import com.netflix.spinnaker.halyard.config.config.v1.StrictObjectMapper;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
+import com.netflix.spinnaker.halyard.core.error.v1.HalException;
+import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.Profile;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.SpinnakerService;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.v2.KubectlServiceProvider;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -45,14 +52,14 @@ public class DeploymentCRDGenerator {
 
   @Autowired HalconfigDirectoryStructure halconfigDirectoryStructure;
 
-  public String generateCR(DeploymentConfiguration deploymentConfiguration) {
+  public String generateCR(
+      DeploymentConfiguration deploymentConfiguration, String storeType, String storeName) {
     log.info("Parsing Halyard config");
     KubectlServiceProvider serviceProvider =
         (KubectlServiceProvider) serviceProviderFactory.create(deploymentConfiguration);
 
     log.info("Resolving configuration");
     CRConfig crConfig = new CRConfig();
-    crConfig.setConfig(deploymentConfiguration);
 
     // Runtime settings are needed when generating profiles and we generate profile to gather
     SpinnakerRuntimeSettings runtimeSettings =
@@ -76,7 +83,7 @@ public class DeploymentCRDGenerator {
                     userProfileNames,
                     crConfig));
     log.info("Generating CR config map");
-    return getConfigMap(crConfig);
+    return getConfigMap(crConfig, deploymentConfiguration, storeType, storeName);
   }
 
   protected void getServiceSettingsFiles(
@@ -117,8 +124,12 @@ public class DeploymentCRDGenerator {
     getServiceSettingsFiles(deploymentConfiguration, service, crConfig);
   }
 
-  protected String getConfigMap(CRConfig crConfigMap) {
-    return yamlParser.dump(crConfigMap.toConfigMap(objectMapper, yamlParser));
+  protected String getConfigMap(
+      CRConfig crConfigMap,
+      DeploymentConfiguration deploymentConfiguration,
+      String storeType,
+      String storeName) {
+    return yamlParser.dump(getCRStore(crConfigMap, deploymentConfiguration, storeName));
   }
 
   private static List<String> aggregateProfilesInPath(
@@ -146,5 +157,47 @@ public class DeploymentCRDGenerator {
               a.addAll(b);
               return a;
             });
+  }
+
+  public Map<String, Object> getCRStore(
+      CRConfig crConfig, DeploymentConfiguration deploymentConfiguration, String storeName) {
+    Map<String, Object> map = new HashMap<>();
+    Map<String, Object> data = new HashMap<>();
+    Map<String, Object> metadata = new HashMap<>();
+    map.put("apiVersion", "v1");
+    map.put("kind", "ConfigMap");
+    map.put("metadata", metadata);
+    map.put("data", data);
+
+    metadata.put("name", storeName);
+    data.put(
+        "config", yamlParser.dump(objectMapper.convertValue(deploymentConfiguration, Map.class)));
+    data.put(
+        "service-settings",
+        yamlParser.dump(
+            crConfig.getServiceSettings().entrySet().stream()
+                .collect(
+                    Collectors.toMap(
+                        e -> e.getKey(), e -> getServiceSettingObject(e.getValue())))));
+    crConfig.getProfileFiles().stream()
+        .forEach(f -> data.put("profiles__" + f.getName(), readContent(f)));
+    return map;
+  }
+
+  protected String readContent(File file) {
+    try {
+      return new String(Files.readAllBytes(Paths.get(file.toURI())));
+    } catch (IOException e) {
+      throw new HalException(Problem.Severity.ERROR, "Unable to read file " + file.getName(), e);
+    }
+  }
+
+  protected Object getServiceSettingObject(File file) {
+    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+      return yamlParser.load(reader);
+    } catch (IOException e) {
+      throw new HalException(
+          Problem.Severity.ERROR, "Unable to read service settings " + file.getName(), e);
+    }
   }
 }

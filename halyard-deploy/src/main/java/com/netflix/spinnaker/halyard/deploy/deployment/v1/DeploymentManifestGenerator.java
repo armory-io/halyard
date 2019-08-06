@@ -17,8 +17,6 @@
  */
 package com.netflix.spinnaker.halyard.deploy.deployment.v1;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netflix.spinnaker.halyard.config.config.v1.HalconfigParser;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.kubernetes.KubernetesAccount;
 import com.netflix.spinnaker.halyard.config.services.v1.VersionsService;
@@ -43,10 +41,6 @@ import org.yaml.snakeyaml.Yaml;
 public class DeploymentManifestGenerator {
 
   @Autowired ServiceProviderFactory serviceProviderFactory;
-
-  @Autowired ObjectMapper objectMapper;
-
-  @Autowired HalconfigParser halconfigParser;
 
   @Autowired VersionsService versionsService;
 

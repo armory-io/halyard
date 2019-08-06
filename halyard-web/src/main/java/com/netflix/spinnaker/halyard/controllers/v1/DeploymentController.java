@@ -371,10 +371,14 @@ public class DeploymentController extends DeploymentsGrpc.DeploymentsImplBase {
     return deploymentManifestGenerator.generateManifestList(config);
   }
 
-  @RequestMapping(value = "/{deploymentName:.+}/deploy/manifests/", method = RequestMethod.GET)
+  @RequestMapping(
+      value = "/{deploymentName:.+}/deploy/manifests/{storeName}",
+      method = RequestMethod.GET)
   String generateDeploymentManifests(
-      @PathVariable String deploymentName, @ModelAttribute ValidationSettings validationSettings) {
+      @PathVariable String deploymentName,
+      @PathVariable String storeName,
+      @RequestParam(value = "type", required = false) String storeType) {
     DeploymentConfiguration config = deploymentService.getDeploymentConfiguration(deploymentName);
-    return deploymentCRDGenerator.generateCR(config);
+    return deploymentCRDGenerator.generateCR(config, storeType, storeName);
   }
 }
