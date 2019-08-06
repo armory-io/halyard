@@ -19,10 +19,10 @@ package com.netflix.spinnaker.halyard.config.model.v1.plugins;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Node;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.Data;
-import lombok.Setter;
 import lombok.AccessLevel;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Setter;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -30,10 +30,12 @@ public class Plugin extends Node {
   public String name;
   public Boolean enabled;
   public String manifestLocation;
-  @Setter(AccessLevel.NONE) public HashMap<String, Object> options = new HashMap<>();
+
+  @Setter(AccessLevel.NONE)
+  public HashMap<String, Object> options = new HashMap<>();
 
   public void setOptions(HashMap<String, Object> options) {
-    for (Map.Entry<String,Object> entry : options.entrySet()) {
+    for (Map.Entry<String, Object> entry : options.entrySet()) {
       String key = entry.getKey();
       this.options.putAll(parseOptions(key, entry.getValue()));
     }
@@ -44,15 +46,15 @@ public class Plugin extends Node {
     return name;
   }
 
-  private HashMap<String,Object> parseOptions(String key, Object value) {
+  private HashMap<String, Object> parseOptions(String key, Object value) {
     HashMap<String, Object> opts = new HashMap<>();
-    if(!key.contains("\\.")) {
+    if (!key.contains("\\.")) {
       opts.put(key, value);
       return opts;
     }
 
     String[] keys = key.split("\\.", 2);
-    if(keys.length != 2) {
+    if (keys.length != 2) {
       throw new IllegalArgumentException("Invalid yaml: " + key);
     }
 
