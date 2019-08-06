@@ -40,8 +40,8 @@ public class AddPluginCommand extends AbstractHasPluginCommand {
       required = true)
   private String manifestLocation;
 
-  @Parameter(names = "--enabled", description = "To enable or disable the plugin.")
-  private String enabled;
+  @Parameter(names = "--enable", description = "To enable or disable the plugin.")
+  private String enable;
 
   @DynamicParameter(names = "-O", description = "Set custom options, must be key=value format.")
   private HashMap<String, Object> options = new HashMap<>();
@@ -53,7 +53,7 @@ public class AddPluginCommand extends AbstractHasPluginCommand {
     Plugin plugin =
         new Plugin()
             .setName(name)
-            .setEnabled(isSet(enabled) ? Boolean.parseBoolean(enabled) : false)
+            .setEnabled(isSet(enable) ? Boolean.parseBoolean(enable) : false)
             .setManifestLocation(manifestLocation);
     plugin.setOptions(options);
 
