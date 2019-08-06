@@ -22,10 +22,7 @@ import com.google.common.io.Files;
 import com.netflix.spinnaker.halyard.config.config.v1.HalconfigDirectoryStructure;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Halconfig;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,7 +31,10 @@ import org.yaml.snakeyaml.Yaml;
 
 public class RequestGenerateService {
   private static final String CONFIG_KEY = "config";
+  private static final String SERVICE_SETTINGS_KEY = "serviceSettings";
   protected @Getter File baseDirectory;
+  private Yaml yaml = new Yaml();
+  private ObjectMapper objectMapper = new ObjectMapper();
 
   public RequestGenerateService() {
     this.baseDirectory = Files.createTempDir();
@@ -45,7 +45,10 @@ public class RequestGenerateService {
     // Get the config first
     DeploymentConfiguration deploymentConfiguration =
         parseDeploymentConfiguration(request.getFile(CONFIG_KEY));
+    // Write the main config
     writeHalConfig(deploymentConfiguration);
+    // Write service settings
+    writeServiceSettings(deploymentConfiguration, request);
 
     // Loop through all files
     request.getFileMap().entrySet().stream()
@@ -81,8 +84,6 @@ public class RequestGenerateService {
 
   protected void writeHalConfig(DeploymentConfiguration deploymentConfiguration)
       throws IOException {
-    Yaml yaml = new Yaml();
-    ObjectMapper objectMapper = new ObjectMapper();
     Halconfig config = new Halconfig();
     config.getDeploymentConfigurations().clear();
     config.getDeploymentConfigurations().add(deploymentConfiguration);
@@ -93,13 +94,41 @@ public class RequestGenerateService {
     outputStream.write(yaml.dump(objectMapper.convertValue(config, Map.class)).getBytes());
   }
 
+  protected void writeServiceSettings(
+      DeploymentConfiguration deploymentConfiguration, MultipartHttpServletRequest request)
+      throws IOException {
+    MultipartFile file = request.getFile(SERVICE_SETTINGS_KEY);
+    if (file != null && file.getSize() > 0) {
+      // Read YAML and redispatch by service name (key), without checking service names
+      Object obj = yaml.load(new ByteArrayInputStream(file.getBytes()));
+      Map<String, Object> map = objectMapper.convertValue(obj, Map.class);
+      map.entrySet().stream()
+          .forEach(
+              e -> {
+                String filename =
+                    new StringBuilder(deploymentConfiguration.getName())
+                        .append(File.separator)
+                        .append("service-settings")
+                        .append(File.separator)
+                        .append(e.getKey())
+                        .append(".yml")
+                        .toString();
+                File targetFile = new File(baseDirectory, filename);
+                targetFile.getParentFile().mkdirs();
+                try (BufferedWriter writer = new BufferedWriter(new FileWriter(targetFile))) {
+                  writer.write(yaml.dump(e.getValue()));
+                } catch (IOException ex) {
+                  throw new RuntimeException(ex);
+                }
+              });
+    }
+  }
+
   protected DeploymentConfiguration parseDeploymentConfiguration(MultipartFile deploymentConfigFile)
       throws IOException {
     if (deploymentConfigFile == null) {
       throw new IllegalArgumentException("No deployment configuration file provided.");
     }
-    Yaml yaml = new Yaml();
-    ObjectMapper objectMapper = new ObjectMapper();
     Object obj = yaml.load(new ByteArrayInputStream(deploymentConfigFile.getBytes()));
     DeploymentConfiguration deploymentConfiguration =
         objectMapper.convertValue(obj, DeploymentConfiguration.class);
