@@ -116,7 +116,7 @@ public class OrcaProfileFactory extends SpringProfileFactory {
 
         HashMap<String, Object> userOpts = plugin.getOptions();
         HashMap<String, Object> options = (HashMap<String, Object>) manifest.get("options");
-        pluginMetadata.put(pluginName, deepMerge(options, userOpts));
+        pluginMetadata.put(pluginName, plugin.merge(options, userOpts));
       } catch (IOException e) {
         log.error("Cannot get plugin manifest file from: " + manifestLocation);
         log.error(e.getMessage());
@@ -127,27 +127,6 @@ public class OrcaProfileFactory extends SpringProfileFactory {
 
     profile.appendContents(
         yamlToString(deploymentConfiguration.getName(), profile, fullyRenderedYaml));
-  }
-
-  private Map deepMerge(Map original, Map newMap) {
-    for (Object key : newMap.keySet()) {
-      if (newMap.get(key) instanceof Map && original.get(key) instanceof Map) {
-        Map originalChild = (Map) original.get(key);
-        Map newChild = (Map) newMap.get(key);
-        original.put(key, deepMerge(originalChild, newChild));
-      } else if (newMap.get(key) instanceof List && original.get(key) instanceof List) {
-        List originalChild = (List) original.get(key);
-        List newChild = (List) newMap.get(key);
-        for (Object each : newChild) {
-          if (!originalChild.contains(each)) {
-            originalChild.add(each);
-          }
-        }
-      } else {
-        original.put(key, newMap.get(key));
-      }
-    }
-    return original;
   }
 
   @Data
