@@ -16,11 +16,13 @@
 
 package com.netflix.spinnaker.halyard.cli.command.v1.plugins;
 
+import com.beust.jcommander.DynamicParameter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.netflix.spinnaker.halyard.cli.services.v1.Daemon;
 import com.netflix.spinnaker.halyard.cli.services.v1.OperationHandler;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
+import java.util.HashMap;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -40,6 +42,11 @@ public class EditPluginCommand extends AbstractHasPluginCommand {
   @Parameter(names = "--enable", description = "To enable or disable the plugin")
   private String enable;
 
+  @DynamicParameter(
+      names = "-O",
+      description = "Options for plugin. Must be key=value. Strings only!")
+  private HashMap<String, Object> options;
+
   @Override
   protected void executeThis() {
     String currentDeployment = getCurrentDeployment();
@@ -48,6 +55,7 @@ public class EditPluginCommand extends AbstractHasPluginCommand {
     plugin.setEnabled(isSet(enable) ? Boolean.parseBoolean(enable) : plugin.getEnabled());
     plugin.setManifestLocation(
         isSet(manifestLocation) ? manifestLocation : plugin.getManifestLocation());
+    plugin.setOptions(isSet(options) ? options : plugin.getOptions());
 
     new OperationHandler<Void>()
         .setFailureMesssage("Failed to edit plugin " + plugin.getName() + ".")

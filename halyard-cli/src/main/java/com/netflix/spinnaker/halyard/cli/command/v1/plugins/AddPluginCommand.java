@@ -55,9 +55,9 @@ public class AddPluginCommand extends AbstractHasPluginCommand {
     Plugin plugin =
         new Plugin()
             .setName(name)
-            .setOptions(options)
             .setEnabled(isSet(enable) ? Boolean.parseBoolean(enable) : false)
             .setManifestLocation(manifestLocation);
+    plugin.setOptions(options);
 
     new OperationHandler<Void>()
         .setFailureMesssage("Failed to add plugin: " + name + ".")
