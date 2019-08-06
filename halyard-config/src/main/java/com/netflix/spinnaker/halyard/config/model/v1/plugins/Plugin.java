@@ -18,8 +18,8 @@ package com.netflix.spinnaker.halyard.config.model.v1.plugins;
 
 import com.netflix.spinnaker.halyard.config.model.v1.node.Node;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -72,7 +72,7 @@ public class Plugin extends Node {
         original.put(key, newMap.get(key));
       }
     }
-    return (HashMap<String, Object>)original;
+    return (HashMap<String, Object>) original;
   }
 
   private HashMap<String, Object> parseOptions(String key, Object value) {
