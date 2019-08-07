@@ -10485,7 +10485,7 @@ hal plugins [parameters] [subcommands]
 
 #### Subcommands
  * `add`: Add a plugin
- * `delete`: Delete n plugin
+ * `delete`: Delete a plugin
  * `disable`: Enable or disable all plugins
  * `edit`: Edit a plugin
  * `enable`: Enable or disable all plugins
@@ -10512,7 +10512,7 @@ hal plugins add PLUGIN [parameters]
 ---
 ## hal plugins delete
 
-Delete n plugin
+Delete a plugin
 
 #### Usage
 ```
