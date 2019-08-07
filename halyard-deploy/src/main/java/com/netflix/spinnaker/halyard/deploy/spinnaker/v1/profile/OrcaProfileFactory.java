@@ -22,6 +22,9 @@ import com.netflix.spinnaker.halyard.config.model.v1.node.Webhook;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Manifest;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.aws.AwsProvider;
+import com.netflix.spinnaker.halyard.core.error.v1.HalException;
+import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
+import com.netflix.spinnaker.halyard.core.problem.v1.ProblemBuilder;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.integrations.IntegrationsConfigWrapper;
@@ -96,39 +99,51 @@ public class OrcaProfileFactory extends SpringProfileFactory {
     Map<String, Object> pluginMetadata = new LinkedHashMap<>();
 
     for (Plugin plugin : plugins) {
-      if (!plugin.getEnabled()) {
-        log.info("Plugin " + plugin.getName() + ", not enabled");
-        continue;
-      }
-
-      String manifestLocation = plugin.getManifestLocation();
-      if (Objects.equals(manifestLocation, null)) {
-        log.info("Plugin " + plugin.getName() + ", has no manifest file");
-        continue;
-      }
-
-      InputStream manifestContents;
-      try {
-        if (manifestLocation.startsWith("http:") || manifestLocation.startsWith("https:")) {
-          URL url = new URL(manifestLocation);
-          manifestContents = url.openStream();
-        } else {
-          manifestContents = new FileInputStream(manifestLocation);
-        }
-
-        Manifest manifest = yaml.load(manifestContents);
-        String pluginName = (String) manifest.getName();
-        pluginMetadata.put(pluginName, manifest.getOptions());
-      } catch (IOException e) {
-        log.error("Cannot get plugin manifest file from: " + manifestLocation);
-        log.error(e.getMessage());
-      }
+      loadPluginInfo(plugin, yaml, pluginMetadata);
     }
 
     fullyRenderedYaml.put("plugins", pluginMetadata);
 
     profile.appendContents(
         yamlToString(deploymentConfiguration.getName(), profile, fullyRenderedYaml));
+  }
+
+  private void loadPluginInfo(Plugin plugin, Yaml yaml, Map<String, Object> pluginMetadata) {
+    if (!plugin.getEnabled()) {
+      log.info("Plugin " + plugin.getName() + ", not enabled");
+      return;
+    }
+
+    String manifestLocation = plugin.getManifestLocation();
+    if (Objects.equals(manifestLocation, null)) {
+      log.info("Plugin " + plugin.getName() + ", has no manifest file");
+      return;
+    }
+
+    InputStream manifestContents = getManifest(manifestLocation);
+    Manifest manifest = yaml.load(manifestContents);
+    String pluginName = manifest.getName();
+    pluginMetadata.put(pluginName, manifest.getOptions());
+  }
+
+  private InputStream getManifest(String manifestLocation) {
+    try {
+      if (manifestLocation.startsWith("http:") || manifestLocation.startsWith("https:")) {
+        URL url = new URL(manifestLocation);
+        return url.openStream();
+      } else {
+        return new FileInputStream(manifestLocation);
+      }
+    } catch (IOException e) {
+      throw new HalException(
+          new ProblemBuilder(
+                  Problem.Severity.FATAL,
+                  "Cannot get plugin manifest file from: "
+                      + manifestLocation
+                      + ": "
+                      + e.getMessage())
+              .build());
+    }
   }
 
   @Data
