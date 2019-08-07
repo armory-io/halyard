@@ -16,8 +16,15 @@
 
 package com.netflix.spinnaker.halyard.config.model.v1.plugins;
 
+import com.netflix.spinnaker.halyard.config.problem.v1.ConfigProblemBuilder;
+import com.netflix.spinnaker.halyard.core.error.v1.HalException;
+import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import lombok.Data;
 
 @Data
@@ -26,4 +33,24 @@ public class Manifest {
   public String manifestVersion;
   public List<String> jars;
   public HashMap<String, Object> options;
+
+  static final String regex = "^[a-zA-Z0-9]+\\/[\\w-]+$";
+  static final Pattern pattern = Pattern.compile(regex);
+
+  public void validate() throws HalException {
+
+    if (Stream.of(name, manifestVersion, jars).anyMatch(Objects::isNull)) {
+      throw new HalException(
+          new ConfigProblemBuilder(
+                  Problem.Severity.FATAL, "Invalid plugin manifest, contains null values")
+              .build());
+    }
+
+    Matcher matcher = pattern.matcher(name);
+
+    if (!matcher.find()) {
+      throw new HalException(
+          new ConfigProblemBuilder(Problem.Severity.FATAL, "Invalid plugin name: " + name).build());
+    }
+  }
 }
