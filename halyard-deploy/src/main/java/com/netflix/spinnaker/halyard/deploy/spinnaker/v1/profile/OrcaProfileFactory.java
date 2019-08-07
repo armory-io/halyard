@@ -27,7 +27,6 @@ import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSetting
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.integrations.IntegrationsConfigWrapper;
 import java.io.*;
 import java.net.URL;
-import java.util.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -92,7 +91,7 @@ public class OrcaProfileFactory extends SpringProfileFactory {
     representer.getPropertyUtils().setSkipMissingProperties(true);
     Yaml yaml = new Yaml(new Constructor(Manifest.class), representer);
 
-    final List<Plugin> plugins = deploymentConfiguration.getPlugins().getPlugin();
+    final List<Plugin> plugins = deploymentConfiguration.getPlugins().getPlugins();
     Map<String, Object> fullyRenderedYaml = new LinkedHashMap<>();
     Map<String, Object> pluginMetadata = new LinkedHashMap<>();
 

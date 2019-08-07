@@ -51,7 +51,7 @@ public class PluginService {
   }
 
   public List<Plugin> getAllPlugins(String deploymentName) {
-    return getPlugins(deploymentName).getPlugin();
+    return getPlugins(deploymentName).getPlugins();
   }
 
   public Plugin getPlugin(String deploymentName, String pluginName) {

@@ -46,7 +46,7 @@ deploymentConfigurations:
   version: 1
   providers: null
   plugins:
-    plugin:
+    plugins:
     - name: test-plugin
       manifestLocation: /home/user/test-plugin.yaml
 """
@@ -86,7 +86,7 @@ deploymentConfigurations:
   version: 1
   providers: null
   plugins:
-    plugin: []
+    plugins: []
 """
     def pluginService = makePluginService(config)
 
@@ -142,7 +142,7 @@ deploymentConfigurations:
   version: 1
   providers: null
   plugins:
-    plugin:
+    plugins:
     - name: test-plugin
       manifestLocation: /home/user/test-plugin.yaml
     - name: test-plugin-2

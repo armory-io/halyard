@@ -35,9 +35,9 @@ public class Plugins extends Node {
   @Override
   public NodeIterator getChildren() {
     return NodeIteratorFactory.makeListIterator(
-        plugin.stream().map(a -> (Node) a).collect(Collectors.toList()));
+        plugins.stream().map(a -> (Node) a).collect(Collectors.toList()));
   }
 
-  private List<Plugin> plugin = new ArrayList<>();
+  private List<Plugin> plugins = new ArrayList<>();
   private boolean enabled;
 }

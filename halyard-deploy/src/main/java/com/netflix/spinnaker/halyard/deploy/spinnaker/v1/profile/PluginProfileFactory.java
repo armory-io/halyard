@@ -22,14 +22,11 @@ import com.netflix.spinnaker.halyard.config.model.v1.plugins.Manifest;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
@@ -53,7 +50,7 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
     Map<String, List<Map<String, Object>>> fullyRenderedYaml = new HashMap<>();
     List<Map<String, Object>> pluginMetadata = new ArrayList<>();
 
-    final List<Plugin> plugin = plugins.getPlugin();
+    final List<Plugin> plugin = plugins.getPlugins();
     for (Plugin p : plugin) {
       if (!p.getEnabled()) {
         log.info("Plugin " + p.getName() + ", not enabled");
