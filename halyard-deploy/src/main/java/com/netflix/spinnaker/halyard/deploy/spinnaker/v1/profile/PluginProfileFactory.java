@@ -22,10 +22,8 @@ import com.netflix.spinnaker.halyard.config.model.v1.plugins.Manifest;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
-import java.io.FileInputStream;
-import java.io.IOException;
+import com.netflix.spinnaker.halyard.deploy.util.v1.PluginUtils;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -50,46 +48,37 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
     Map<String, List<Map<String, Object>>> fullyRenderedYaml = new HashMap<>();
     List<Map<String, Object>> pluginMetadata = new ArrayList<>();
 
-    final List<Plugin> plugin = plugins.getPlugins();
-    for (Plugin p : plugin) {
-      if (!p.getEnabled()) {
-        log.info("Plugin " + p.getName() + ", not enabled");
-        continue;
-      }
-
-      String manifestLocation = p.getManifestLocation();
-      if (Objects.equals(manifestLocation, null)) {
-        log.info("Plugin " + p.getName() + ", has no manifest file");
-        continue;
-      }
-
-      InputStream manifestContents;
-      try {
-        if (manifestLocation.startsWith("http:") || manifestLocation.startsWith("https:")) {
-          URL url = new URL(manifestLocation);
-          manifestContents = url.openStream();
-        } else {
-          manifestContents = new FileInputStream(manifestLocation);
-        }
-
-        Manifest manifest = yaml.load(manifestContents);
-        Map<String, Object> metadata = new LinkedHashMap<>();
-
-        metadata.put("enabled", p.getEnabled());
-        metadata.put("name", manifest.getName());
-        metadata.put("jars", manifest.getJars());
-        metadata.put("manifestVersion", manifest.getManifestVersion());
-        pluginMetadata.add(metadata);
-      } catch (IOException e) {
-        log.error("Cannot get plugin manifest file from: " + manifestLocation);
-        log.error(e.getMessage());
-      }
+    for (Plugin plugin : plugins.getPlugins()) {
+      loadPluginInfo(plugin, yaml, pluginMetadata);
     }
 
     fullyRenderedYaml.put("plugins", pluginMetadata);
 
     profile.appendContents(
         yamlToString(deploymentConfiguration.getName(), profile, fullyRenderedYaml));
+  }
+
+  private void loadPluginInfo(Plugin plugin, Yaml yaml, List<Map<String, Object>> pluginMetadata) {
+    if (!plugin.getEnabled()) {
+      log.info("Plugin " + plugin.getName() + ", not enabled");
+      return;
+    }
+
+    String manifestLocation = plugin.getManifestLocation();
+    if (Objects.equals(manifestLocation, null)) {
+      log.info("Plugin " + plugin.getName() + ", has no manifest file");
+      return;
+    }
+
+    InputStream manifestContents = PluginUtils.getManifest(manifestLocation);
+    Manifest manifest = yaml.load(manifestContents);
+    Map<String, Object> metadata = new LinkedHashMap<>();
+
+    metadata.put("enabled", plugin.getEnabled());
+    metadata.put("name", manifest.getName());
+    metadata.put("jars", manifest.getJars());
+    metadata.put("manifestVersion", manifest.getManifestVersion());
+    pluginMetadata.add(metadata);
   }
 
   @Override

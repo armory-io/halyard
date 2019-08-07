@@ -22,14 +22,11 @@ import com.netflix.spinnaker.halyard.config.model.v1.node.Webhook;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Manifest;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.aws.AwsProvider;
-import com.netflix.spinnaker.halyard.core.error.v1.HalException;
-import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
-import com.netflix.spinnaker.halyard.core.problem.v1.ProblemBuilder;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.integrations.IntegrationsConfigWrapper;
+import com.netflix.spinnaker.halyard.deploy.util.v1.PluginUtils;
 import java.io.*;
-import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,30 +117,10 @@ public class OrcaProfileFactory extends SpringProfileFactory {
       return;
     }
 
-    InputStream manifestContents = getManifest(manifestLocation);
+    InputStream manifestContents = PluginUtils.getManifest(manifestLocation);
     Manifest manifest = yaml.load(manifestContents);
     String pluginName = manifest.getName();
     pluginMetadata.put(pluginName, manifest.getOptions());
-  }
-
-  private InputStream getManifest(String manifestLocation) {
-    try {
-      if (manifestLocation.startsWith("http:") || manifestLocation.startsWith("https:")) {
-        URL url = new URL(manifestLocation);
-        return url.openStream();
-      } else {
-        return new FileInputStream(manifestLocation);
-      }
-    } catch (IOException e) {
-      throw new HalException(
-          new ProblemBuilder(
-                  Problem.Severity.FATAL,
-                  "Cannot get plugin manifest file from: "
-                      + manifestLocation
-                      + ": "
-                      + e.getMessage())
-              .build());
-    }
   }
 
   @Data
