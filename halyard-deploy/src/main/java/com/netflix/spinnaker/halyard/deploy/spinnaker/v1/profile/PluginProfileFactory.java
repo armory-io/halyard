@@ -75,9 +75,10 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
         Manifest manifest = yaml.load(manifestContents);
         Map<String, Object> metadata = new LinkedHashMap<>();
 
-        metadata.put("name", manifest.getName());
         metadata.put("enabled", p.getEnabled());
+        metadata.put("name", manifest.getName());
         metadata.put("jars", manifest.getJars());
+        metadata.put("manifestVersion", manifest.getManifestVersion());
         pluginMetadata.add(metadata);
       } catch (IOException e) {
         log.error("Cannot get plugin manifest file from: " + manifestLocation);

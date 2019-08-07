@@ -23,6 +23,7 @@ import lombok.Data;
 @Data
 public class Manifest {
   public String name;
-  public HashMap<String, Object> options;
+  public String manifestVersion;
   public List<String> jars;
+  public HashMap<String, Object> options;
 }
