@@ -37,9 +37,9 @@ class ManifestSpec extends Specification {
 
         where:
         name      | manifestVersion | jars                 | options
-        "foo"     | "1.0.0"         | Arrays.asList("jar") | null
+        "foo"     | "plugins/v1"    | Arrays.asList("jar") | null
         "foo/bar" | null            | Arrays.asList("jar") | null
-        "foo/bar" | "1.0.0"         | null                 | null
+        "foo/bar" | "plugins/v1"    | null                 | null
     }
 
     void "plugin manifests pass validation"() {
@@ -48,7 +48,7 @@ class ManifestSpec extends Specification {
 
         when:
         manifest.setJars(Arrays.asList("one", "two"))
-        manifest.setManifestVersion("1.0.0")
+        manifest.setManifestVersion("plugins/v1")
         manifest.setName("foo/bar")
         manifest.validate()
 
