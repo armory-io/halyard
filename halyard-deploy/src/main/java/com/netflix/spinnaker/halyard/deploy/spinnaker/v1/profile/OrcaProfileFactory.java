@@ -19,6 +19,7 @@ package com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Features;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Webhook;
+import com.netflix.spinnaker.halyard.config.model.v1.plugins.Manifest;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.aws.AwsProvider;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
@@ -36,6 +37,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.representer.Representer;
 
 @Slf4j
 @Component
@@ -85,7 +88,10 @@ public class OrcaProfileFactory extends SpringProfileFactory {
     profile.appendContents("pipelineTemplate.enabled: " + pipelineTemplates);
 
     // Loading Plugin Information
-    Yaml yaml = new Yaml();
+    Representer representer = new Representer();
+    representer.getPropertyUtils().setSkipMissingProperties(true);
+    Yaml yaml = new Yaml(new Constructor(Manifest.class), representer);
+
     final List<Plugin> plugins = deploymentConfiguration.getPlugins().getPlugin();
     Map<String, Object> fullyRenderedYaml = new LinkedHashMap<>();
     Map<String, Object> pluginMetadata = new LinkedHashMap<>();
@@ -111,9 +117,9 @@ public class OrcaProfileFactory extends SpringProfileFactory {
           manifestContents = new FileInputStream(manifestLocation);
         }
 
-        Map<String, Object> manifest = yaml.load(manifestContents);
-        String pluginName = (String) manifest.get("name");
-        pluginMetadata.put(pluginName, manifest.get("options"));
+        Manifest manifest = yaml.load(manifestContents);
+        String pluginName = (String) manifest.getName();
+        pluginMetadata.put(pluginName, manifest.getOptions());
       } catch (IOException e) {
         log.error("Cannot get plugin manifest file from: " + manifestLocation);
         log.error(e.getMessage());

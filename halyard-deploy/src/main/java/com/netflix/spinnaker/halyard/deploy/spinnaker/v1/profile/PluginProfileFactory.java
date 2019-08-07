@@ -18,6 +18,7 @@ package com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile;
 
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Plugins;
+import com.netflix.spinnaker.halyard.config.model.v1.plugins.Manifest;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
@@ -32,6 +33,8 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.representer.Representer;
 
 @Slf4j
 @Component
@@ -43,7 +46,10 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
       SpinnakerRuntimeSettings endpoints) {
     Plugins plugins = deploymentConfiguration.getPlugins();
 
-    Yaml yaml = new Yaml();
+    Representer representer = new Representer();
+    representer.getPropertyUtils().setSkipMissingProperties(true);
+    Yaml yaml = new Yaml(new Constructor(Manifest.class), representer);
+
     Map<String, List<Map<String, Object>>> fullyRenderedYaml = new HashMap<>();
     List<Map<String, Object>> pluginMetadata = new ArrayList<>();
 
@@ -69,12 +75,12 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
           manifestContents = new FileInputStream(manifestLocation);
         }
 
-        Map<String, Object> manifest = yaml.load(manifestContents);
+        Manifest manifest = yaml.load(manifestContents);
         Map<String, Object> metadata = new LinkedHashMap<>();
 
-        metadata.put("name", manifest.get("name"));
+        metadata.put("name", manifest.getName());
         metadata.put("enabled", p.getEnabled());
-        metadata.put("jars", manifest.get("jars"));
+        metadata.put("jars", manifest.getJars());
         pluginMetadata.add(metadata);
       } catch (IOException e) {
         log.error("Cannot get plugin manifest file from: " + manifestLocation);
