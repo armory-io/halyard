@@ -38,8 +38,8 @@ public class AddPluginCommand extends AbstractHasPluginCommand {
       required = true)
   private String manifestLocation;
 
-  @Parameter(names = "--enable", description = "To enable or disable the plugin.")
-  private String enable;
+  @Parameter(names = "--enabled", description = "To enable or disable the plugin.")
+  private String enabled;
 
   @Override
   protected void executeThis() {
@@ -48,7 +48,7 @@ public class AddPluginCommand extends AbstractHasPluginCommand {
     Plugin plugin =
         new Plugin()
             .setName(name)
-            .setEnabled(isSet(enable) ? Boolean.parseBoolean(enable) : false)
+            .setEnabled(isSet(enabled) ? Boolean.parseBoolean(enabled) : false)
             .setManifestLocation(manifestLocation);
 
     new OperationHandler<Void>()
