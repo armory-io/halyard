@@ -72,6 +72,7 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
 
     InputStream manifestContents = PluginUtils.getManifest(manifestLocation);
     Manifest manifest = yaml.load(manifestContents);
+    manifest.validate();
     Map<String, Object> metadata = new LinkedHashMap<>();
 
     metadata.put("enabled", plugin.getEnabled());

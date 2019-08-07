@@ -26,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import lombok.Data;
+import lombok.Getter;
 
 @Data
 public class Manifest {
@@ -51,6 +52,26 @@ public class Manifest {
     if (!matcher.find()) {
       throw new HalException(
           new ConfigProblemBuilder(Problem.Severity.FATAL, "Invalid plugin name: " + name).build());
+    }
+
+    if (manifestVersion != ManifestVersion.V1.getName()) {
+      throw new HalException(
+          new ConfigProblemBuilder(Problem.Severity.FATAL, "Invalid manifest version for plugin: " + name).build());
+    }
+  }
+
+  public enum ManifestVersion {
+    V1("plugins/v1");
+
+    @Getter String name;
+
+    @Override
+    public String toString() {
+      return this.name;
+    }
+
+    ManifestVersion(String name) {
+      this.name = name;
     }
   }
 }

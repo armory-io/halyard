@@ -119,6 +119,7 @@ public class OrcaProfileFactory extends SpringProfileFactory {
 
     InputStream manifestContents = PluginUtils.getManifest(manifestLocation);
     Manifest manifest = yaml.load(manifestContents);
+    manifest.validate();
     String pluginName = manifest.getName();
     pluginMetadata.put(pluginName, manifest.getOptions());
   }
