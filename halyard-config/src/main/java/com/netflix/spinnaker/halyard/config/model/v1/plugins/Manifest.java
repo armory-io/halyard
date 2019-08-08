@@ -54,7 +54,7 @@ public class Manifest {
           new ConfigProblemBuilder(Problem.Severity.FATAL, "Invalid plugin name: " + name).build());
     }
 
-    if (manifestVersion != ManifestVersion.V1.getName()) {
+    if (!manifestVersion.equals(ManifestVersion.V1.getName())) {
       throw new HalException(
           new ConfigProblemBuilder(
                   Problem.Severity.FATAL, "Invalid manifest version for plugin: " + name)
