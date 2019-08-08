@@ -17,6 +17,7 @@
 package com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile;
 
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
+import com.netflix.spinnaker.halyard.config.model.v1.node.Plugins;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Manifest;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
@@ -34,15 +35,15 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
       Profile profile,
       DeploymentConfiguration deploymentConfiguration,
       SpinnakerRuntimeSettings endpoints) {
-    final List<Plugin> plugins = deploymentConfiguration.getPlugins().getPlugins();
+    final Plugins plugins = deploymentConfiguration.getPlugins();
 
     Map<String, List<Map<String, Object>>> fullyRenderedYaml = new HashMap<>();
 
     List<Map<String, Object>> pluginMetadata =
-        plugins.stream()
+        plugins.getPlugins().stream()
             .filter(p -> p.getEnabled())
             .filter(p -> !p.getManifestLocation().isEmpty())
-            .map(p -> composeMetadata(p, p.getManifest()))
+            .map(p -> composeMetadata(p, p.generateManifest()))
             .collect(Collectors.toList());
 
     fullyRenderedYaml.put("plugins", pluginMetadata);

@@ -86,8 +86,8 @@ public class OrcaProfileFactory extends SpringProfileFactory {
         plugins.stream()
             .filter(p -> p.getEnabled())
             .filter(p -> !p.getManifestLocation().isEmpty())
-            .collect(
-                Collectors.toConcurrentMap(p -> p.getName(), p -> p.getManifest().getOptions()));
+            .map(p -> p.generateManifest())
+            .collect(Collectors.toConcurrentMap(m -> m.getName(), m -> m.getOptions()));
 
     fullyRenderedYaml.put("plugins", pluginMetadata);
 

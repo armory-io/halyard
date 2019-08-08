@@ -42,7 +42,7 @@ public class Plugin extends Node {
     return name;
   }
 
-  public Manifest getManifest() {
+  public Manifest generateManifest() {
     Representer representer = new Representer();
     representer.getPropertyUtils().setSkipMissingProperties(true);
     Yaml yaml = new Yaml(new Constructor(Manifest.class), representer);
