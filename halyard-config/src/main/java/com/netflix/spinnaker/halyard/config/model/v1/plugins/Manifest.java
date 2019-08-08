@@ -19,9 +19,7 @@ package com.netflix.spinnaker.halyard.config.model.v1.plugins;
 import com.netflix.spinnaker.halyard.config.problem.v1.ConfigProblemBuilder;
 import com.netflix.spinnaker.halyard.core.error.v1.HalException;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -33,7 +31,7 @@ public class Manifest {
   public String name;
   public String manifestVersion;
   public List<String> jars;
-  public HashMap<String, Object> options;
+  public Map<String, Object> options;
 
   static final String regex = "^[a-zA-Z0-9]+\\/[\\w-]+$";
   static final Pattern pattern = Pattern.compile(regex);

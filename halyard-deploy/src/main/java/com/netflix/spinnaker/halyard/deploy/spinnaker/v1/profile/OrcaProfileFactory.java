@@ -19,25 +19,19 @@ package com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Features;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Webhook;
-import com.netflix.spinnaker.halyard.config.model.v1.plugins.Manifest;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.aws.AwsProvider;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.integrations.IntegrationsConfigWrapper;
-import com.netflix.spinnaker.halyard.deploy.util.v1.PluginUtils;
-import java.io.*;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.Constructor;
-import org.yaml.snakeyaml.representer.Representer;
 
 @Slf4j
 @Component
@@ -86,42 +80,19 @@ public class OrcaProfileFactory extends SpringProfileFactory {
     // For backward compatibility
     profile.appendContents("pipelineTemplate.enabled: " + pipelineTemplates);
 
-    // Loading Plugin Information
-    Representer representer = new Representer();
-    representer.getPropertyUtils().setSkipMissingProperties(true);
-    Yaml yaml = new Yaml(new Constructor(Manifest.class), representer);
-
     final List<Plugin> plugins = deploymentConfiguration.getPlugins().getPlugins();
     Map<String, Object> fullyRenderedYaml = new LinkedHashMap<>();
-    Map<String, Object> pluginMetadata = new LinkedHashMap<>();
-
-    for (Plugin plugin : plugins) {
-      loadPluginInfo(plugin, yaml, pluginMetadata);
-    }
+    Map<String, Object> pluginMetadata =
+        plugins.stream()
+            .filter(p -> p.getEnabled())
+            .filter(p -> !p.getManifestLocation().isEmpty())
+            .collect(
+                Collectors.toConcurrentMap(p -> p.getName(), p -> p.getManifest().getOptions()));
 
     fullyRenderedYaml.put("plugins", pluginMetadata);
 
     profile.appendContents(
         yamlToString(deploymentConfiguration.getName(), profile, fullyRenderedYaml));
-  }
-
-  private void loadPluginInfo(Plugin plugin, Yaml yaml, Map<String, Object> pluginMetadata) {
-    if (!plugin.getEnabled()) {
-      log.info("Plugin " + plugin.getName() + ", not enabled");
-      return;
-    }
-
-    String manifestLocation = plugin.getManifestLocation();
-    if (Objects.equals(manifestLocation, null)) {
-      log.info("Plugin " + plugin.getName() + ", has no manifest file");
-      return;
-    }
-
-    InputStream manifestContents = PluginUtils.getManifest(manifestLocation);
-    Manifest manifest = yaml.load(manifestContents);
-    manifest.validate();
-    String pluginName = manifest.getName();
-    pluginMetadata.put(pluginName, manifest.getOptions());
   }
 
   @Data
