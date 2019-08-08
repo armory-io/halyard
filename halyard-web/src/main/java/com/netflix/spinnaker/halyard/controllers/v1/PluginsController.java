@@ -118,4 +118,17 @@ public class PluginsController {
         .build()
         .execute(validationSettings, enabled);
   }
+
+  @RequestMapping(value = "/enableDownloading", method = RequestMethod.PUT)
+  DaemonTask<Halconfig, Void> setPluginsEnableDownloading(
+      @PathVariable String deploymentName,
+      @ModelAttribute ValidationSettings validationSettings,
+      @RequestBody Boolean enabled) {
+    return GenericEnableDisableRequest.builder(halconfigParser)
+        .updater(t -> pluginService.setPluginsEnableDownloading(deploymentName, false, enabled))
+        .validator(() -> pluginService.validateAllPlugins(deploymentName))
+        .description("Enable or disable downloading plugins")
+        .build()
+        .execute(validationSettings, enabled);
+  }
 }

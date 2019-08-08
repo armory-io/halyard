@@ -127,6 +127,13 @@ public class PluginService {
     plugins.setEnabled(enable);
   }
 
+  public void setPluginsEnableDownloading(String deploymentName, boolean validate, boolean enable) {
+    DeploymentConfiguration deploymentConfiguration =
+        deploymentService.getDeploymentConfiguration(deploymentName);
+    Plugins plugins = deploymentConfiguration.getPlugins();
+    plugins.setEnableDownloading(enable);
+  }
+
   public ProblemSet validateAllPlugins(String deploymentName) {
     NodeFilter filter = new NodeFilter().setDeployment(deploymentName).withAnyPlugin();
     return validateService.validateMatchingFilter(filter);

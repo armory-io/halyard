@@ -37,6 +37,8 @@ public class PluginCommand extends AbstractConfigCommand {
     registerSubcommand(new ListPluginsCommand());
     registerSubcommand(new PluginEnableDisableCommandBuilder().setEnable(true).build());
     registerSubcommand(new PluginEnableDisableCommandBuilder().setEnable(false).build());
+    registerSubcommand(new PluginEnableDisableDownloadingCommandBuilder().setEnable(true).build());
+    registerSubcommand(new PluginEnableDisableDownloadingCommandBuilder().setEnable(false).build());
   }
 
   @Override
