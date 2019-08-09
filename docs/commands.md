@@ -10925,6 +10925,7 @@ hal plugins add PLUGIN [parameters]
  * `--enabled`: To enable or disable the plugin.
  * `--manifest-location`: (*Required*) The location of the plugin's manifest file.
  * `--no-validate`: (*Default*: `false`) Skip validation.
+ * `-O`: (*Default*: `{}`) Set custom options, must be key=value format.
 
 
 ---
@@ -10989,6 +10990,7 @@ hal plugins edit PLUGIN [parameters]
  * `--enabled`: To enable or disable the plugin.
  * `--manifest-location`: The location of the plugin's manifest file.
  * `--no-validate`: (*Default*: `false`) Skip validation.
+ * `-O`: (*Default*: `{}`) Options for plugin. Must be key=value. Strings only!
 
 
 ---
