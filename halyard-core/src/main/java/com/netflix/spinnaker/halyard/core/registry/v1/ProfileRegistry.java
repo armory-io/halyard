@@ -22,6 +22,8 @@ import com.netflix.spinnaker.halyard.core.error.v1.HalException;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Hashtable;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,6 +32,9 @@ import org.yaml.snakeyaml.Yaml;
 @Component
 @Slf4j
 public class ProfileRegistry {
+  Map<String, BillOfMaterials> bomCache =
+      new Hashtable<>(); // TODO Expire. Crazy # of ops for a single deploy
+
   @Autowired(required = false)
   GoogleProfileReader googleProfileReader;
 
@@ -47,7 +52,14 @@ public class ProfileRegistry {
   }
 
   public BillOfMaterials readBom(String version) throws IOException {
-    return pickProfileReader(version).readBom(version);
+    BillOfMaterials bom = this.bomCache.get(version);
+    if (bom == null) {
+      bom = this.pickProfileReader(version).readBom(version);
+      if (bom != null) {
+        bomCache.put(version, bom);
+      }
+    }
+    return bom;
   }
 
   public Versions readVersions() throws IOException {
