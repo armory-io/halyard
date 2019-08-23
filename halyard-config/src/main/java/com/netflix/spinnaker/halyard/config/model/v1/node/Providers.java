@@ -19,6 +19,7 @@ package com.netflix.spinnaker.halyard.config.model.v1.node;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+import com.netflix.spinnaker.halyard.config.model.v1.node.Provider.ProviderType;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.appengine.AppengineProvider;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.aws.AwsProvider;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.azure.AzureProvider;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import net.minidev.json.JSONObject;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -146,5 +148,32 @@ public class Providers extends Node implements Cloneable {
       throw new IllegalArgumentException(
           "No cluster for class \"" + clusterClassName + "\" found", e);
     }
+  }
+
+  public static JSONObject providersMetadata() {
+    ProviderDescriptor pd = new ProviderDescriptor();
+    for (ProviderType provider : ProviderType.values()) {
+      try {
+        Class<?> providerClass = translateProviderType(provider.getName());
+        Class<?> accountClass = translateAccountType(provider.getName());
+        Field[] providerFields = providerClass.getDeclaredFields();
+        Field[] accountfields = accountClass.getDeclaredFields();
+        pd.addProviderField(provider.getName(), providerFields);
+        pd.addAccountField(provider.getName(), accountfields);
+      } catch (IllegalArgumentException e) {
+        // ignoring because it doesn't matter
+      }
+    }
+    for (ProviderType provider : ProviderType.values()) {
+      try {
+        Class<?> bakeryClass = translateBakeryDefaultsType(provider.getName());
+        Field[] bakeryFields = bakeryClass.getDeclaredFields();
+        pd.addBakeryField(provider.getName(), bakeryFields);
+
+      } catch (IllegalArgumentException e) {
+        // ignoring because it doesn't matter
+      }
+    }
+    return pd.allProviderFields();
   }
 }

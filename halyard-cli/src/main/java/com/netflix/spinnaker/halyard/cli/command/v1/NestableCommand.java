@@ -31,24 +31,36 @@ import com.netflix.spinnaker.halyard.cli.ui.v1.AnsiPrinter;
 import com.netflix.spinnaker.halyard.cli.ui.v1.AnsiStoryBuilder;
 import com.netflix.spinnaker.halyard.cli.ui.v1.AnsiStyle;
 import com.netflix.spinnaker.halyard.cli.ui.v1.AnsiUi;
+import com.netflix.spinnaker.halyard.config.model.v1.node.Account;
+import com.netflix.spinnaker.halyard.config.model.v1.node.BakeryDefaults;
+import com.netflix.spinnaker.halyard.config.model.v1.node.Providers;
 import com.netflix.spinnaker.halyard.core.job.v1.JobExecutor;
 import com.netflix.spinnaker.halyard.core.job.v1.JobExecutorLocal;
 import com.netflix.spinnaker.halyard.core.resource.v1.StringReplaceJarResource;
 import java.io.Console;
+import java.lang.reflect.Field;
 import java.net.ConnectException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.nibor.autolink.*;
+import net.minidev.json.JSONObject;
+import org.nibor.autolink.LinkExtractor;
+import org.nibor.autolink.LinkSpan;
+import org.nibor.autolink.LinkType;
+import org.nibor.autolink.Span;
+import org.reflections.Reflections;
+import org.reflections.scanners.SubTypesScanner;
 import retrofit.RetrofitError;
 
 @Parameters(separators = "=")
@@ -629,7 +641,8 @@ public abstract class NestableCommand {
 
       commander.addCommand(subCommand.getCommandName(), subCommand);
 
-      // We need to provide the subcommand with its own commander before recursively populating its
+      // We need to provide the subcommand with its own commander before recursively
+      // populating its
       // subcommands, since
       // they need to be registered with this subcommander we retrieve here.
       JCommander subCommander = commander.getCommands().get(subCommand.getCommandName());

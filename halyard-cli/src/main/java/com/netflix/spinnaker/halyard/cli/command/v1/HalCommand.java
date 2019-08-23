@@ -80,11 +80,9 @@ public class HalCommand extends NestableCommand {
     if (docs) {
       System.out.println(generateDocs());
     }
-
     if (version) {
       System.out.println(getVersion());
     }
-
     if (printBashCompletion) {
       System.out.println(commandCompletor());
     }
