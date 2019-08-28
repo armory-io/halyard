@@ -26,6 +26,9 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class Plugins extends Node {
+  private boolean enabled;
+  private boolean downloadingEnabled;
+  private List<Plugin> plugins = new ArrayList<>();
 
   @Override
   public String getNodeName() {
@@ -37,8 +40,4 @@ public class Plugins extends Node {
     return NodeIteratorFactory.makeListIterator(
         plugins.stream().map(a -> (Node) a).collect(Collectors.toList()));
   }
-
-  private List<Plugin> plugins = new ArrayList<>();
-  private boolean enabled;
-  private boolean downloadingEnabled;
 }

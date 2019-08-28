@@ -22,6 +22,7 @@ import com.netflix.spinnaker.halyard.config.model.v1.plugins.Manifest;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -30,11 +31,20 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class PluginProfileFactory extends StringBackedProfileFactory {
-  @Override
-  protected void setProfile(
-      Profile profile,
-      DeploymentConfiguration deploymentConfiguration,
-      SpinnakerRuntimeSettings endpoints) {
+
+  public Profile getProfileByServiceName(
+      String configOutputPath,
+      String serviceName,
+      DeploymentConfiguration deploymentConfiguration) {
+
+    String pluginFilename = "plugins.yml";
+    String pluginPath = Paths.get(configOutputPath, pluginFilename).toString();
+
+    String deploymentName = deploymentConfiguration.getName();
+    String version = getArtifactService().getArtifactVersion(deploymentName, getArtifact());
+    String profileName = serviceName + '-' + pluginFilename;
+    Profile profile = getBaseProfile(profileName, version, pluginPath);
+
     final Plugins plugins = deploymentConfiguration.getPlugins();
 
     Map<String, Object> pluginsYaml = new HashMap<>();
@@ -44,7 +54,7 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
         plugins.getPlugins().stream()
             .filter(p -> p.getEnabled())
             .filter(p -> !p.getManifestLocation().isEmpty())
-            .map(p -> composeMetadata(p, p.generateManifest()))
+            .map(p -> composeMetadata(p, p.generateManifest(), serviceName))
             .collect(Collectors.toList());
 
     pluginsYaml.put("pluginConfigurations", pluginMetadata);
@@ -53,16 +63,23 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
 
     profile.appendContents(
         yamlToString(deploymentConfiguration.getName(), profile, fullyRenderedYaml));
+    return profile;
   }
 
-  private Map<String, Object> composeMetadata(Plugin plugin, Manifest manifest) {
+  public Map<String, Object> composeMetadata(Plugin plugin, Manifest manifest, String serviceName) {
     Map<String, Object> metadata = new LinkedHashMap<>();
     metadata.put("enabled", plugin.getEnabled());
     metadata.put("name", manifest.getName());
-    metadata.put("jars", manifest.getJars());
+    metadata.put("jars", manifest.getResources().get(serviceName));
     metadata.put("manifestVersion", manifest.getManifestVersion());
     return metadata;
   }
+
+  @Override
+  protected void setProfile(
+      Profile profile,
+      DeploymentConfiguration deploymentConfiguration,
+      SpinnakerRuntimeSettings endpoints) {}
 
   @Override
   protected String getRawBaseProfile() {
