@@ -18,7 +18,6 @@ package com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile;
 
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Plugins;
-import com.netflix.spinnaker.halyard.config.model.v1.plugins.Manifest;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
@@ -44,7 +43,7 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
         plugins.getPlugins().stream()
             .filter(p -> p.getEnabled())
             .filter(p -> !p.getManifestLocation().isEmpty())
-            .map(p -> composeMetadata(p, p.generateManifest()))
+            .map(p -> Plugin.composeMetadata(p, p.generateManifest()))
             .collect(Collectors.toList());
 
     pluginsYaml.put("pluginConfigurations", pluginMetadata);
@@ -53,15 +52,6 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
 
     profile.appendContents(
         yamlToString(deploymentConfiguration.getName(), profile, fullyRenderedYaml));
-  }
-
-  private Map<String, Object> composeMetadata(Plugin plugin, Manifest manifest) {
-    Map<String, Object> metadata = new LinkedHashMap<>();
-    metadata.put("enabled", plugin.getEnabled());
-    metadata.put("name", manifest.getName());
-    metadata.put("jars", manifest.getJars());
-    metadata.put("manifestVersion", manifest.getManifestVersion());
-    return metadata;
   }
 
   @Override

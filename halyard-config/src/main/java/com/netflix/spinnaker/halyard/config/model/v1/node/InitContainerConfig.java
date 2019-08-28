@@ -12,33 +12,33 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ *
  */
 
 package com.netflix.spinnaker.halyard.config.model.v1.node;
 
-import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 
+// Not sure why this isn't a thing already, DeploymentEnvironment has init containers defined as
+// maps,
+// possibly for flexibility?
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class Plugins extends Node {
-  @Getter public boolean enabled;
-  @Getter public boolean downloadingEnabled;
-  private List<Plugin> plugins = new ArrayList<>();
+public class InitContainerConfig {
+  String name = "custom-init-container";
+  String dockerImage;
+  // Integer port;
+  List<Map<String, String>> env = new ArrayList<>();
+  List<String> args = new ArrayList<>();
+  List<String> command = new ArrayList<>();
+  List<VolumeMount> empty = new ArrayList<>();
 
-  @Override
-  public String getNodeName() {
-    return "plugins";
-  }
-
-  @Override
-  public NodeIterator getChildren() {
-    return NodeIteratorFactory.makeListIterator(
-        plugins.stream().map(a -> (Node) a).collect(Collectors.toList()));
+  @Data
+  public static class VolumeMount {
+    String name;
+    String mountPath;
   }
 }

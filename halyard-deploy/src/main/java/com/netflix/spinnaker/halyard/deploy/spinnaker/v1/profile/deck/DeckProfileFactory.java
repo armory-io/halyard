@@ -21,6 +21,7 @@ import com.netflix.spinnaker.halyard.config.model.v1.canary.Canary;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Features;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Notifications;
+import com.netflix.spinnaker.halyard.config.model.v1.node.Plugins;
 import com.netflix.spinnaker.halyard.config.model.v1.notifications.GithubStatusNotification;
 import com.netflix.spinnaker.halyard.config.model.v1.notifications.SlackNotification;
 import com.netflix.spinnaker.halyard.config.model.v1.notifications.TwilioNotification;
@@ -42,11 +43,9 @@ import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.Profile;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.RegistryBackedProfileFactory;
+import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.KubernetesSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.SpinnakerService.Type;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -85,6 +84,29 @@ public class DeckProfileFactory extends RegistryBackedProfileFactory {
     bindings.put("gate.baseUrl", endpoints.getServiceSettings(Type.GATE).getBaseUrl());
     bindings.put("timezone", deploymentConfiguration.getTimezone());
     bindings.put("version", deploymentConfiguration.getVersion());
+
+    KubernetesSettings ks = endpoints.getServiceSettings(Type.GATE).getKubernetes();
+    List<String> toDownload = new ArrayList<>();
+    // TODO I think this is right, but need to check
+    Plugins plugins = deploymentConfiguration.getPlugins();
+    // if(plugins.isEnabled() && plugins.isDownloadingEnabled()) {
+    //   toDownload = plugins.getPlugins().stream()
+    //    .filter(p -> p.getEnabled())
+    //    .filter(p -> !p.getManifestLocation().isEmpty())
+    //    .map(p -> Plugin.getUIAssets(p.generateManifest()))
+    //    .flatMap(Collection::stream)
+    //    .distinct()
+    //    .collect(Collectors.toCollection(ArrayList::new));
+    //
+    // }
+
+    // Not adding secret with data, just init container + volume mount
+    // ks.getVolumes()
+    //    .add(
+    //        new ConfigSource()
+    //            .setId("secretname")
+    //            .setMountPath("mountpath")
+    //            .setEnv(toDownload));
 
     Versions versions = versionsService.getVersions();
     Optional<Versions.Version> validatedVersion;
@@ -232,8 +254,19 @@ public class DeckProfileFactory extends RegistryBackedProfileFactory {
       bindings.put("canary.showAllCanaryConfigs", canary.isShowAllConfigsEnabled());
     }
 
+    // TODO
+    // bindings.put("plugins", list of plugins);
+
+    List<String> requiredFiles = new ArrayList<>();
+    for (String requiredFile : backupRequiredFiles(uiSecurity, deploymentConfiguration.getName())) {
+      requiredFiles.add(requiredFile);
+    }
+    // TODO create new file here with contents we need?
+    // profile.getRequiredFiles().add()// File to add for Deck itself)
+
     profile
         .appendContents(configTemplate.setBindings(bindings).toString())
-        .setRequiredFiles(backupRequiredFiles(uiSecurity, deploymentConfiguration.getName()));
+        // .setRequiredFiles(backupRequiredFiles(uiSecurity, deploymentConfiguration.getName()));
+        .setRequiredFiles(requiredFiles);
   }
 }

@@ -26,12 +26,14 @@ import java.util.stream.Stream;
 import lombok.Data;
 import lombok.Getter;
 
+// TODO read manifest to put stuff in configmap
 @Data
 public class Manifest {
   public String name;
   public String manifestVersion;
   public List<String> jars;
   public Map<String, Object> options;
+  public List<String> deck;
 
   static final String regex = "^[a-zA-Z0-9]+\\/[\\w-]+$";
   static final Pattern pattern = Pattern.compile(regex);

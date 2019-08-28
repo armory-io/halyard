@@ -96,6 +96,7 @@ public class GenerateService {
    */
   public ResolvedConfiguration generateConfig(
       String deploymentName, List<SpinnakerService.Type> services) {
+    // Pass plugins here ^ arrange by service (deck: [plugin1, plugin2], ...)
     DaemonTaskHandler.newStage("Generating all Spinnaker profile files and endpoints");
     log.info(
         "Generating config from \""
@@ -237,6 +238,7 @@ public class GenerateService {
     private Map<SpinnakerService.Type, Map<String, Profile>> serviceProfiles = new HashMap<>();
     SpinnakerRuntimeSettings runtimeSettings;
     private String stagingDirectory;
+    Map<SpinnakerService.Type, List<String>> resourcesToDownload = new HashMap<>();
 
     @JsonIgnore
     public ServiceSettings getServiceSettings(SpinnakerService service) {

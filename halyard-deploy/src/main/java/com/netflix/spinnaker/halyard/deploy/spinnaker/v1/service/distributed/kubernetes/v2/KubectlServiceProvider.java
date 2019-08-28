@@ -38,6 +38,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class KubectlServiceProvider
     extends SpinnakerServiceProvider<AccountDeploymentDetails<KubernetesAccount>> {
+  // Add download of plugins
   @Autowired
   @Qualifier("kubernetesV2ClouddriverService")
   KubernetesV2ClouddriverService clouddriverService;

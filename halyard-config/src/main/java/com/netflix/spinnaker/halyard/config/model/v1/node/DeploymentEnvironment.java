@@ -16,6 +16,8 @@
 
 package com.netflix.spinnaker.halyard.config.model.v1.node;
 
+import static com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentEnvironment.Size;
+
 import com.netflix.spinnaker.halyard.config.model.v1.ha.HaServices;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -57,7 +59,7 @@ public class DeploymentEnvironment extends Node {
     }
 
     public static DeploymentType fromString(String name) {
-      for (DeploymentType type : DeploymentType.values()) {
+      for (DeploymentType type : values()) {
         if (type.toString().equalsIgnoreCase(name)) {
           return type;
         }
@@ -67,7 +69,7 @@ public class DeploymentEnvironment extends Node {
           "DeploymentType \""
               + name
               + "\" is not a valid choice. The options are: "
-              + Arrays.toString(DeploymentType.values()));
+              + Arrays.toString(values()));
     }
   }
 
@@ -77,7 +79,7 @@ public class DeploymentEnvironment extends Node {
     LARGE;
 
     public static Size fromString(String name) {
-      for (Size type : Size.values()) {
+      for (Size type : values()) {
         if (type.toString().equalsIgnoreCase(name)) {
           return type;
         }
@@ -87,7 +89,7 @@ public class DeploymentEnvironment extends Node {
           "Size \""
               + name
               + "\" is not a valid choice. The options are: "
-              + Arrays.toString(Size.values()));
+              + Arrays.toString(values()));
     }
   }
 

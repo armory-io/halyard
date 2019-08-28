@@ -32,6 +32,7 @@ import lombok.Data;
 public class SpinnakerRuntimeSettings {
   @JsonPropertyOrder(alphabetic = true)
   protected Map<Type, ServiceSettings> services = new HashMap<>();
+  // Add PluginEnrichedInfo (plugins + downloaded list of files to download per service)
 
   public SpinnakerRuntimeSettings newServiceOverrides(List<Type> overrideServiceEndpoints) {
     SpinnakerRuntimeSettings serviceOverrides = new SpinnakerRuntimeSettings();

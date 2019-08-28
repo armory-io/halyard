@@ -162,6 +162,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     return volume.toString();
   }
 
+  // pass resolvedConfig in here, add the plugisn stuff to reslvedConfig
   default String getResourceYaml(
       KubernetesV2Executor executor,
       AccountDeploymentDetails<KubernetesAccount> details,
@@ -244,6 +245,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     List<String> containers = new ArrayList<>();
     containers.add(primaryContainer);
     containers.addAll(sidecarContainers);
+    // TODO how to get plugins here for use by downloader
 
     return new JinjaJarResource("/kubernetes/manifests/podSpec.yml")
         .addBinding("containers", containers)
@@ -256,7 +258,8 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
         .addBinding("affinity", getAffinity(details))
         .addBinding("tolerations", getTolerations(details))
         .addBinding(
-            "volumes", combineVolumes(configSources, settings.getKubernetes(), sidecarConfigs))
+            "volumes",
+            combineVolumes(configSources, settings.getKubernetes(), sidecarConfigs, details))
         .addBinding("securityContext", settings.getKubernetes().getSecurityContext())
         .toString();
   }
@@ -445,10 +448,12 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     return settings.getLocation();
   }
 
+  // TODO do we need to add initContainers here? eg to get the configmap
   default List<String> combineVolumes(
       List<ConfigSource> configSources,
       KubernetesSettings settings,
-      List<SidecarConfig> sidecarConfigs) {
+      List<SidecarConfig> sidecarConfigs,
+      AccountDeploymentDetails<KubernetesAccount> details) {
 
     Stream<ConfigSource> configStream =
         configSources.stream()
@@ -472,6 +477,12 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
                         .setMountPath(c.getMountPath())
                         .setId(c.getConfigMapName())
                         .setType(ConfigSource.Type.configMap));
+
+    // add stanza in here to do the same for init containers
+    // grab all init containers, get the volumes for them, add them to list
+    // Stream<ConfigSource> initContainerStream =
+    //  settings.getInitContainers()
+    //        .map(SidecarConfig::getConfigMapVolumeMounts)
 
     Stream<ConfigSource> secretStream =
         sidecarConfigs.stream()
@@ -503,9 +514,12 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     List<String> requiredFiles = new ArrayList<>();
     Map<String, byte[]> requiredEncryptedFiles = new HashMap<>();
     List<ConfigSource> configSources = new ArrayList<>();
+    // TODO some secrets are created here
     String secretNamePrefix = getServiceName() + "-files";
     String namespace = getNamespace(resolvedConfiguration.getServiceSettings(getService()));
     KubernetesAccount account = details.getAccount();
+
+    // TODO download and parse plugins here
 
     for (SidecarService sidecarService : getSidecars(runtimeSettings)) {
       for (Profile profile :

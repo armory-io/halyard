@@ -24,6 +24,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.yaml.snakeyaml.Yaml;
@@ -71,5 +75,22 @@ public class Plugin extends Node {
                       + e.getMessage())
               .build());
     }
+  }
+
+  // TODO: rename, make work
+  public static List<String> getUIAssets(Manifest manifest) {
+    // List<String> metadata = manifest.getJars();
+    return new ArrayList<>();
+  }
+
+  // TODO take in service type optionally, only pass resources to download in the metadata
+  public static Map<String, Object> composeMetadata(Plugin plugin, Manifest manifest) {
+    Map<String, Object> metadata = new LinkedHashMap<>();
+    metadata.put("enabled", plugin.getEnabled());
+    metadata.put("name", manifest.getName());
+    //
+    metadata.put("jars", manifest.getJars());
+    metadata.put("manifestVersion", manifest.getManifestVersion());
+    return metadata;
   }
 }
