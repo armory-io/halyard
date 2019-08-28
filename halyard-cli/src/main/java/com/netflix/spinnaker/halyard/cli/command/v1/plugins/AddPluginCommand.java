@@ -44,7 +44,7 @@ public class AddPluginCommand extends AbstractHasPluginCommand {
   private String enabled;
 
   @DynamicParameter(names = "-O", description = "Set custom options, must be key=value format.")
-  private HashMap<String, Object> options = new HashMap<>();
+  private HashMap<String, String> options = new HashMap<>();
 
   @Override
   protected void executeThis() {
@@ -54,8 +54,8 @@ public class AddPluginCommand extends AbstractHasPluginCommand {
         new Plugin()
             .setName(name)
             .setEnabled(isSet(enabled) ? Boolean.parseBoolean(enabled) : false)
-            .setManifestLocation(manifestLocation);
-    plugin.setOptions(options);
+            .setManifestLocation(manifestLocation)
+            .updateOptions(options);
 
     new OperationHandler<Void>()
         .setFailureMesssage("Failed to add plugin: " + name + ".")

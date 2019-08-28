@@ -45,7 +45,7 @@ public class EditPluginCommand extends AbstractHasPluginCommand {
   @DynamicParameter(
       names = "-O",
       description = "Options for plugin. Must be key=value. Strings only!")
-  private HashMap<String, Object> options = new HashMap<>();
+  private HashMap<String, String> options = new HashMap<>();
 
   @Override
   protected void executeThis() {
@@ -55,8 +55,8 @@ public class EditPluginCommand extends AbstractHasPluginCommand {
     plugin.setEnabled(isSet(enabled) ? Boolean.parseBoolean(enabled) : plugin.getEnabled());
     plugin.setManifestLocation(
         isSet(manifestLocation) ? manifestLocation : plugin.getManifestLocation());
-    HashMap<String, Object> parsedOptions = plugin.generateOptions(options);
-    plugin.setOptions(Plugin.merge(plugin.getOptions(), parsedOptions));
+
+    plugin.updateOptions(options);
 
     new OperationHandler<Void>()
         .setFailureMesssage("Failed to edit plugin " + plugin.getName() + ".")
