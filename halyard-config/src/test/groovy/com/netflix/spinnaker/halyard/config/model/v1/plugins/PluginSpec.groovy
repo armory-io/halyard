@@ -16,6 +16,7 @@
 
 package com.netflix.spinnaker.halyard.config.model.v1.plugins
 
+import com.netflix.spinnaker.halyard.config.error.v1.IllegalConfigException
 import spock.lang.Specification
 
 class PluginSpec extends Specification {
@@ -83,6 +84,40 @@ class PluginSpec extends Specification {
                 ]
         ]
         subject == expectedOptions
+    }
+
+    void "parseOptionHelper parses options"() {
+        expect:
+        Plugin.parseOptionHelper(key, value) == expectedMap
+
+        where:
+        key         | value | expectedMap
+        "a.b.c.d"   | "foo"  | [a: [b: [c: [d: "foo"]]]]
+    }
+
+    void "validateKey works correctly"() {
+        when:
+        Plugin.validateKey(key)
+
+        then:
+        noExceptionThrown()
+
+        where:
+        key << ["a", "a.b.c.d"]
+    }
+
+    void "validateKey throws exception on invalid keys"() {
+        when:
+        Plugin.validateKey(key)
+
+        then:
+        thrown(IllegalConfigException)
+
+        where:
+        key         | expectedMessage
+        "a.b.c.d."  | "invalid plugin option key: a.b.c.d."
+        ""          | "invalid plugin option key: "
+        "."         | "invalid plugin option key: ."
     }
 
 }

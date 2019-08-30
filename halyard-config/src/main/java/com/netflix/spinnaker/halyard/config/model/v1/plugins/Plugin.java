@@ -16,7 +16,9 @@
 
 package com.netflix.spinnaker.halyard.config.model.v1.plugins;
 
+import com.netflix.spinnaker.halyard.config.error.v1.IllegalConfigException;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Node;
+import com.netflix.spinnaker.halyard.config.problem.v1.ConfigProblemBuilder;
 import com.netflix.spinnaker.halyard.core.error.v1.HalException;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.core.problem.v1.ProblemBuilder;
@@ -24,9 +26,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.yaml.snakeyaml.Yaml;
@@ -47,11 +52,11 @@ public class Plugin extends Node {
   }
 
   public Plugin updateOptions(Map<String, String> options) {
-    Map<String, Object> parsedOptions = new HashMap<>();
-    for (Map.Entry<String, String> option : options.entrySet()) {
-      parsedOptions.put(option.getKey(), option.getValue());
-    }
-    setOptions(Plugin.merge(getOptions(), Plugin.normalizeOptions(parsedOptions)));
+    Map<String, Object> normalizedOptions =
+        normalizeOptions(
+            options.entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    setOptions(Plugin.merge(getOptions(), normalizedOptions));
     return this;
   }
 
@@ -86,18 +91,37 @@ public class Plugin extends Node {
     }
   }
 
-  public static Map<String, Object> normalizeOptions(Map<String, Object> opts) {
-    Map<String, Object> result = new HashMap<>();
-    for (Map.Entry<String, Object> entry : opts.entrySet()) {
-      String key = entry.getKey();
-      result.putAll(parseOption(key, entry.getValue()));
-    }
-
-    return result;
+  /**
+   * Normalizes plugin options by converting YAML keys with dot notation into a nested HashMap
+   *
+   * @param opts
+   * @return
+   */
+  private Map<String, Object> normalizeOptions(Map<String, Object> opts) {
+    return opts.entrySet().stream()
+        .collect(
+            Collector.of(
+                HashMap::new,
+                (left, entry) -> left.putAll(parseOption(entry.getKey(), entry.getValue())),
+                (left, entry) -> left));
   }
 
-  public static Map<String, Object> merge(Map original, Map newMap) {
-    for (Object key : newMap.keySet()) {
+  /**
+   * Used to merge plugin options passed in through the hal config to overwrite the default plugin
+   * options, as necessary. Since options can be a nested map, if a hal config overwrites a
+   * particular piece of the default plugin options, we want to preserve the other options.
+   *
+   * <p>If a key is present on both the original and new options, the types match, and are of type
+   * Map or List, then we merge the two values. Otherwise, we overwrite the keys with the values in
+   * the newMap.
+   *
+   * @param original
+   * @param newMap
+   * @return
+   */
+  public static Map<String, Object> merge(
+      Map<String, Object> original, Map<String, Object> newMap) {
+    for (String key : newMap.keySet()) {
       if (newMap.get(key) instanceof Map && original.get(key) instanceof Map) {
         Map originalChild = (Map) original.get(key);
         Map newChild = (Map) newMap.get(key);
@@ -114,18 +138,38 @@ public class Plugin extends Node {
         original.put(key, newMap.get(key));
       }
     }
-    return (Map<String, Object>) original;
+    return original;
   }
 
   public static Map<String, Object> parseOption(String key, Object value) {
+    Plugin.validateKey(key);
+    return parseOptionHelper(key, value);
+  }
+
+  /**
+   * Converts YAML keys with dot notation into a nested HashMap
+   *
+   * @param key
+   * @param value
+   * @return
+   */
+  private static Map<String, Object> parseOptionHelper(String key, Object value) {
     Map<String, Object> opts = new HashMap<>();
     if (!key.contains(".")) {
       opts.put(key, value);
       return opts;
     }
-
     String[] keys = key.split("\\.", 2);
     opts.put(keys[0], parseOption(keys[1], value));
     return opts;
+  }
+
+  public static void validateKey(String key) {
+    String[] keys = key.split("\\.", -1);
+    if (!Arrays.stream(keys).filter(String::isEmpty).collect(Collectors.toList()).isEmpty()) {
+      throw new IllegalConfigException(
+          new ConfigProblemBuilder(Problem.Severity.FATAL, "invalid plugin option key: " + key)
+              .build());
+    }
   }
 }
