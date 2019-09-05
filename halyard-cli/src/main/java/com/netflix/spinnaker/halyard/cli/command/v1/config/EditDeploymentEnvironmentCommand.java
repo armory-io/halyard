@@ -66,7 +66,8 @@ public class EditDeploymentEnvironmentCommand extends AbstractConfigCommand {
       description =
           "Distributed: Deploy Spinnaker with one server group per microservice, and a single shared Redis.\n"
               + "LocalDebian: Download and run the Spinnaker debians on the machine running the Daemon.\n"
-              + "LocalGit: Download and run the Spinnaker git repos on the machine running the Daemon.",
+              + "LocalGit: Download and run the Spinnaker git repos on the machine running the Daemon.\n"
+              + "Operator: Deploy Spinnaker via the pre-installed Spinnaker Operator.\n",
       converter = DeploymentTypeConverter.class)
   private DeploymentType type;
 

@@ -50,6 +50,7 @@ public class DeploymentEnvironmentValidator extends Validator<DeploymentEnvironm
     switch (type) {
       case LocalDebian:
       case BakeDebian:
+      case Operator:
         break;
       case Distributed:
         validateDistributedDeployment(p, n);

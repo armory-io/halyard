@@ -53,17 +53,15 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class GenerateService {
-  @Autowired private DeploymentService deploymentService;
+  @Autowired protected DeploymentService deploymentService;
 
-  @Autowired private ServiceProviderFactory serviceProviderFactory;
+  @Autowired protected ServiceProviderFactory serviceProviderFactory;
 
-  @Autowired private String halconfigPath;
+  @Autowired protected HalconfigDirectoryStructure halconfigDirectoryStructure;
 
-  @Autowired private HalconfigDirectoryStructure halconfigDirectoryStructure;
+  @Autowired protected List<SpinnakerService> spinnakerServices = new ArrayList<>();
 
-  @Autowired private List<SpinnakerService> spinnakerServices = new ArrayList<>();
-
-  @Autowired private ConfigParser configParser;
+  @Autowired protected ConfigParser configParser;
 
   public ResolvedConfiguration generateConfigWithOptionalServices(
       String deploymentName, List<SpinnakerService.Type> serviceTypes) {
@@ -99,7 +97,7 @@ public class GenerateService {
     DaemonTaskHandler.newStage("Generating all Spinnaker profile files and endpoints");
     log.info(
         "Generating config from \""
-            + halconfigPath
+            + halconfigDirectoryStructure.getHalconfigPath()
             + "\" with deploymentName \""
             + deploymentName
             + "\"");

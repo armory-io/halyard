@@ -31,6 +31,9 @@ import com.netflix.spinnaker.halyard.core.registry.v1.Versions;
 import com.netflix.spinnaker.halyard.core.tasks.v1.DaemonTask;
 import com.netflix.spinnaker.halyard.core.tasks.v1.DaemonTaskHandler;
 import com.netflix.spinnaker.halyard.deploy.deployment.v1.DeployOption;
+import com.netflix.spinnaker.halyard.deploy.deployment.v1.DeploymentCRDGenerator;
+import com.netflix.spinnaker.halyard.deploy.deployment.v1.DeploymentManifestGenerator;
+import com.netflix.spinnaker.halyard.deploy.deployment.v1.ManifestGenerator;
 import com.netflix.spinnaker.halyard.deploy.services.v1.DeployService;
 import com.netflix.spinnaker.halyard.deploy.services.v1.GenerateService;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.RunningServiceDetails;
@@ -40,6 +43,7 @@ import com.netflix.spinnaker.halyard.proto.DeploymentsGrpc;
 import com.netflix.spinnaker.halyard.util.v1.GenericGetRequest;
 import com.netflix.spinnaker.halyard.util.v1.GenericUpdateRequest;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -49,6 +53,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.lognet.springboot.grpc.GRpcService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 @GRpcService
 @RestController
@@ -60,6 +65,9 @@ public class DeploymentController extends DeploymentsGrpc.DeploymentsImplBase {
   private final DeployService deployService;
   private final HalconfigDirectoryStructure halconfigDirectoryStructure;
   private final HalconfigParser halconfigParser;
+  private final ManifestGenerator manifestGenerator;
+  private final DeploymentManifestGenerator deploymentManifestGenerator;
+  private final DeploymentCRDGenerator deploymentCRDGenerator;
 
   @RequestMapping(value = "/{deploymentName:.+}", method = RequestMethod.GET)
   DaemonTask<Halconfig, DeploymentConfiguration> deploymentConfiguration(
@@ -349,5 +357,28 @@ public class DeploymentController extends DeploymentsGrpc.DeploymentsImplBase {
         .description("Get running service details")
         .build()
         .execute(validationSettings);
+  }
+
+  @RequestMapping(value = "/manifests", method = RequestMethod.POST)
+  String getCombinedDeploymentManifests(MultipartHttpServletRequest request) throws IOException {
+    return manifestGenerator.generateManifestList(request);
+  }
+
+  @RequestMapping(value = "/{deploymentName:.+}/manifests/", method = RequestMethod.GET)
+  String generateManifests(
+      @PathVariable String deploymentName, @ModelAttribute ValidationSettings validationSettings) {
+    DeploymentConfiguration config = deploymentService.getDeploymentConfiguration(deploymentName);
+    return deploymentManifestGenerator.generateManifestList(config);
+  }
+
+  @RequestMapping(
+      value = "/{deploymentName:.+}/deploy/manifests/{storeName}",
+      method = RequestMethod.GET)
+  String generateDeploymentManifests(
+      @PathVariable String deploymentName,
+      @PathVariable String storeName,
+      @RequestParam(value = "type", required = false) String storeType) {
+    DeploymentConfiguration config = deploymentService.getDeploymentConfiguration(deploymentName);
+    return deploymentCRDGenerator.generateCR(config, storeType, storeName);
   }
 }

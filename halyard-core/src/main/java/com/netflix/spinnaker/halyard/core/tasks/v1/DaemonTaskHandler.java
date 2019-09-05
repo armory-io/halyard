@@ -25,7 +25,11 @@ public class DaemonTaskHandler {
   }
 
   public static Object getContext() {
-    return localTask.get().getContext();
+    DaemonTask task = localTask.get();
+    if (task != null) {
+      return task.getContext();
+    }
+    return null;
   }
 
   public static <U, T> DaemonResponse<U> reduceChildren(
@@ -123,7 +127,10 @@ public class DaemonTaskHandler {
   }
 
   public static void setContext(Object context) {
-    localTask.get().setContext(context);
+    DaemonTask task = localTask.get();
+    if (task != null) {
+      task.setContext(context);
+    }
   }
 
   public static void newStage(String name) {

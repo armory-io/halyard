@@ -21,24 +21,16 @@ package com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.ku
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.kubernetes.KubernetesAccount;
-import com.netflix.spinnaker.halyard.core.error.v1.HalException;
-import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
-import com.netflix.spinnaker.halyard.core.resource.v1.JinjaJarResource;
 import com.netflix.spinnaker.halyard.core.resource.v1.TemplatedResource;
 import com.netflix.spinnaker.halyard.core.secrets.v1.SecretSessionManager;
 import com.netflix.spinnaker.kork.configserver.CloudConfigResourceService;
 import com.netflix.spinnaker.kork.secrets.EncryptedSecret;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
@@ -129,49 +121,6 @@ public class KubernetesV2Utils {
     return command;
   }
 
-  public SecretSpec createSecretSpec(
-      String namespace, String clusterName, String name, List<SecretMountPair> files) {
-    Map<String, String> contentMap = new HashMap<>();
-    for (SecretMountPair pair : files) {
-      String contents;
-      if (pair.getContentBytes() != null) {
-        contents = new String(Base64.getEncoder().encode(pair.getContentBytes()));
-      } else {
-        try {
-          contents =
-              new String(
-                  Base64.getEncoder()
-                      .encode(IOUtils.toByteArray(new FileInputStream(pair.getContents()))));
-        } catch (IOException e) {
-          throw new HalException(
-              Problem.Severity.FATAL,
-              "Failed to read required config file: "
-                  + pair.getContents().getAbsolutePath()
-                  + ": "
-                  + e.getMessage(),
-              e);
-        }
-      }
-
-      contentMap.put(pair.getName(), contents);
-    }
-
-    SecretSpec spec = new SecretSpec();
-    spec.name = name + "-" + Math.abs(contentMap.hashCode());
-
-    spec.resource = new JinjaJarResource("/kubernetes/manifests/secret.yml");
-    Map<String, Object> bindings = new HashMap<>();
-
-    bindings.put("files", contentMap);
-    bindings.put("name", spec.name);
-    bindings.put("namespace", namespace);
-    bindings.put("clusterName", clusterName);
-
-    spec.resource.extendBindings(bindings);
-
-    return spec;
-  }
-
   public String prettify(String input) {
     Yaml yaml = new Yaml(new SafeConstructor());
     return yaml.dump(yaml.load(input));
@@ -182,6 +131,7 @@ public class KubernetesV2Utils {
     return mapper.convertValue(yaml.load(input), new TypeReference<Map<String, Object>>() {});
   }
 
+  @Data
   public static class SecretSpec {
     TemplatedResource resource;
     String name;
