@@ -31,7 +31,6 @@ class HalconfigParserMocker extends Specification {
     def parserStub = new HalconfigParser()
     parserStub.objectMapper = new StrictObjectMapper()
     parserStub.yamlParser = new Yaml(new SafeConstructor())
-    parserStub.halconfigPath = "/some/nonsense/file"
     def hcDirStructure = new HalconfigDirectoryStructure()
     hcDirStructure.halconfigDirectory = "/home/spinnaker/.hal"
     parserStub.halconfigDirectoryStructure = hcDirStructure

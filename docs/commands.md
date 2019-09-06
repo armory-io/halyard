@@ -5586,6 +5586,8 @@ Default value: slim
  * `--type`: Distributed: Deploy Spinnaker with one server group per microservice, and a single shared Redis.
 LocalDebian: Download and run the Spinnaker debians on the machine running the Daemon.
 LocalGit: Download and run the Spinnaker git repos on the machine running the Daemon.
+Operator: Deploy Spinnaker via the pre-installed Spinnaker Operator.
+
  * `--update-versions`: When set to "false", any *local* version of Spinnaker components will be used instead of attempting to update. This does not work for distributed installations of Spinnaker, where no *local* version exists.
  * `--vault-address`: The address of a running Vault datastore. See [https://www.vaultproject.io/](https://www.vaultproject.io/). This is only required when Spinnaker is being deployed in non-Kubernetes clustered configuration.
  * `--vault-enabled`: Whether or not to use Vault as a secret storage mechanism to deploy Spinnaker.
