@@ -22,6 +22,8 @@ import com.google.common.io.Files;
 import com.netflix.spinnaker.halyard.config.config.v1.HalconfigDirectoryStructure;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Halconfig;
+import com.netflix.spinnaker.halyard.core.error.v1.HalException;
+import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -121,7 +123,12 @@ public class RequestGenerateService {
   private void writeFile(String deploymentName, String filePath, MultipartFile fileContents) {
     Path target = Paths.get(baseDirectory.toString(), deploymentName, filePath).normalize();
     if (!target.startsWith(baseDirectory.toString())) {
-      return;
+      throw new HalException(
+          Problem.Severity.ERROR,
+          "File path "
+              + filePath
+              + " must not resolve to a dir outside of "
+              + baseDirectory.toString());
     }
 
     File targetFile = target.toFile();
