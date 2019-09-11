@@ -22,16 +22,23 @@ import com.google.common.io.Files;
 import com.netflix.spinnaker.halyard.config.config.v1.HalconfigDirectoryStructure;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Halconfig;
+import com.netflix.spinnaker.halyard.core.error.v1.HalException;
+import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import java.io.*;
-import java.util.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 import lombok.Getter;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.yaml.snakeyaml.Yaml;
 
 public class RequestGenerateService {
+
   private static final String CONFIG_KEY = "config";
   private static final String SERVICE_SETTINGS_KEY = "serviceSettings";
+  private static final String LOCAL_FILE_PREFIX = "files__";
+
   protected @Getter File baseDirectory;
   private Yaml yaml = new Yaml();
   private ObjectMapper objectMapper = new ObjectMapper();
@@ -54,32 +61,21 @@ public class RequestGenerateService {
     request.getFileMap().entrySet().stream()
         .forEach(
             et -> {
-              if (!et.getKey().equals(CONFIG_KEY)) {
-                File targetFile = getTargetFile(deploymentConfiguration, et.getKey());
-                if (targetFile != null) {
-                  targetFile.getParentFile().mkdirs();
-                  try {
-                    FileOutputStream outStream = new FileOutputStream(targetFile);
-                    outStream.write(et.getValue().getBytes());
-                  } catch (IOException e) {
-                    throw new RuntimeException(e);
-                  }
-                }
+              if (et.getKey().equals(CONFIG_KEY)) {
+                return;
+              }
+              if (et.getKey().startsWith(LOCAL_FILE_PREFIX)) {
+                // write all local files in hal config root
+                writeFile("", et.getKey(), et.getValue());
+              } else {
+                String filePath = et.getKey().replaceAll("__", File.separator);
+                writeFile(deploymentConfiguration.getName(), filePath, et.getValue());
               }
             });
   }
 
   public void cleanup() {
     HalconfigDirectoryStructure.setDirectoryOverride(null);
-  }
-
-  protected File getTargetFile(DeploymentConfiguration deploymentConfiguration, String paramKey) {
-    String path = paramKey.replaceAll("__", File.separator);
-    // Don't allow parent reference
-    if (path.indexOf("..") > -1) {
-      return null;
-    }
-    return new File(baseDirectory, deploymentConfiguration.getName() + File.separator + path);
   }
 
   protected void writeHalConfig(DeploymentConfiguration deploymentConfiguration)
@@ -121,6 +117,27 @@ public class RequestGenerateService {
                   throw new RuntimeException(ex);
                 }
               });
+    }
+  }
+
+  private void writeFile(String deploymentName, String filePath, MultipartFile fileContents) {
+    Path target = Paths.get(baseDirectory.toString(), deploymentName, filePath).normalize();
+    if (!target.startsWith(baseDirectory.toString())) {
+      throw new HalException(
+          Problem.Severity.ERROR,
+          "File path "
+              + filePath
+              + " must not resolve to a dir outside of "
+              + baseDirectory.toString());
+    }
+
+    File targetFile = target.toFile();
+    targetFile.getParentFile().mkdirs();
+    try {
+      FileOutputStream outStream = new FileOutputStream(targetFile);
+      outStream.write(fileContents.getBytes());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 

@@ -8,7 +8,7 @@ import java.nio.charset.Charset
 class RequestGenerateServiceSpec extends Specification {
     def "Parse valid deployment configuration"() {
         given:
-        def generate = new RequestGenerateService(null, null, null, null)
+        def generate = new RequestGenerateService()
         def content = """
 name: default
 version: 2.5.2

@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.kubernetes.KubernetesAccount;
 import com.netflix.spinnaker.halyard.core.resource.v1.TemplatedResource;
 import com.netflix.spinnaker.halyard.core.secrets.v1.SecretSessionManager;
-import com.netflix.spinnaker.kork.configserver.ConfigFileService;
+import com.netflix.spinnaker.kork.configserver.CloudConfigResourceService;
 import com.netflix.spinnaker.kork.secrets.EncryptedSecret;
 import java.io.File;
 import java.util.ArrayList;
@@ -43,12 +43,13 @@ public class KubernetesV2Utils {
 
   private final SecretSessionManager secretSessionManager;
 
-  private final ConfigFileService configFileService;
+  private final CloudConfigResourceService cloudConfigResourceService;
 
   public KubernetesV2Utils(
-      SecretSessionManager secretSessionManager, ConfigFileService configFileService) {
+      SecretSessionManager secretSessionManager,
+      CloudConfigResourceService cloudConfigResourceService) {
     this.secretSessionManager = secretSessionManager;
-    this.configFileService = configFileService;
+    this.cloudConfigResourceService = cloudConfigResourceService;
   }
 
   public List<String> kubectlPrefix(KubernetesAccount account) {
@@ -65,19 +66,27 @@ public class KubernetesV2Utils {
       command.add(context);
     }
 
-    String kubeconfig;
-    String kubeconfigFile = account.getKubeconfigFile();
-    if (EncryptedSecret.isEncryptedSecret(kubeconfigFile)) {
-      kubeconfig = secretSessionManager.decryptAsFile(kubeconfigFile);
-    } else {
-      kubeconfig = configFileService.getLocalPath(kubeconfigFile);
-    }
+    String kubeconfig = getKubeconfigFile(account);
     if (kubeconfig != null && !kubeconfig.isEmpty()) {
       command.add("--kubeconfig");
       command.add(kubeconfig);
     }
 
     return command;
+  }
+
+  private String getKubeconfigFile(KubernetesAccount account) {
+    String kubeconfigFile = account.getKubeconfigFile();
+
+    if (EncryptedSecret.isEncryptedSecret(kubeconfigFile)) {
+      return secretSessionManager.decryptAsFile(kubeconfigFile);
+    }
+
+    if (CloudConfigResourceService.isCloudConfigResource(kubeconfigFile)) {
+      return cloudConfigResourceService.getLocalPath(kubeconfigFile);
+    }
+
+    return kubeconfigFile;
   }
 
   List<String> kubectlPodServiceCommand(
