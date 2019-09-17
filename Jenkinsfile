@@ -1,7 +1,7 @@
 node {
     try {
         def commit_hash = sh(
-            script: 'git rev-parse --short HEAD'
+            script: 'git rev-parse --short HEAD',
             returnStdout: true
         ).trim()
         def docker_image_unique = 'docker.io/armory/halyard-armory:operator-${commit_hash}'
