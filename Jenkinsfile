@@ -1,20 +1,21 @@
 node {
     try {
+        stage('Checking out code') {
+            checkout scm
+        }
+
         def commit_hash = sh(
             script: 'git rev-parse --short HEAD',
             returnStdout: true
         ).trim()
-        def docker_image_unique = 'docker.io/armory/halyard-armory:operator-${commit_hash}'
-        def docker_image_latest = 'docker.io/armory/halyard-armory:operator-latest'
+        def docker_image_unique = "docker.io/armory/halyard-armory:operator-${commit_hash}"
+        def docker_image_latest = "docker.io/armory/halyard-armory:operator-latest"
 
-        stage('Checking out code') {
-            checkout scm
-        }
         stage("Build") {
             sh './gradlew build && ./gradlew installDist'
         }
         stage("Build docker image ${docker_image_unique}") {
-            sh 'docker build -t ${docker_image_unique} -f Dockerfile.slim .'
+            sh "docker build -t ${docker_image_unique} -f Dockerfile.slim ."
         }
         def branch = sh(
             script: 'git symbolic-ref --short HEAD',
@@ -23,9 +24,9 @@ node {
 
         if (branch == 'gen-manifests') {
             stage("Push image") {
-                sh 'docker tag ${docker_image_unique} ${docker_image_latest}'
-                sh 'docker push ${docker_image_unique}'
-                sh 'docker push ${docker_image_latest}'
+                sh "docker tag ${docker_image_unique} ${docker_image_latest}"
+                sh "docker push ${docker_image_unique}"
+                sh "docker push ${docker_image_latest}"
             }
         }
         def props = [ docker_image: docker_image_unique ]
