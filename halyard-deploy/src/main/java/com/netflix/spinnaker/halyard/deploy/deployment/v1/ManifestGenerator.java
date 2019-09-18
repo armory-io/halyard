@@ -57,7 +57,7 @@ public class ManifestGenerator {
   @Autowired GenerateService generateService;
 
   public String generateManifestList(MultipartHttpServletRequest request) throws IOException {
-    RequestGenerateService fileRequestService = new RequestGenerateService();
+    RequestGenerateService fileRequestService = newRequestGenerateService();
     try {
       log.info("Preparing Halyard configuration from incoming request");
       fileRequestService.prepare(request);
@@ -163,5 +163,9 @@ public class ManifestGenerator {
         .setDeploymentName(configuration.getName())
         .setBillOfMaterials(billOfMaterials);
     return details;
+  }
+
+  protected RequestGenerateService newRequestGenerateService() {
+    return new RequestGenerateService();
   }
 }
