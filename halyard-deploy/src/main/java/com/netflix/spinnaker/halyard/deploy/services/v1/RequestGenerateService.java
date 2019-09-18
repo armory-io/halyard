@@ -40,8 +40,8 @@ public class RequestGenerateService {
   private static final String LOCAL_FILE_PREFIX = "files__";
 
   protected @Getter File baseDirectory;
-  private Yaml yaml = new Yaml();
-  private ObjectMapper objectMapper = new ObjectMapper();
+  protected Yaml yaml = new Yaml();
+  protected ObjectMapper objectMapper = new ObjectMapper();
 
   public RequestGenerateService() {
     this.baseDirectory = Files.createTempDir();
