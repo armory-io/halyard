@@ -16,9 +16,7 @@
 
 package com.netflix.spinnaker.halyard.config.model.v1.plugins;
 
-import com.netflix.spinnaker.halyard.config.error.v1.IllegalConfigException;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Node;
-import com.netflix.spinnaker.halyard.config.problem.v1.ConfigProblemBuilder;
 import com.netflix.spinnaker.halyard.core.error.v1.HalException;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.core.problem.v1.ProblemBuilder;
@@ -26,12 +24,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.yaml.snakeyaml.Yaml;
@@ -49,15 +44,6 @@ public class Plugin extends Node {
   @Override
   public String getNodeName() {
     return name;
-  }
-
-  public Plugin updateOptions(Map<String, String> options) {
-    Map<String, Object> normalizedOptions =
-        normalizeOptions(
-            options.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
-    setOptions(Plugin.merge(getOptions(), normalizedOptions));
-    return this;
   }
 
   public Manifest generateManifest() {
@@ -89,21 +75,6 @@ public class Plugin extends Node {
                       + e.getMessage())
               .build());
     }
-  }
-
-  /**
-   * Normalizes plugin options by converting YAML keys with dot notation into a nested HashMap
-   *
-   * @param opts
-   * @return
-   */
-  private Map<String, Object> normalizeOptions(Map<String, Object> opts) {
-    return opts.entrySet().stream()
-        .collect(
-            Collector.of(
-                HashMap::new,
-                (left, entry) -> left.putAll(parseOption(entry.getKey(), entry.getValue())),
-                (left, entry) -> left));
   }
 
   /**
@@ -139,37 +110,5 @@ public class Plugin extends Node {
       }
     }
     return original;
-  }
-
-  public static Map<String, Object> parseOption(String key, Object value) {
-    Plugin.validateKey(key);
-    return parseOptionHelper(key, value);
-  }
-
-  /**
-   * Converts YAML keys with dot notation into a nested HashMap
-   *
-   * @param key
-   * @param value
-   * @return
-   */
-  private static Map<String, Object> parseOptionHelper(String key, Object value) {
-    Map<String, Object> opts = new HashMap<>();
-    if (!key.contains(".")) {
-      opts.put(key, value);
-      return opts;
-    }
-    String[] keys = key.split("\\.", 2);
-    opts.put(keys[0], parseOption(keys[1], value));
-    return opts;
-  }
-
-  public static void validateKey(String key) {
-    String[] keys = key.split("\\.", -1);
-    if (!Arrays.stream(keys).filter(String::isEmpty).collect(Collectors.toList()).isEmpty()) {
-      throw new IllegalConfigException(
-          new ConfigProblemBuilder(Problem.Severity.FATAL, "invalid plugin option key: " + key)
-              .build());
-    }
   }
 }

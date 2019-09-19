@@ -24,7 +24,10 @@ import com.netflix.spinnaker.halyard.config.model.v1.providers.aws.AwsProvider;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.integrations.IntegrationsConfigWrapper;
-import java.util.*;
+import java.util.AbstractMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -78,6 +81,7 @@ public class OrcaProfileFactory extends SpringProfileFactory {
     // For backward compatibility
     profile.appendContents("pipelineTemplate.enabled: " + pipelineTemplates);
 
+    // Plugins
     final List<Plugin> plugins = deploymentConfiguration.getPlugins().getPlugins();
     Map<String, Object> fullyRenderedYaml = new LinkedHashMap<>();
     Map<String, Object> pluginMetadata =
@@ -86,7 +90,7 @@ public class OrcaProfileFactory extends SpringProfileFactory {
             .filter(p -> !p.getManifestLocation().isEmpty())
             .map(p -> new AbstractMap.SimpleEntry<>(p, p.generateManifest()))
             .collect(
-                Collectors.toConcurrentMap(
+                Collectors.toMap(
                     m -> m.getValue().getName(),
                     m -> Plugin.merge(m.getValue().getOptions(), m.getKey().getOptions())));
 
