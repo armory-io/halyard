@@ -61,12 +61,13 @@ public class RequestGenerateService {
     request.getFileMap().entrySet().stream()
         .forEach(
             et -> {
-              if (et.getKey().equals(CONFIG_KEY)) {
+              if (et.getKey().equals(CONFIG_KEY) || et.getKey().equals(SERVICE_SETTINGS_KEY)) {
                 return;
               }
               if (et.getKey().startsWith(LOCAL_FILE_PREFIX)) {
                 // write all local files in hal config root
-                writeFile("", et.getKey(), et.getValue());
+                String filePath = et.getKey().substring(LOCAL_FILE_PREFIX.length()).replaceAll("__", File.separator);
+                writeFile("", filePath, et.getValue());
               } else {
                 String filePath = et.getKey().replaceAll("__", File.separator);
                 writeFile(deploymentConfiguration.getName(), filePath, et.getValue());
