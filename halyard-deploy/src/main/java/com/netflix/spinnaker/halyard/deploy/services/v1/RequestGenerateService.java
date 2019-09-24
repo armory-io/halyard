@@ -37,7 +37,6 @@ public class RequestGenerateService {
 
   private static final String CONFIG_KEY = "config";
   private static final String SERVICE_SETTINGS_KEY = "serviceSettings";
-  private static final String LOCAL_FILE_PREFIX = "files__";
 
   protected @Getter File baseDirectory;
   protected Yaml yaml = new Yaml();
@@ -48,35 +47,32 @@ public class RequestGenerateService {
   }
 
   public void prepare(MultipartHttpServletRequest request) throws IOException {
-    HalconfigDirectoryStructure.setDirectoryOverride(baseDirectory.getAbsolutePath());
     // Get the config first
     DeploymentConfiguration deploymentConfiguration =
         parseDeploymentConfiguration(request.getFile(CONFIG_KEY));
+
+    // Overwrite hal config directory structure
+    HalconfigDirectoryStructure.setDirectoryOverride(baseDirectory.getAbsolutePath());
+    HalconfigDirectoryStructure.setRelativeFilesHome(
+        baseDirectory.getAbsolutePath() + File.separator + deploymentConfiguration.getName());
+
     // Write the main config
     writeHalConfig(deploymentConfiguration);
-    // Write service settings
-    writeServiceSettings(deploymentConfiguration, request);
 
-    // Loop through all files
+    // Write everything else
     request.getFileMap().entrySet().stream()
         .forEach(
             et -> {
-              if (et.getKey().equals(CONFIG_KEY) || et.getKey().equals(SERVICE_SETTINGS_KEY)) {
+              if (et.getKey().equals(CONFIG_KEY)) {
                 return;
               }
-              if (et.getKey().startsWith(LOCAL_FILE_PREFIX)) {
-                // write all local files in hal config root
-                String filePath = et.getKey().substring(LOCAL_FILE_PREFIX.length()).replaceAll("__", File.separator);
-                writeFile("", filePath, et.getValue());
-              } else {
-                String filePath = et.getKey().replaceAll("__", File.separator);
-                writeFile(deploymentConfiguration.getName(), filePath, et.getValue());
-              }
+              writeFile(deploymentConfiguration.getName(), et.getKey(), et.getValue());
             });
   }
 
   public void cleanup() {
     HalconfigDirectoryStructure.setDirectoryOverride(null);
+    HalconfigDirectoryStructure.setRelativeFilesHome(null);
   }
 
   protected void writeHalConfig(DeploymentConfiguration deploymentConfiguration)
@@ -91,38 +87,9 @@ public class RequestGenerateService {
     outputStream.write(yaml.dump(objectMapper.convertValue(config, Map.class)).getBytes());
   }
 
-  protected void writeServiceSettings(
-      DeploymentConfiguration deploymentConfiguration, MultipartHttpServletRequest request)
-      throws IOException {
-    MultipartFile file = request.getFile(SERVICE_SETTINGS_KEY);
-    if (file != null && file.getSize() > 0) {
-      // Read YAML and redispatch by service name (key), without checking service names
-      Object obj = yaml.load(new ByteArrayInputStream(file.getBytes()));
-      Map<String, Object> map = objectMapper.convertValue(obj, Map.class);
-      map.entrySet().stream()
-          .forEach(
-              e -> {
-                String filename =
-                    new StringBuilder(deploymentConfiguration.getName())
-                        .append(File.separator)
-                        .append("service-settings")
-                        .append(File.separator)
-                        .append(e.getKey())
-                        .append(".yml")
-                        .toString();
-                File targetFile = new File(baseDirectory, filename);
-                targetFile.getParentFile().mkdirs();
-                try (BufferedWriter writer = new BufferedWriter(new FileWriter(targetFile))) {
-                  writer.write(yaml.dump(e.getValue()));
-                } catch (IOException ex) {
-                  throw new RuntimeException(ex);
-                }
-              });
-    }
-  }
-
   private void writeFile(String deploymentName, String filePath, MultipartFile fileContents) {
-    Path target = Paths.get(baseDirectory.toString(), deploymentName, filePath).normalize();
+    String newPath = filePath.replaceAll("__", File.separator);
+    Path target = Paths.get(baseDirectory.toString(), deploymentName, newPath).normalize();
     if (!target.startsWith(baseDirectory.toString())) {
       throw new HalException(
           Problem.Severity.ERROR,

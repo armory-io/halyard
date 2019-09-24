@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class HalconfigDirectoryStructure {
   private static ThreadLocal<String> directoryOverride = new ThreadLocal<>();
+  private static ThreadLocal<String> relativeFilesHome = new ThreadLocal<>();
 
   public static void setDirectoryOverride(String directory) {
     directoryOverride.set(directory);
@@ -38,6 +39,19 @@ public class HalconfigDirectoryStructure {
   @Autowired @Setter String halconfigDirectory;
 
   public String getHalconfigDirectory() {
+    String directory = directoryOverride.get();
+    return directory == null ? halconfigDirectory : directory;
+  }
+
+  public static void setRelativeFilesHome(String home) {
+    relativeFilesHome.set(home);
+  }
+
+  public String getRelativeFilesHome() {
+    String home = relativeFilesHome.get();
+    if (home != null) {
+      return home;
+    }
     String directory = directoryOverride.get();
     return directory == null ? halconfigDirectory : directory;
   }
