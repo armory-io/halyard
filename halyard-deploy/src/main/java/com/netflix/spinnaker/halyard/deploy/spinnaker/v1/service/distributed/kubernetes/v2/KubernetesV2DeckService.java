@@ -101,7 +101,8 @@ public class KubernetesV2DeckService extends DeckService
         plugins.getPlugins().stream()
             .filter(p -> p.getEnabled())
             .filter(p -> !p.getManifestLocation().isEmpty())
-            .map(p -> p.generateManifest())
+            .map(p -> p.getManifest())
+            .filter(m -> m.getResources().containsKey(getCanonicalName()))
             .distinct()
             .collect(Collectors.toList());
 

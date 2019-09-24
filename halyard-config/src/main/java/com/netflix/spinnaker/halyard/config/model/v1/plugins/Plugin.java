@@ -24,8 +24,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.representer.Representer;
@@ -37,18 +39,24 @@ public class Plugin extends Node {
   public Boolean enabled;
   public String manifestLocation;
 
+  @Getter(AccessLevel.NONE)
+  public Manifest manifest;
+
   @Override
   public String getNodeName() {
     return name;
   }
 
-  public Manifest generateManifest() {
+  public Manifest getManifest() {
+    if (manifest != null) {
+      return manifest;
+    }
     Representer representer = new Representer();
     representer.getPropertyUtils().setSkipMissingProperties(true);
     Yaml yaml = new Yaml(new Constructor(Manifest.class), representer);
 
     InputStream manifestContents = downloadManifest();
-    Manifest manifest = yaml.load(manifestContents);
+    manifest = yaml.load(manifestContents);
     manifest.validate();
     return manifest;
   }

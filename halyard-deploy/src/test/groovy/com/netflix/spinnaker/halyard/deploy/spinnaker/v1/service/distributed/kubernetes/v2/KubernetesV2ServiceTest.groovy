@@ -195,7 +195,7 @@ class KubernetesV2ServiceTest extends Specification {
 
 
             when:
-        List<String> volumes = testService.combineVolumes(configSources, settings, sidecarConfigs, details)
+        List<String> volumes = testService.combineVolumes(configSources, settings, sidecarConfigs)
 
         then:
         volumes.contains('''{

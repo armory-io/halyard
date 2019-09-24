@@ -45,6 +45,7 @@ import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSetting
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.Profile;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.RegistryBackedProfileFactory;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.SpinnakerService.Type;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,11 +73,7 @@ public class DeckProfileFactory extends RegistryBackedProfileFactory {
       Profile profile,
       DeploymentConfiguration deploymentConfiguration,
       SpinnakerRuntimeSettings endpoints) {
-    StringResource configTemplate =
-        new StringResource(
-            profile
-                .getBaseContents()
-                .replace("version: version,", "version: version,\n  plugins: {%plugins%},"));
+    StringResource configTemplate = new StringResource(profile.getBaseContents());
     UiSecurity uiSecurity = deploymentConfiguration.getSecurity().getUiSecurity();
     profile.setUser(ApacheSettings.APACHE_USER);
 
@@ -243,14 +240,19 @@ public class DeckProfileFactory extends RegistryBackedProfileFactory {
         plugins.stream()
             .filter(p -> p.getEnabled())
             .filter(p -> !p.getManifestLocation().isEmpty())
-            .map(p -> p.generateManifest())
-            .collect(Collectors.toMap(m -> m.getName(), m -> m.getResources().get("deck")));
+            .map(p -> p.getManifest())
+            .filter(m -> m.getResources().containsKey(SpinnakerArtifact.DECK.getName()))
+            .collect(
+                Collectors.toMap(
+                    m -> m.getName(), m -> m.getResources().get(SpinnakerArtifact.DECK.getName())));
+
     for (Map.Entry<String, List<String>> entry : pluginMetadata.entrySet()) {
       for (String location : entry.getValue()) {
         Map<String, String> resource = new HashMap<>();
         resource.put("pluginName", entry.getKey());
-        // TODO location should be based off the location we put the resources
-        resource.put("location", location);
+        String localFilePath =
+            "/plugins/" + entry.getKey() + "/" + Paths.get(location).getFileName().toString();
+        resource.put("location", localFilePath);
         pluginBinding.add(new Gson().toJson(resource));
       }
     }

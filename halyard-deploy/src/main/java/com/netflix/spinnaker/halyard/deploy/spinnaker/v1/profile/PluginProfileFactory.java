@@ -32,7 +32,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PluginProfileFactory extends StringBackedProfileFactory {
 
-  public Profile getProfileByServiceName(
+  public Profile getProfileByName(
       String configOutputPath,
       String serviceName,
       DeploymentConfiguration deploymentConfiguration) {
@@ -54,7 +54,8 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
         plugins.getPlugins().stream()
             .filter(p -> p.getEnabled())
             .filter(p -> !p.getManifestLocation().isEmpty())
-            .map(p -> composeMetadata(p, p.generateManifest(), serviceName))
+            .filter(p -> p.getManifest().getResources().containsKey(serviceName))
+            .map(p -> composeMetadata(p, p.getManifest(), serviceName))
             .collect(Collectors.toList());
 
     pluginsYaml.put("pluginConfigurations", pluginMetadata);
@@ -67,6 +68,9 @@ public class PluginProfileFactory extends StringBackedProfileFactory {
   }
 
   public Map<String, Object> composeMetadata(Plugin plugin, Manifest manifest, String serviceName) {
+    if (!manifest.getResources().containsKey(serviceName)) {
+      return null;
+    }
     Map<String, Object> metadata = new LinkedHashMap<>();
     metadata.put("enabled", plugin.getEnabled());
     metadata.put("name", manifest.getName());
