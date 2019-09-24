@@ -72,6 +72,7 @@ public class RequestGenerateService {
 
   public void cleanup() {
     HalconfigDirectoryStructure.setDirectoryOverride(null);
+    HalconfigDirectoryStructure.setRelativeFilesHome(null);
   }
 
   protected void writeHalConfig(DeploymentConfiguration deploymentConfiguration)
