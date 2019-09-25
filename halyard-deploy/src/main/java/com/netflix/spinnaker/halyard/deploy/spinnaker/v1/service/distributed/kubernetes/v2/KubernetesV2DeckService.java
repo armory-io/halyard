@@ -122,15 +122,15 @@ public class KubernetesV2DeckService extends DeckService
   }
 
   private List<String> getPluginDownloadingArgs(List<Manifest> manifests) {
-    StringBuilder sb = new StringBuilder("cd /opt/spinnaker/plugins/resources; ");
+    StringBuilder sb = new StringBuilder("cd /opt/spinnaker/plugins/resources && ");
     for (Manifest manifest : manifests) {
       String manifestsList = String.join(" ", manifest.getResources().get(getCanonicalName()));
-      sb.append("mkdir -p ").append(manifest.getName()).append("; ");
+      sb.append("mkdir -p ").append(manifest.getName()).append(" && ");
       sb.append("wget ")
           .append(manifestsList)
           .append(" -P ")
           .append(manifest.getName())
-          .append("; ");
+          .append("&& ");
     }
     sb.append("chown -R www-data:www-data /opt/spinnaker/plugins/resources;");
 

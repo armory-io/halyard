@@ -39,6 +39,7 @@ import com.netflix.spinnaker.halyard.config.model.v1.security.UiSecurity;
 import com.netflix.spinnaker.halyard.config.services.v1.AccountService;
 import com.netflix.spinnaker.halyard.config.services.v1.VersionsService;
 import com.netflix.spinnaker.halyard.core.registry.v1.Versions;
+import com.netflix.spinnaker.halyard.core.resource.v1.ObjectResource;
 import com.netflix.spinnaker.halyard.core.resource.v1.StringResource;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
@@ -73,7 +74,7 @@ public class DeckProfileFactory extends RegistryBackedProfileFactory {
       Profile profile,
       DeploymentConfiguration deploymentConfiguration,
       SpinnakerRuntimeSettings endpoints) {
-    StringResource configTemplate = new StringResource(profile.getBaseContents());
+    ObjectResource configTemplate = new ObjectResource(profile.getBaseContents());
     UiSecurity uiSecurity = deploymentConfiguration.getSecurity().getUiSecurity();
     profile.setUser(ApacheSettings.APACHE_USER);
 
@@ -249,7 +250,7 @@ public class DeckProfileFactory extends RegistryBackedProfileFactory {
     for (Map.Entry<String, List<String>> entry : pluginMetadata.entrySet()) {
       for (String location : entry.getValue()) {
         Map<String, String> resource = new HashMap<>();
-        resource.put("pluginName", entry.getKey());
+        resource.put("name", entry.getKey());
         String localFilePath =
             "/plugins/" + entry.getKey() + "/" + Paths.get(location).getFileName().toString();
         resource.put("location", localFilePath);
@@ -258,8 +259,10 @@ public class DeckProfileFactory extends RegistryBackedProfileFactory {
     }
     bindings.put("plugins", pluginBinding);
 
+    StringResource objectConfigTemplate =
+        new StringResource(configTemplate.setBindings(bindings).toString());
     profile
-        .appendContents(configTemplate.setBindings(bindings).toString())
+        .appendContents(objectConfigTemplate.setBindings(bindings).toString())
         .setRequiredFiles(backupRequiredFiles(uiSecurity, deploymentConfiguration.getName()));
   }
 }
