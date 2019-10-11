@@ -109,26 +109,6 @@ public class ServiceProviderFactory {
 
   private SpinnakerServiceProvider createOperatorServiceProvider(
       DeploymentConfiguration deploymentConfiguration) {
-    DeploymentEnvironment deploymentEnvironment =
-        deploymentConfiguration.getDeploymentEnvironment();
-
-    String accountName = deploymentEnvironment.getAccountName();
-
-    if (accountName == null || accountName.isEmpty()) {
-      Account account =
-          accountService.getAnyProviderAccount(deploymentConfiguration.getName(), accountName);
-      if (account != null) {
-        Provider.ProviderType providerType = ((Provider) account.getParent()).providerType();
-        if (providerType != Provider.ProviderType.KUBERNETES
-            || account.getProviderVersion() != Provider.ProviderVersion.V2) {
-          throw new HalException(
-              new ConfigProblemBuilder(
-                      Problem.Severity.FATAL,
-                      "Deployment account must be a Kubernetes v2 provider.")
-                  .build());
-        }
-      }
-    }
     return kubectlServiceProvider;
   }
 }
