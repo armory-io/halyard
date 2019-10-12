@@ -360,6 +360,8 @@ public class DeployService {
         } else {
           return distributedDeployer;
         }
+      case Operator:
+        return kubectlDeployer;
       default:
         throw new IllegalArgumentException("Unrecognized deployment type " + type);
     }
