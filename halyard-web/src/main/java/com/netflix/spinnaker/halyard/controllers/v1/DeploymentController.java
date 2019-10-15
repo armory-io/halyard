@@ -372,13 +372,13 @@ public class DeploymentController extends DeploymentsGrpc.DeploymentsImplBase {
   }
 
   @RequestMapping(
-      value = "/{deploymentName:.+}/deploy/manifests/{storeName}",
+      value = "/{deploymentName:.+}/deploy/manifests/spinnakerService",
       method = RequestMethod.GET)
-  String generateDeploymentManifests(
+  String generateDeploymentManifest(
       @PathVariable String deploymentName,
-      @PathVariable String storeName,
-      @RequestParam(value = "type", required = false) String storeType) {
+      @RequestParam(required = false) String serviceName,
+      @RequestParam(required = false) String apiGroupVersion) {
     DeploymentConfiguration config = deploymentService.getDeploymentConfiguration(deploymentName);
-    return deploymentCRDGenerator.generateCR(config, storeType, storeName);
+    return deploymentCRDGenerator.generateCR(config, serviceName, apiGroupVersion);
   }
 }

@@ -17,25 +17,26 @@
  */
 package com.netflix.spinnaker.halyard.deploy.deployment.v1;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netflix.spinnaker.halyard.config.config.v1.HalconfigDirectoryStructure;
-import com.netflix.spinnaker.halyard.config.config.v1.StrictObjectMapper;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.core.error.v1.HalException;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
+import com.netflix.spinnaker.halyard.deploy.deployment.v1.operator.CRConfig;
+import com.netflix.spinnaker.halyard.deploy.deployment.v1.operator.SpinnakerServiceGenerator;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.Profile;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.SpinnakerService;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.v2.KubectlServiceProvider;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
@@ -44,96 +45,125 @@ import org.yaml.snakeyaml.Yaml;
 @Slf4j
 public class DeploymentCRDGenerator {
 
-  @Autowired ServiceProviderFactory serviceProviderFactory;
-
-  @Autowired Yaml yamlParser;
-
-  @Autowired StrictObjectMapper objectMapper;
+  @Autowired KubectlServiceProvider kubectlServiceProvider;
 
   @Autowired HalconfigDirectoryStructure halconfigDirectoryStructure;
 
-  public String generateCR(
-      DeploymentConfiguration deploymentConfiguration, String storeType, String storeName) {
-    log.info("Parsing Halyard config");
-    KubectlServiceProvider serviceProvider =
-        (KubectlServiceProvider) serviceProviderFactory.create(deploymentConfiguration);
+  @Autowired List<SpinnakerServiceGenerator> generators;
 
+  @Autowired Yaml yamlParser;
+
+  @Autowired ObjectMapper objectMapper;
+
+  public String generateCR(
+      DeploymentConfiguration deploymentConfiguration, String serviceName, String apiGroupVersion) {
     log.info("Resolving configuration");
-    CRConfig crConfig = new CRConfig();
+    CRConfig crConfig =
+        new CRConfig().setDeploymentConfiguration(deploymentConfiguration).setName(serviceName);
+
+    SpinnakerServiceGenerator generator = getGenerator(apiGroupVersion);
 
     // Runtime settings are needed when generating profiles and we generate profile to gather
     SpinnakerRuntimeSettings runtimeSettings =
-        serviceProvider.buildRuntimeSettings(deploymentConfiguration);
+        kubectlServiceProvider.buildRuntimeSettings(deploymentConfiguration);
 
-    // Gather all the profile file names
+    log.info("Collecting service settings per service");
+    collectServiceSettings(runtimeSettings, crConfig);
+
     Path userProfilePath =
         halconfigDirectoryStructure.getUserProfilePath(deploymentConfiguration.getName());
-    List<String> userProfileNames =
-        aggregateProfilesInPath(userProfilePath.toString(), "", crConfig);
 
-    log.info("Collecting required files per service");
-    serviceProvider.getServices().stream()
+    // Collect all existing profile files
+    List<String> userProfileNames = aggregateProfilesInPath(userProfilePath.toString(), "");
+
+    log.info("Collecting profile files per service");
+    // For each enable service, collect main profiles and required files
+    kubectlServiceProvider.getServices().stream()
+        .filter(s -> runtimeSettings.getServiceSettings(s).getEnabled())
         .forEach(
-            s ->
-                getProfileFiles(
-                    s,
-                    userProfilePath,
-                    deploymentConfiguration,
-                    runtimeSettings,
-                    userProfileNames,
-                    crConfig));
-    log.info("Generating CR config map");
-    return getConfigMap(crConfig, deploymentConfiguration, storeType, storeName);
+            s -> collectProfiles(s, userProfilePath, runtimeSettings, userProfileNames, crConfig));
+
+    // Gather required files and change their reference to the deployment configuration directory
+    log.info("Make required files relative to deployment virtual directory");
+    crConfig.stageRequiredFiles(halconfigDirectoryStructure.getRelativeFilesHome());
+
+    log.info("Generating SpinnakerService manifest");
+    return generator.toManifest(crConfig);
   }
 
-  protected void getServiceSettingsFiles(
-      DeploymentConfiguration deploymentConfiguration,
-      SpinnakerService service,
-      CRConfig crConfig) {
-    File userSettingsFile =
-        new File(
-            halconfigDirectoryStructure
-                .getUserServiceSettingsPath(deploymentConfiguration.getName())
-                .toString(),
-            service.getCanonicalName() + ".yml");
-
-    if (userSettingsFile.exists() && userSettingsFile.length() != 0) {
-      crConfig.getServiceSettings().put(service.getCanonicalName(), userSettingsFile);
-    }
+  protected SpinnakerServiceGenerator getGenerator(String apiGroupVersion) {
+    return generators.stream()
+        .filter(
+            g ->
+                StringUtils.isEmpty(apiGroupVersion)
+                    || g.getAPIGroupVersion().equals(apiGroupVersion))
+        .findFirst()
+        .orElseThrow(
+            () ->
+                new HalException(
+                    Problem.Severity.ERROR, "apiVersion " + apiGroupVersion + " not recognized."));
   }
 
-  protected void getProfileFiles(
+  protected void collectProfiles(
       SpinnakerService service,
       Path userProfilePath,
-      DeploymentConfiguration deploymentConfiguration,
       SpinnakerRuntimeSettings runtimeSettings,
       List<String> userProfileNames,
       CRConfig crConfig) {
     userProfileNames.stream()
-        .map(
-            s ->
-                (Optional<Profile>)
-                    service.customProfile(
-                        deploymentConfiguration,
-                        runtimeSettings,
-                        Paths.get(userProfilePath.toString(), s),
-                        s))
-        .filter(Optional::isPresent)
-        .map(Optional::get)
-        .forEach(p -> crConfig.getRequiredFiles().addAll(p.getRequiredFiles()));
-    getServiceSettingsFiles(deploymentConfiguration, service, crConfig);
+        .forEach(
+            u -> {
+              Optional<Profile> profile =
+                  service.customProfile(
+                      crConfig.getDeploymentConfiguration(),
+                      runtimeSettings,
+                      Paths.get(userProfilePath.toString(), service.getCanonicalName()),
+                      u);
+              if (profile.isPresent()) {
+                try {
+                  crConfig
+                      .getProfiles()
+                      .put(
+                          service.getCanonicalName(),
+                          new String(Files.readAllBytes(Paths.get(userProfilePath.toString(), u))));
+                } catch (IOException e) {
+                  throw new HalException(Problem.Severity.ERROR, "Unable to read file " + u, e);
+                }
+              }
+            });
   }
 
-  protected String getConfigMap(
-      CRConfig crConfigMap,
-      DeploymentConfiguration deploymentConfiguration,
-      String storeType,
-      String storeName) {
-    return yamlParser.dump(getCRStore(crConfigMap, deploymentConfiguration, storeName));
+  protected void collectServiceSettings(
+      SpinnakerRuntimeSettings runtimeSettings, CRConfig crConfig) {
+    kubectlServiceProvider.getServices().stream()
+        .filter(s -> runtimeSettings.getServiceSettings(s.getType()).getEnabled())
+        .forEach(
+            s -> {
+              File userSettingsFile =
+                  new File(
+                      halconfigDirectoryStructure
+                          .getUserServiceSettingsPath(
+                              crConfig.getDeploymentConfiguration().getName())
+                          .toString(),
+                      s.getCanonicalName() + ".yml");
+              if (userSettingsFile.exists() && userSettingsFile.length() != 0) {
+                try (FileInputStream is = new FileInputStream(userSettingsFile)) {
+                  crConfig
+                      .getServiceSettings()
+                      .put(
+                          s.getCanonicalName(),
+                          objectMapper.convertValue(yamlParser.load(is), Map.class));
+                } catch (IOException e) {
+                  throw new HalException(
+                      Problem.Severity.FATAL,
+                      "Unable to read provided user settings: " + e.getMessage(),
+                      e);
+                }
+              }
+            });
   }
 
-  private static List<String> aggregateProfilesInPath(
-      String basePath, String relativePath, CRConfig crConfigMap) {
+  private static List<String> aggregateProfilesInPath(String basePath, String relativePath) {
     String filePrefix;
     if (!relativePath.isEmpty()) {
       filePrefix = relativePath + File.separator;
@@ -146,10 +176,9 @@ public class DeploymentCRDGenerator {
         .map(
             f -> {
               if (f.isFile()) {
-                crConfigMap.getProfileFiles().add(f);
                 return Collections.singletonList(filePrefix + f.getName());
               }
-              return aggregateProfilesInPath(basePath, filePrefix + f.getName(), crConfigMap);
+              return aggregateProfilesInPath(basePath, filePrefix + f.getName());
             })
         .reduce(
             new ArrayList<>(),
@@ -157,47 +186,5 @@ public class DeploymentCRDGenerator {
               a.addAll(b);
               return a;
             });
-  }
-
-  public Map<String, Object> getCRStore(
-      CRConfig crConfig, DeploymentConfiguration deploymentConfiguration, String storeName) {
-    Map<String, Object> map = new HashMap<>();
-    Map<String, Object> data = new HashMap<>();
-    Map<String, Object> metadata = new HashMap<>();
-    map.put("apiVersion", "v1");
-    map.put("kind", "ConfigMap");
-    map.put("metadata", metadata);
-    map.put("data", data);
-
-    metadata.put("name", storeName);
-    data.put(
-        "config", yamlParser.dump(objectMapper.convertValue(deploymentConfiguration, Map.class)));
-    data.put(
-        "service-settings",
-        yamlParser.dump(
-            crConfig.getServiceSettings().entrySet().stream()
-                .collect(
-                    Collectors.toMap(
-                        e -> e.getKey(), e -> getServiceSettingObject(e.getValue())))));
-    crConfig.getProfileFiles().stream()
-        .forEach(f -> data.put("profiles__" + f.getName(), readContent(f)));
-    return map;
-  }
-
-  protected String readContent(File file) {
-    try {
-      return new String(Files.readAllBytes(Paths.get(file.toURI())));
-    } catch (IOException e) {
-      throw new HalException(Problem.Severity.ERROR, "Unable to read file " + file.getName(), e);
-    }
-  }
-
-  protected Object getServiceSettingObject(File file) {
-    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-      return yamlParser.load(reader);
-    } catch (IOException e) {
-      throw new HalException(
-          Problem.Severity.ERROR, "Unable to read service settings " + file.getName(), e);
-    }
   }
 }
