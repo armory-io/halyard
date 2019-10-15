@@ -22,7 +22,6 @@ import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguratio
 import com.netflix.spinnaker.halyard.config.model.v1.node.Node;
 import com.netflix.spinnaker.halyard.core.error.v1.HalException;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -80,7 +79,7 @@ public class CRConfig {
                           return;
                         }
                         Path absPath = Paths.get(fPath);
-                        if (!fPath.startsWith(File.separator)) {
+                        if (!absPath.isAbsolute()) {
                           absPath = Paths.get(filesRelativeTo, fPath);
                         }
 
