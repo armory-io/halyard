@@ -373,7 +373,26 @@ public class DeploymentController extends DeploymentsGrpc.DeploymentsImplBase {
 
   @RequestMapping(
       value = "/{deploymentName:.+}/deploy/manifests/spinnakerService",
-      method = RequestMethod.GET)
+      method = RequestMethod.GET,
+      headers = "content-type=application/json")
+  DaemonTask<Halconfig, String> generateDeploymentManifestJson(
+      @PathVariable String deploymentName,
+      @RequestParam(required = false) String serviceName,
+      @RequestParam(required = false) String apiGroupVersion,
+      @ModelAttribute ValidationSettings validationSettings) {
+    DeploymentConfiguration config = deploymentService.getDeploymentConfiguration(deploymentName);
+    return GenericGetRequest.<String>builder()
+        .validator(() -> deploymentService.validateDeploymentShallow(deploymentName))
+        .getter(() -> deploymentCRDGenerator.generateCR(config, serviceName, apiGroupVersion))
+        .description("Get SpinnakerService manifest")
+        .build()
+        .execute(validationSettings);
+  }
+
+  @RequestMapping(
+      value = "/{deploymentName:.+}/deploy/manifests/spinnakerService",
+      method = RequestMethod.GET,
+      headers = "content-type!=application/json")
   String generateDeploymentManifest(
       @PathVariable String deploymentName,
       @RequestParam(required = false) String serviceName,
