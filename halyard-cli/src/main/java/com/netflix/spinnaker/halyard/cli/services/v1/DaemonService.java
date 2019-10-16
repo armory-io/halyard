@@ -929,4 +929,11 @@ public interface DaemonService {
 
   @GET("/v1/spin/install/latest")
   DaemonTask<Halconfig, Object> installSpin();
+
+  @GET("/v1/config/deployments/{deploymentName}/deploy/manifests/spinnakerService")
+  @Headers({"Content-Type: application/json"})
+  DaemonTask<Halconfig, String> getManifest(
+      @Path("deploymentName") String deploymentName,
+      @Query("serviceName") String serviceName,
+      @Query("apiGroupVersion") String apiGroupVersion);
 }
