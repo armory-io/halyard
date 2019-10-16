@@ -23,6 +23,10 @@ import com.netflix.spinnaker.halyard.config.model.v1.node.Node;
 import com.netflix.spinnaker.halyard.core.error.v1.HalException;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -86,7 +90,7 @@ public class CRConfig {
                         String name = assignRelativeFileName(absPath);
 
                         try {
-                          requiredFiles.put(name, new String(Files.readAllBytes(absPath)));
+                          requiredFiles.put(name, fromBytesToString(Files.readAllBytes(absPath)));
                         } catch (IOException e) {
                           throw new HalException(Problem.Severity.ERROR, e.getMessage(), e);
                         }
@@ -102,5 +106,15 @@ public class CRConfig {
                     });
 
     deploymentConfiguration.recursiveConsume(fileFinder);
+  }
+
+  protected String fromBytesToString(byte[] data) {
+    CharsetDecoder decoder = Charset.forName("UTF-8").newDecoder();
+    ByteBuffer buffer = ByteBuffer.wrap(data);
+    try {
+      return decoder.decode(buffer).toString();
+    } catch (CharacterCodingException e) {
+      return Base64.getEncoder().encodeToString(data);
+    }
   }
 }
