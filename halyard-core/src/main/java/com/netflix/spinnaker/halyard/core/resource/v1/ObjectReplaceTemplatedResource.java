@@ -25,11 +25,11 @@ import org.slf4j.LoggerFactory;
 public abstract class ObjectReplaceTemplatedResource extends TemplatedResource {
   public static Logger log = LoggerFactory.getLogger(ObjectReplaceTemplatedResource.class);
 
-  protected String formatKey(String key) {
+  private String formatKey(String key) {
     return "'{{%" + key + "%}}'";
   }
 
-  protected String getRegexSafeFormatKey() {
+  private String getRegexSafeFormatKey() {
     return "(?s).*\\'\\{\\{%.*%\\}\\}\\'.*";
   }
 

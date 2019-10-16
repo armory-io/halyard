@@ -25,6 +25,7 @@ import com.netflix.spinnaker.halyard.config.model.v1.node.Notifications;
 import com.netflix.spinnaker.halyard.config.model.v1.notifications.GithubStatusNotification;
 import com.netflix.spinnaker.halyard.config.model.v1.notifications.SlackNotification;
 import com.netflix.spinnaker.halyard.config.model.v1.notifications.TwilioNotification;
+import com.netflix.spinnaker.halyard.config.model.v1.plugins.Manifest;
 import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.appengine.AppengineProvider;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.aws.AwsAccount;
@@ -239,13 +240,14 @@ public class DeckProfileFactory extends RegistryBackedProfileFactory {
     List<Plugin> plugins = deploymentConfiguration.getPlugins().getPlugins();
     Map<String, List<String>> pluginMetadata =
         plugins.stream()
-            .filter(p -> p.getEnabled())
+            .filter(Plugin::getEnabled)
             .filter(p -> !p.getManifestLocation().isEmpty())
-            .map(p -> p.getManifest())
+            .map(Plugin::getManifest)
             .filter(m -> m.getResources().containsKey(SpinnakerArtifact.DECK.getName()))
             .collect(
                 Collectors.toMap(
-                    m -> m.getName(), m -> m.getResources().get(SpinnakerArtifact.DECK.getName())));
+                    Manifest::getName,
+                    m -> m.getResources().get(SpinnakerArtifact.DECK.getName())));
 
     for (Map.Entry<String, List<String>> entry : pluginMetadata.entrySet()) {
       for (String location : entry.getValue()) {

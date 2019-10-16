@@ -26,5 +26,5 @@ public class ObjectResource extends ObjectReplaceTemplatedResource {
   }
 
   @Getter(AccessLevel.PROTECTED)
-  private String contents;
+  private final String contents;
 }
