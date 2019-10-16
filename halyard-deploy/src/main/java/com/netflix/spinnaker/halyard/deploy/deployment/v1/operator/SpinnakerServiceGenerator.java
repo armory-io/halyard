@@ -15,18 +15,20 @@
  *
  *
  */
-package com.netflix.spinnaker.halyard.deploy.deployment.v1;
+package com.netflix.spinnaker.halyard.deploy.deployment.v1.operator;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import lombok.Data;
+/**
+ * A SpinnakerServiceGenerator generates the manifest (or list of) from an existing Halyard
+ * configuration via a parsed {@link CRConfig}.
+ */
+public interface SpinnakerServiceGenerator {
 
-@Data
-public class CRConfig {
-  private Map<String, File> serviceSettings = new HashMap<>();
-  private List<File> profileFiles = new ArrayList<>();
-  private List<String> requiredFiles = new ArrayList<>();
+  /** @return API Group version supported by the CRD */
+  String getAPIGroupVersion();
+
+  /**
+   * @param crConfig
+   * @return Serialized manifest
+   */
+  String toManifest(CRConfig crConfig);
 }
