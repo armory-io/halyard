@@ -63,6 +63,19 @@ public class PluginsController {
         .execute(validationSettings);
   }
 
+  @RequestMapping(value = "/byQuery", method = RequestMethod.GET)
+  DaemonTask<Halconfig, Plugin> getPluginByQuery(
+      @PathVariable String deploymentName,
+      @RequestParam String pluginName,
+      @ModelAttribute ValidationSettings validationSettings) {
+    return GenericGetRequest.<Plugin>builder()
+        .getter(() -> pluginService.getPlugin(deploymentName, pluginName))
+        .validator(() -> pluginService.validatePlugin(deploymentName, pluginName))
+        .description("Get the " + pluginName + " plugin")
+        .build()
+        .execute(validationSettings);
+  }
+
   @RequestMapping(value = "/{pluginName:.+}", method = RequestMethod.PUT)
   DaemonTask<Halconfig, Void> setPlugin(
       @PathVariable String deploymentName,

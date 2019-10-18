@@ -1329,6 +1329,16 @@ public class Daemon {
     };
   }
 
+  public static Supplier<Plugin> getPluginByQueryParam(
+      String deploymentName, String pluginName, boolean validate) {
+    return () -> {
+      Object rawPlugin =
+          ResponseUnwrapper.get(
+              getService().getPluginByQueryParam(deploymentName, pluginName, validate));
+      return getObjectMapper().convertValue(rawPlugin, Plugin.class);
+    };
+  }
+
   public static Supplier<Void> addPlugin(String deploymentName, boolean validate, Plugin plugin) {
     return () -> {
       ResponseUnwrapper.get(getService().addPlugin(deploymentName, validate, plugin));

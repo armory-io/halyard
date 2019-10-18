@@ -902,6 +902,12 @@ public interface DaemonService {
       @Path("pluginName") String pluginName,
       @Query("validate") boolean validate);
 
+  @GET("/v1/config/deployments/{deploymentName}/plugins/byQuery")
+  DaemonTask<Halconfig, Object> getPluginByQueryParam(
+      @Path("deploymentName") String deploymentName,
+      @Query("pluginName") String pluginName,
+      @Query("validate") boolean validate);
+
   @PUT("/v1/config/deployments/{deploymentName}/plugins/{pluginName}/")
   DaemonTask<Halconfig, Void> setPlugin(
       @Path("deploymentName") String deploymentName,
