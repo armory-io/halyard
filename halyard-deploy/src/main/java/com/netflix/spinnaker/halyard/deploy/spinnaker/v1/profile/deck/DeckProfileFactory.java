@@ -47,7 +47,6 @@ import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSetting
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.Profile;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.RegistryBackedProfileFactory;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.SpinnakerService.Type;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,7 +74,11 @@ public class DeckProfileFactory extends RegistryBackedProfileFactory {
       Profile profile,
       DeploymentConfiguration deploymentConfiguration,
       SpinnakerRuntimeSettings endpoints) {
-    ObjectResource configTemplate = new ObjectResource(profile.getBaseContents());
+    ObjectResource configTemplate =
+        new ObjectResource(
+            profile
+                .getBaseContents()
+                .replace("version: version,", "version: version,\n  plugins: '{{%plugins%}}',"));
     UiSecurity uiSecurity = deploymentConfiguration.getSecurity().getUiSecurity();
     profile.setUser(ApacheSettings.APACHE_USER);
 
@@ -242,20 +245,19 @@ public class DeckProfileFactory extends RegistryBackedProfileFactory {
         plugins.stream()
             .filter(Plugin::getEnabled)
             .filter(p -> !p.getManifestLocation().isEmpty())
-            .map(Plugin::getManifest)
-            .filter(m -> m.getResources().containsKey(SpinnakerArtifact.DECK.getName()))
-            .collect(
-                Collectors.toMap(
-                    Manifest::getName,
-                    m -> m.getResources().get(SpinnakerArtifact.DECK.getName())));
-
+            .map(Plugin::generateManifest)
+            .collect(Collectors.toMap(Manifest::getName, Manifest::getDeck));
     for (Map.Entry<String, List<String>> entry : pluginMetadata.entrySet()) {
       for (String location : entry.getValue()) {
         Map<String, String> resource = new HashMap<>();
         resource.put("name", entry.getKey());
-        String localFilePath =
-            "/plugins/" + entry.getKey() + "/" + Paths.get(location).getFileName().toString();
-        resource.put("location", localFilePath);
+        resource.put("location", location);
+        String extension = location.substring(location.lastIndexOf("."));
+        if (extension == "css") {
+          resource.put("type", "css");
+        } else {
+          resource.put("type", "js");
+        }
         pluginBinding.add(new Gson().toJson(resource));
       }
     }
