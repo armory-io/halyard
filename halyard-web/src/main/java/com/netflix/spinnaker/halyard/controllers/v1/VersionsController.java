@@ -39,6 +39,11 @@ public class VersionsController {
     return DaemonTaskHandler.submitTask(builder::build, "Get released versions");
   }
 
+  @RequestMapping(value = "/", method = RequestMethod.GET, params = "daemon=false")
+  Versions getAllNoDaemon() {
+    return versionsService.getVersions();
+  }
+
   @RequestMapping(value = "/latest/", method = RequestMethod.GET)
   DaemonTask<Halconfig, String> latest() {
     DaemonResponse.StaticRequestBuilder<String> builder =
@@ -67,5 +72,10 @@ public class VersionsController {
         new DaemonResponse.StaticRequestBuilder<>(
             () -> versionsService.getBillOfMaterials(version));
     return DaemonTaskHandler.submitTask(builder::build, "Get BOM for " + version);
+  }
+
+  @RequestMapping(value = "/bom", method = RequestMethod.GET, params = "daemon=false")
+  BillOfMaterials bomV2NoDaemon(@RequestParam(value = "version") String version) {
+    return versionsService.getBillOfMaterials(version);
   }
 }
