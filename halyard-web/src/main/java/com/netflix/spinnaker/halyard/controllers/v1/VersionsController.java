@@ -73,4 +73,9 @@ public class VersionsController {
             () -> versionsService.getBillOfMaterials(version));
     return DaemonTaskHandler.submitTask(builder::build, "Get BOM for " + version);
   }
+
+  @RequestMapping(value = "/bom", method = RequestMethod.GET, params = "daemon=false")
+  BillOfMaterials bomV2NoDaemon(@RequestParam(value = "version") String version) {
+    return versionsService.getBillOfMaterials(version);
+  }
 }
