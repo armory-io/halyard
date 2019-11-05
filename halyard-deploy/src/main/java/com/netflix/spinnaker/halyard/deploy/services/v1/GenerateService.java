@@ -57,9 +57,7 @@ public class GenerateService {
 
   @Autowired protected ServiceProviderFactory serviceProviderFactory;
 
-  @Autowired protected HalconfigDirectoryStructure halconfigDirectoryStructure;
-
-  @Autowired protected List<SpinnakerService> spinnakerServices = new ArrayList<>();
+  @Autowired private HalconfigDirectoryStructure halconfigDirectoryStructure;
 
   @Autowired protected ConfigParser configParser;
 

@@ -32,6 +32,9 @@ import org.yaml.snakeyaml.representer.Representer;
 
 @Component
 public class ResourceConfig {
+
+  public static final String DEFAULT_HALCONFIG_BUCKET = "halconfig";
+
   /**
    * Directory containing the halconfig.
    *
@@ -50,6 +53,7 @@ public class ResourceConfig {
 
   @Bean
   String localBomPath(@Value("${halyard.halconfig.directory:~/.hal}") String path) {
+
     return normalizePath(Paths.get(path, ".boms").toString());
   }
 
@@ -71,6 +75,11 @@ public class ResourceConfig {
   String spinconfigBucket(
       @Value("${spinnaker.config.input.bucket:halconfig}") String spinconfigBucket) {
     return spinconfigBucket;
+  }
+
+  @Bean
+  Boolean gcsEnabled(@Value("${spinnaker.config.input.gcs.enabled:true}") boolean gcsEnabled) {
+    return gcsEnabled;
   }
 
   @Bean

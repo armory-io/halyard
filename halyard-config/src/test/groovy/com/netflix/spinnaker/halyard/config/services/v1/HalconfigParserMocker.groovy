@@ -31,9 +31,7 @@ class HalconfigParserMocker extends Specification {
     def parserStub = new HalconfigParser()
     parserStub.objectMapper = new StrictObjectMapper()
     parserStub.yamlParser = new Yaml(new SafeConstructor())
-    def hcDirStructure = new HalconfigDirectoryStructure()
-    hcDirStructure.halconfigDirectory = "/home/spinnaker/.hal"
-    parserStub.halconfigDirectoryStructure = hcDirStructure
+    parserStub.halconfigDirectoryStructure = new HalconfigDirectoryStructure();
 
     def stream = new ByteArrayInputStream(config.getBytes(StandardCharsets.UTF_8))
     Halconfig halconfig = parserStub.parseHalconfig(stream)

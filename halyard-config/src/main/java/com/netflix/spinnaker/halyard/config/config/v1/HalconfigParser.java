@@ -36,7 +36,6 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -61,8 +60,6 @@ import org.yaml.snakeyaml.scanner.ScannerException;
 @Slf4j
 @Component
 public class HalconfigParser {
-  @Autowired String halyardVersion;
-
   @Autowired StrictObjectMapper objectMapper;
 
   @Autowired HalconfigDirectoryStructure halconfigDirectoryStructure;
@@ -105,8 +102,8 @@ public class HalconfigParser {
     String baseDirectory =
         useBackup
             ? halconfigDirectoryStructure.getBackupConfigPath().toString()
-            : halconfigDirectoryStructure.getHalconfigDirectory();
-    return new FileInputStream(new File(baseDirectory, "config"));
+            : halconfigDirectoryStructure.getHalconfigPath();
+    return new FileInputStream(new File(baseDirectory));
   }
 
   /**
@@ -167,7 +164,7 @@ public class HalconfigParser {
       return;
     }
     Halconfig halconfig = getHalconfig();
-    Set<String> referencedFiles = new HashSet<String>();
+    Set<String> referencedFiles = new HashSet<>();
     Consumer<Node> fileFinder =
         n ->
             referencedFiles.addAll(
@@ -189,12 +186,11 @@ public class HalconfigParser {
     halconfig.recursiveConsume(fileFinder);
 
     Set<String> existingStagingFiles =
-        ((List<File>)
-                FileUtils.listFiles(
-                    stagingDirectoryPath.toFile(),
-                    TrueFileFilter.INSTANCE,
-                    TrueFileFilter.INSTANCE))
-            .stream().map(f -> f.getAbsolutePath()).collect(Collectors.toSet());
+        FileUtils.listFiles(
+                stagingDirectoryPath.toFile(), TrueFileFilter.INSTANCE, TrueFileFilter.INSTANCE)
+            .stream()
+            .map(f -> f.getAbsolutePath())
+            .collect(Collectors.toSet());
 
     existingStagingFiles.removeAll(referencedFiles);
 
