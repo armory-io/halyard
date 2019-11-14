@@ -27,7 +27,7 @@ import lombok.Getter;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
-public abstract class ArtifactProvider<A extends ArtifactAccount> extends Node {
+public abstract class ArtifactProvider<A extends ArtifactAccount> extends Node implements CanEnabled {
   boolean enabled = false;
   List<A> accounts = new ArrayList<>();
 

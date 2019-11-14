@@ -354,7 +354,26 @@ public class NodeFilter implements Cloneable {
     return this;
   }
 
+  public NodeFilter any() {
+    matchers.add(new NodeMatcher() {
+      @Override
+      public boolean matches(Node n) {
+        return true;
+      }
+
+      @Override
+      public String getName() {
+        return "any";
+      }
+    });
+    return this;
+  }
+
   public NodeFilter() {
     withAnyHalconfigFile();
+  }
+
+  public NodeFilter(Class c) {
+    matchers.add(Node.thisNodeAcceptor(c));
   }
 }

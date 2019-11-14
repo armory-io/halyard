@@ -28,7 +28,7 @@ import lombok.Getter;
 @Data
 @EqualsAndHashCode(callSuper = false)
 public abstract class Pubsub<S extends Subscription, P extends Publisher> extends Node
-    implements Cloneable {
+    implements Cloneable, CanEnabled {
 
   boolean enabled = false;
 

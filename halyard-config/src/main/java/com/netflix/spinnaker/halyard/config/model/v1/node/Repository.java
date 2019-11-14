@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public abstract class Repository<T extends Search> extends Node implements Cloneable {
+public abstract class Repository<T extends Search> extends Node implements Cloneable, CanEnabled {
   boolean enabled;
   List<T> searches = new ArrayList<>();
 

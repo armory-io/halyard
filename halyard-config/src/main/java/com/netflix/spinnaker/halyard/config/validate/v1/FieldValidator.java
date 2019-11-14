@@ -16,10 +16,7 @@
 
 package com.netflix.spinnaker.halyard.config.validate.v1;
 
-import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
-import com.netflix.spinnaker.halyard.config.model.v1.node.Node;
-import com.netflix.spinnaker.halyard.config.model.v1.node.ValidForSpinnakerVersion;
-import com.netflix.spinnaker.halyard.config.model.v1.node.Validator;
+import com.netflix.spinnaker.halyard.config.model.v1.node.*;
 import com.netflix.spinnaker.halyard.config.problem.v1.ConfigProblemSetBuilder;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.core.registry.v1.Versions;
@@ -112,5 +109,10 @@ public class FieldValidator extends Validator<Node> {
               });
       clazz = clazz.getSuperclass();
     }
+  }
+
+  @Override
+  public NodeFilter getNodeFilter() {
+    return new NodeFilter();
   }
 }
