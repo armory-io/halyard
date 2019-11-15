@@ -118,7 +118,8 @@ public class DaemonTaskHandler {
   public static JobExecutor getJobExecutor() {
     if (getTask() == null) {
       return new JobExecutorLocal();
-//      throw new IllegalStateException("Cannot request a job executor from outside a daemon task");
+      //      throw new IllegalStateException("Cannot request a job executor from outside a daemon
+      // task");
     }
 
     if (jobExecutor == null) {

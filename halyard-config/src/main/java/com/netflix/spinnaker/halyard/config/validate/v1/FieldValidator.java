@@ -110,9 +110,4 @@ public class FieldValidator extends Validator<Node> {
       clazz = clazz.getSuperclass();
     }
   }
-
-  @Override
-  public NodeFilter getNodeFilter() {
-    return new NodeFilter();
-  }
 }

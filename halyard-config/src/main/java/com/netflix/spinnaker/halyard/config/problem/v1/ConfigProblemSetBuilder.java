@@ -73,10 +73,12 @@ public class ConfigProblemSetBuilder {
   }
 
   public boolean hasErrorOrFatalProblems() {
-    return builders.stream().anyMatch(b -> {
-      Severity severity = b.build().getSeverity();
-      return severity == Severity.ERROR || severity == Severity.FATAL;
-    });
+    return builders.stream()
+        .anyMatch(
+            b -> {
+              Severity severity = b.build().getSeverity();
+              return severity == Severity.ERROR || severity == Severity.FATAL;
+            });
   }
 
   public ProblemSet build() {

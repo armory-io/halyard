@@ -17,6 +17,7 @@
 package com.netflix.spinnaker.halyard.config.model.v1.node;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.net.URI;
 import java.util.Arrays;
@@ -25,7 +26,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public abstract class PersistentStore extends Node {
+public abstract class PersistentStore extends Node implements CanEnabled {
   @Override
   public String getNodeName() {
     return persistentStoreType().getId();
@@ -39,6 +40,14 @@ public abstract class PersistentStore extends Node {
   public abstract PersistentStoreType persistentStoreType();
 
   public void setConnectionInfo(URI uri) {}
+
+  @JsonIgnore
+  public boolean isEnabled() {
+    if (parent != null && parent instanceof PersistentStorage) {
+      return ((PersistentStorage) parent).getPersistentStoreType() == persistentStoreType();
+    }
+    return false;
+  }
 
   public enum PersistentStoreType {
     AZS("azs"),

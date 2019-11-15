@@ -15,15 +15,14 @@
  */
 package com.netflix.spinnaker.halyard.controllers.v1;
 
-import com.netflix.spinnaker.halyard.core.problem.v1.ProblemSet;
 import com.netflix.spinnaker.halyard.deploy.services.v1.ValidationService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,15 +30,15 @@ import java.util.List;
 public class ValidationController {
   private final ValidationService validationService;
 
-
   @RequestMapping(value = "/config", method = RequestMethod.POST)
-  ProblemSet validateConfig(MultipartHttpServletRequest request,
-                            @RequestParam(required=false) List<String> skipValidators,
-                            @RequestParam boolean failFast) throws IOException {
+  Map validateConfig(
+      MultipartHttpServletRequest request,
+      @RequestParam(required = false) List<String> skipValidators,
+      @RequestParam boolean failFast)
+      throws IOException {
     if (skipValidators == null) {
       skipValidators = new ArrayList<>();
     }
     return validationService.validate(request, skipValidators, failFast);
   }
-
 }
