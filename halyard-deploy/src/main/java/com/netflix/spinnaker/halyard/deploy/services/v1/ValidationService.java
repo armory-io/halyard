@@ -17,6 +17,7 @@ package com.netflix.spinnaker.halyard.deploy.services.v1;
 
 import com.netflix.spinnaker.halyard.config.config.v1.HalconfigParser;
 import com.netflix.spinnaker.halyard.config.model.v1.node.*;
+import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,7 @@ public class ValidationService {
   @Autowired ApplicationContext applicationContext;
   @Autowired List<Validator> allValidators = new ArrayList<>();
 
-  public ValidationRun.ValidationResults validate(
+  public List<Problem> validate(
       MultipartHttpServletRequest request, List<String> skipValidators, boolean failFast)
       throws IOException {
     RequestGenerateService fileRequestService = newRequestGenerateService();

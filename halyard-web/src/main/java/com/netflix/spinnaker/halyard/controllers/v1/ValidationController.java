@@ -15,11 +15,11 @@
  */
 package com.netflix.spinnaker.halyard.controllers.v1;
 
+import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.deploy.services.v1.ValidationService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -31,7 +31,7 @@ public class ValidationController {
   private final ValidationService validationService;
 
   @RequestMapping(value = "/config", method = RequestMethod.POST)
-  Map validateConfig(
+  List<Problem> validateConfig(
       MultipartHttpServletRequest request,
       @RequestParam(required = false) List<String> skipValidators,
       @RequestParam boolean failFast)

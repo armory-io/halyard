@@ -18,15 +18,12 @@ package com.netflix.spinnaker.halyard.deploy.services.v1;
 import com.netflix.spinnaker.halyard.config.model.v1.node.*;
 import com.netflix.spinnaker.halyard.config.problem.v1.ConfigProblemSetBuilder;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
-import com.netflix.spinnaker.halyard.core.problem.v1.ProblemSet;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationContext;
 
@@ -37,9 +34,9 @@ public class ValidationRun {
   private final DeploymentConfiguration deploymentConfiguration;
   private final boolean failFast;
   private List<NodeValidator> nodeValidators;
-  private ValidationResults results = new ValidationResults();
+  private List<Problem> results = new ArrayList<>();
 
-  public ValidationResults run() {
+  public List<Problem> run() {
     nodeValidators =
         validators.stream()
             .map(v -> new NodeValidator(v, getNodeFilter(v)))
@@ -71,8 +68,14 @@ public class ValidationRun {
     for (NodeValidator nodeValidator : nodeValidators) {
       ConfigProblemSetBuilder psBuilder = nodeValidator.validate(node);
       if (psBuilder != null) {
-        results.add(psBuilder);
-        if (failFast && psBuilder.hasErrorOrFatalProblems()) {
+        List<Problem> problems = psBuilder.build().getProblems();
+        results.addAll(problems);
+        if (failFast
+            && problems.stream()
+                .anyMatch(
+                    p ->
+                        p.getSeverity() == Problem.Severity.ERROR
+                            || p.getSeverity() == Problem.Severity.FATAL)) {
           return false;
         }
       }
@@ -107,22 +110,6 @@ public class ValidationRun {
         return psBuilder;
       }
       return null;
-    }
-  }
-
-  @Data
-  public static class ValidationResults extends HashMap<String, List<Problem>> {
-
-    public void add(ConfigProblemSetBuilder psBuilder) {
-      ProblemSet pSet = psBuilder.build();
-      for (Problem problem : pSet.getProblems()) {
-        List<Problem> problems = get(problem.getLocation());
-        if (problems == null) {
-          problems = new ArrayList<>();
-          put(problem.getLocation(), problems);
-        }
-        problems.add(problem);
-      }
     }
   }
 }
