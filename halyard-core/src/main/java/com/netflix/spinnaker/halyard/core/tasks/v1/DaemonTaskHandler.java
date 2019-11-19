@@ -4,6 +4,7 @@ import com.netflix.spinnaker.halyard.core.DaemonResponse;
 import com.netflix.spinnaker.halyard.core.error.v1.HalException;
 import com.netflix.spinnaker.halyard.core.job.v1.DaemonLocalJobExecutor;
 import com.netflix.spinnaker.halyard.core.job.v1.JobExecutor;
+import com.netflix.spinnaker.halyard.core.job.v1.JobExecutorLocal;
 import com.netflix.spinnaker.halyard.core.problem.v1.ProblemSet;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
@@ -116,7 +117,7 @@ public class DaemonTaskHandler {
 
   public static JobExecutor getJobExecutor() {
     if (getTask() == null) {
-      throw new IllegalStateException("Cannot request a job executor from outside a daemon task");
+      return new JobExecutorLocal();
     }
 
     if (jobExecutor == null) {

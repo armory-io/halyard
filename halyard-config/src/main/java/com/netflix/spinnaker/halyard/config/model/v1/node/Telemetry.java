@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class Telemetry extends Node {
+public class Telemetry extends Node implements HasEnabled {
 
   public static String DEFAULT_TELEMETRY_ENDPOINT = "https://stats.spinnaker.io";
 
@@ -31,7 +31,7 @@ public class Telemetry extends Node {
     return "telemetry";
   }
 
-  private Boolean enabled = false;
+  private boolean enabled = false;
   private String endpoint = DEFAULT_TELEMETRY_ENDPOINT;
   private String instanceId = new ULID().nextULID();
   private String spinnakerVersion;

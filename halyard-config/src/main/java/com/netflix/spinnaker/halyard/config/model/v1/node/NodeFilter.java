@@ -357,4 +357,8 @@ public class NodeFilter implements Cloneable {
   public NodeFilter() {
     withAnyHalconfigFile();
   }
+
+  public NodeFilter(Class c) {
+    matchers.add(Node.thisNodeAcceptor(c));
+  }
 }

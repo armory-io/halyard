@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Google, Inc.
+ * Copyright 2019 Armory, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,6 @@
 
 package com.netflix.spinnaker.halyard.config.model.v1.node;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-
-@Data
-@EqualsAndHashCode(callSuper = false)
-public abstract class Ci<T extends CIAccount> extends Node implements Cloneable, HasEnabled {
-  boolean enabled;
-
-  public abstract List<T> listAccounts();
-
-  @Override
-  public NodeIterator getChildren() {
-    return NodeIteratorFactory.makeListIterator(
-        listAccounts().stream().map(a -> (Node) a).collect(Collectors.toList()));
-  }
+public interface HasEnabled {
+  boolean isEnabled();
 }
