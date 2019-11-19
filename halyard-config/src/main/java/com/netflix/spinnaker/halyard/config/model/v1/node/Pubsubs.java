@@ -27,7 +27,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class Pubsubs extends Node implements Cloneable, CanEnabled {
+public class Pubsubs extends Node implements Cloneable, HasEnabled {
   private Boolean enabled;
   private GooglePubsub google = new GooglePubsub();
 

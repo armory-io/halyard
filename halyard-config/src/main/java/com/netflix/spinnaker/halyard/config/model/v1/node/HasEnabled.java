@@ -16,6 +16,6 @@
 
 package com.netflix.spinnaker.halyard.config.model.v1.node;
 
-public interface CanEnabled {
+public interface HasEnabled {
   boolean isEnabled();
 }

@@ -30,7 +30,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 @Slf4j
 @Component
-public class ValidationService {
+public class DynamicValidationService {
   @Autowired HalconfigParser halconfigParser;
   @Autowired ApplicationContext applicationContext;
   @Autowired List<Validator> allValidators = new ArrayList<>();

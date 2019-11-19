@@ -24,7 +24,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public abstract class Notification extends Node implements Cloneable, CanEnabled {
+public abstract class Notification extends Node implements Cloneable, HasEnabled {
   @ValidForSpinnakerVersion(
       lowerBound = "1.4.0",
       tooLowMessage =

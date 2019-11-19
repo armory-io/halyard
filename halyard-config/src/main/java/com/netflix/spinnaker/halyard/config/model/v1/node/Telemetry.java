@@ -22,7 +22,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class Telemetry extends Node implements CanEnabled {
+public class Telemetry extends Node implements HasEnabled {
 
   public static String DEFAULT_TELEMETRY_ENDPOINT = "https://stats.spinnaker.io";
 

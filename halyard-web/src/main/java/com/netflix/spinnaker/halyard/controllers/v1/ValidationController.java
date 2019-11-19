@@ -16,7 +16,7 @@
 package com.netflix.spinnaker.halyard.controllers.v1;
 
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
-import com.netflix.spinnaker.halyard.deploy.services.v1.ValidationService;
+import com.netflix.spinnaker.halyard.deploy.services.v1.DynamicValidationService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 @RequiredArgsConstructor
 @RequestMapping("/v1/validation")
 public class ValidationController {
-  private final ValidationService validationService;
+  private final DynamicValidationService validationService;
 
   @RequestMapping(value = "/config", method = RequestMethod.POST)
   List<Problem> validateConfig(

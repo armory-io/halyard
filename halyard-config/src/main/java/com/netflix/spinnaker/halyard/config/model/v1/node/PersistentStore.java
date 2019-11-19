@@ -26,7 +26,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public abstract class PersistentStore extends Node implements CanEnabled {
+public abstract class PersistentStore extends Node implements HasEnabled {
   @Override
   public String getNodeName() {
     return persistentStoreType().getId();

@@ -27,7 +27,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class Plugins extends Node implements CanEnabled {
+public class Plugins extends Node implements HasEnabled {
   private List<Plugin> plugins = new ArrayList<>();
   private boolean enabled;
   private boolean downloadingEnabled;

@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public abstract class Ci<T extends CIAccount> extends Node implements Cloneable, CanEnabled {
+public abstract class Ci<T extends CIAccount> extends Node implements Cloneable, HasEnabled {
   boolean enabled;
 
   public abstract List<T> listAccounts();

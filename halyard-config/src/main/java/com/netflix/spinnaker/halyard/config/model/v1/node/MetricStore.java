@@ -23,7 +23,7 @@ import lombok.EqualsAndHashCode;
 
 @EqualsAndHashCode(callSuper = false)
 @Data
-public abstract class MetricStore extends Node implements CanEnabled {
+public abstract class MetricStore extends Node implements HasEnabled {
   boolean enabled;
 
   @JsonIgnore

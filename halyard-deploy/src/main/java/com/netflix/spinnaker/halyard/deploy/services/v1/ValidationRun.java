@@ -54,7 +54,7 @@ public class ValidationRun {
     Node recurse;
     while ((recurse = children.getNext()) != null) {
       // Don't visit disabled features
-      if (recurse instanceof CanEnabled && !((CanEnabled) recurse).isEnabled()) {
+      if (recurse instanceof HasEnabled && !((HasEnabled) recurse).isEnabled()) {
         continue;
       }
       if (!visitNode(recurse)) {

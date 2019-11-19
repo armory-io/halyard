@@ -25,7 +25,7 @@ import lombok.Getter;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public abstract class Provider<A extends Account> extends Node implements Cloneable, CanEnabled {
+public abstract class Provider<A extends Account> extends Node implements Cloneable, HasEnabled {
   boolean enabled = false;
   List<A> accounts = new ArrayList<>();
 
