@@ -1369,13 +1369,6 @@ public class Daemon {
     };
   }
 
-  public static Supplier<String> getManifest(
-      String deploymentName, String serviceName, String apiGroupVersion) {
-    return () ->
-        ResponseUnwrapper.get(
-            getService().getManifest(deploymentName, serviceName, apiGroupVersion));
-  }
-
   public static Supplier<Telemetry> getTelemetry(String deploymentName, boolean validate) {
     return () -> {
       Object rawTelemetry =
@@ -1400,7 +1393,15 @@ public class Daemon {
     };
   }
 
-  private static DaemonService service;
+  public static Supplier<String> getManifest(
+          String deploymentName, String serviceName, String apiGroupVersion) {
+      return () ->
+              ResponseUnwrapper.get(
+                      getService().getManifest(deploymentName, serviceName, apiGroupVersion));
+  }
+
+
+    private static DaemonService service;
   private static ObjectMapper objectMapper;
 
   private static DaemonService createService(boolean log) {

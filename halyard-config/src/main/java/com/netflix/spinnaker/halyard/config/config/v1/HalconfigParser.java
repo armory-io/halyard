@@ -77,9 +77,7 @@ public class HalconfigParser {
    */
   Halconfig parseHalconfig(InputStream is) throws IllegalArgumentException {
     Object obj = yamlParser.load(is);
-    Halconfig halconfig = objectMapper.convertValue(obj, Halconfig.class);
-    halconfig.setPrefixToRelativeFiles(halconfigDirectoryStructure.getRelativeFilesHome());
-    return halconfig;
+    return objectMapper.convertValue(obj, Halconfig.class);
   }
 
   /**

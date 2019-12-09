@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Armory, Inc.
+ * Copyright 2019 Huawei Technologies Co.,Ltd.
  *
  * Licensed under the Apache License, Version 2.0 (the "License")
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,23 @@
  * limitations under the License.
  */
 
-package com.netflix.spinnaker.halyard.config.model.v1.node;
+package com.netflix.spinnaker.halyard.config.model.v1.providers.huaweicloud;
 
-import de.huxhorn.sulky.ulid.ULID;
+import com.netflix.spinnaker.halyard.config.model.v1.node.HasImageProvider;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class Telemetry extends Node {
-
-  public static String DEFAULT_TELEMETRY_ENDPOINT = "https://stats.spinnaker.io";
-
+@EqualsAndHashCode(callSuper = true)
+public class HuaweiCloudProvider
+    extends HasImageProvider<HuaweiCloudAccount, HuaweiCloudBakeryDefaults> implements Cloneable {
   @Override
-  public String getNodeName() {
-    return "telemetry";
+  public ProviderType providerType() {
+    return ProviderType.HUAWEICLOUD;
   }
 
-  private Boolean enabled = false;
-  private String endpoint = DEFAULT_TELEMETRY_ENDPOINT;
-  private String instanceId = new ULID().nextULID();
-  private String spinnakerVersion;
-  private int connectionTimeoutMillis = 3000;
-  private int readTimeoutMillis = 5000;
+  @Override
+  public HuaweiCloudBakeryDefaults emptyBakeryDefaults() {
+    return new HuaweiCloudBakeryDefaults();
+  }
 }

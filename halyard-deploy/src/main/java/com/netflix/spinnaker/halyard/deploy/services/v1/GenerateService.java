@@ -56,7 +56,6 @@ public class GenerateService {
   @Autowired protected DeploymentService deploymentService;
 
   @Autowired protected ServiceProviderFactory serviceProviderFactory;
-
   @Autowired private HalconfigDirectoryStructure halconfigDirectoryStructure;
 
   @Autowired protected ConfigParser configParser;
