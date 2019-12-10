@@ -58,7 +58,14 @@ public class DynamicValidationService {
               applicationContext,
               halConfig.getDeploymentConfigurations().get(0),
               failFast);
-      return run.run();
+      List<Problem> problems = run.run();
+      if (!problems.isEmpty()) {
+        log.info(
+            "Found {} problems: {}",
+            problems.size(),
+            problems.stream().map(Problem::getMessage).collect(Collectors.toList()));
+      }
+      return problems;
     } finally {
       fileRequestService.cleanup();
     }
