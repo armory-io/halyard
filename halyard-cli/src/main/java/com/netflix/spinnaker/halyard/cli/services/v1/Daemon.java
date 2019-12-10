@@ -1394,14 +1394,13 @@ public class Daemon {
   }
 
   public static Supplier<String> getManifest(
-          String deploymentName, String serviceName, String apiGroupVersion) {
-      return () ->
-              ResponseUnwrapper.get(
-                      getService().getManifest(deploymentName, serviceName, apiGroupVersion));
+      String deploymentName, String serviceName, String apiGroupVersion) {
+    return () ->
+        ResponseUnwrapper.get(
+            getService().getManifest(deploymentName, serviceName, apiGroupVersion));
   }
 
-
-    private static DaemonService service;
+  private static DaemonService service;
   private static ObjectMapper objectMapper;
 
   private static DaemonService createService(boolean log) {

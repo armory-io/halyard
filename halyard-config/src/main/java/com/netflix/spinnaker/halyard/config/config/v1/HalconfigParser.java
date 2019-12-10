@@ -231,8 +231,6 @@ public class HalconfigParser {
 
     AtomicFileWriter writer = null;
     try {
-      local.removePrefixFromUnchangedRelativeFiles(
-          halconfigDirectoryStructure.getRelativeFilesHome());
       writer = new AtomicFileWriter(path);
       writer.write(yamlParser.dump(objectMapper.convertValue(local, Map.class)));
       writer.commit();

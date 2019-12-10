@@ -33,10 +33,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
@@ -85,20 +88,6 @@ public class KubernetesV2Utils {
     return command;
   }
 
-  private String getKubeconfigFile(KubernetesAccount account) {
-    String kubeconfigFile = account.getKubeconfigFile();
-
-    if (EncryptedSecret.isEncryptedSecret(kubeconfigFile)) {
-      return secretSessionManager.decryptAsFile(kubeconfigFile);
-    }
-
-    if (CloudConfigResourceService.isCloudConfigResource(kubeconfigFile)) {
-      return cloudConfigResourceService.getLocalPath(kubeconfigFile);
-    }
-
-    return kubeconfigFile;
-  }
-
   List<String> kubectlPodServiceCommand(
       KubernetesAccount account, String namespace, String service) {
     List<String> command = kubectlPrefix(account);
@@ -129,6 +118,49 @@ public class KubernetesV2Utils {
     command.add(port + "");
 
     return command;
+  }
+
+  public SecretSpec createSecretSpec(
+      String namespace, String clusterName, String name, List<SecretMountPair> files) {
+    Map<String, String> contentMap = new HashMap<>();
+    for (SecretMountPair pair : files) {
+      String contents;
+      if (pair.getContentBytes() != null) {
+        contents = new String(Base64.getEncoder().encode(pair.getContentBytes()));
+      } else {
+        try {
+          contents =
+              new String(
+                  Base64.getEncoder()
+                      .encode(IOUtils.toByteArray(new FileInputStream(pair.getContents()))));
+        } catch (IOException e) {
+          throw new HalException(
+              Problem.Severity.FATAL,
+              "Failed to read required config file: "
+                  + pair.getContents().getAbsolutePath()
+                  + ": "
+                  + e.getMessage(),
+              e);
+        }
+      }
+
+      contentMap.put(pair.getName(), contents);
+    }
+
+    SecretSpec spec = new SecretSpec();
+    spec.name = name + "-" + Math.abs(contentMap.hashCode());
+
+    spec.resource = new JinjaJarResource("/kubernetes/manifests/secret.yml");
+    Map<String, Object> bindings = new HashMap<>();
+
+    bindings.put("files", contentMap);
+    bindings.put("name", spec.name);
+    bindings.put("namespace", namespace);
+    bindings.put("clusterName", clusterName);
+
+    spec.resource.extendBindings(bindings);
+
+    return spec;
   }
 
   public String prettify(String input) {

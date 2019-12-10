@@ -43,14 +43,12 @@ public class KubernetesV2ClouddriverProfileFactory extends ClouddriverProfileFac
   private final ObjectMapper objectMapper;
   private final Yaml yamlParser;
   private final FileService fileService;
-  private final CloudConfigResourceService cloudConfigResourceService;
 
   public KubernetesV2ClouddriverProfileFactory(
       ObjectMapper objectMapper, Yaml yamlParser, FileService fileService) {
     this.objectMapper = objectMapper;
     this.yamlParser = yamlParser;
     this.fileService = fileService;
-    this.cloudConfigResourceService = cloudConfigResourceService;
   }
 
   @Override
