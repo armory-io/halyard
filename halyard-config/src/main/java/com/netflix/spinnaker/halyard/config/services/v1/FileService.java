@@ -106,7 +106,7 @@ public class FileService {
     }
     Path filePath = Paths.get(path);
     if (!filePath.isAbsolute()) {
-      filePath = Paths.get(halconfigDirectoryStructure.getHalconfigDirectory(), path);
+      filePath = Paths.get(halconfigDirectoryStructure.getRelativeFilesHome(), path);
     }
     return filePath;
   }
