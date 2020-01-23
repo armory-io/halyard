@@ -72,6 +72,6 @@ public class DynamicValidationService {
   }
 
   protected RequestGenerateService newRequestGenerateService() {
-    return new RequestGenerateService();
+    return applicationContext.getBean(RequestGenerateService.class);
   }
 }

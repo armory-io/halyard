@@ -29,10 +29,15 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 import lombok.Getter;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.yaml.snakeyaml.Yaml;
 
+@Component
+@Scope(scopeName = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class RequestGenerateService {
 
   private static final String CONFIG_KEY = "config";
