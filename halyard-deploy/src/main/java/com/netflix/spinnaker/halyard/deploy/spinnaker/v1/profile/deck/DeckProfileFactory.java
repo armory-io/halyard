@@ -17,6 +17,7 @@
 
 package com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.deck;
 
+import com.google.gson.Gson;
 import com.netflix.spinnaker.halyard.config.model.v1.canary.Canary;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Features;
@@ -24,6 +25,8 @@ import com.netflix.spinnaker.halyard.config.model.v1.node.Notifications;
 import com.netflix.spinnaker.halyard.config.model.v1.notifications.GithubStatusNotification;
 import com.netflix.spinnaker.halyard.config.model.v1.notifications.SlackNotification;
 import com.netflix.spinnaker.halyard.config.model.v1.notifications.TwilioNotification;
+import com.netflix.spinnaker.halyard.config.model.v1.plugins.Manifest;
+import com.netflix.spinnaker.halyard.config.model.v1.plugins.Plugin;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.appengine.AppengineProvider;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.aws.AwsAccount;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.aws.AwsProvider;
@@ -39,16 +42,15 @@ import com.netflix.spinnaker.halyard.config.model.v1.security.UiSecurity;
 import com.netflix.spinnaker.halyard.config.services.v1.AccountService;
 import com.netflix.spinnaker.halyard.config.services.v1.VersionsService;
 import com.netflix.spinnaker.halyard.core.registry.v1.Versions;
+import com.netflix.spinnaker.halyard.core.resource.v1.ObjectResource;
 import com.netflix.spinnaker.halyard.core.resource.v1.StringResource;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerArtifact;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.Profile;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.RegistryBackedProfileFactory;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.SpinnakerService.Type;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -74,7 +76,11 @@ public class DeckProfileFactory extends RegistryBackedProfileFactory {
       Profile profile,
       DeploymentConfiguration deploymentConfiguration,
       SpinnakerRuntimeSettings endpoints) {
-    StringResource configTemplate = new StringResource(profile.getBaseContents());
+    ObjectResource configTemplate =
+        new ObjectResource(
+            profile
+                .getBaseContents()
+                .replace("version: version,", "version: version,\n  plugins: '{{%plugins%}}',"));
     UiSecurity uiSecurity = deploymentConfiguration.getSecurity().getUiSecurity();
     profile.setUser(ApacheSettings.APACHE_USER);
 
@@ -250,8 +256,35 @@ public class DeckProfileFactory extends RegistryBackedProfileFactory {
       bindings.put("canary.showAllCanaryConfigs", canary.isShowAllConfigsEnabled());
     }
 
+    // Configure Plugins
+    List<String> pluginBinding = new ArrayList<>();
+    List<Plugin> plugins = deploymentConfiguration.getPlugins().getPlugins();
+    Map<String, List<String>> pluginMetadata =
+        plugins.stream()
+            .filter(Plugin::getEnabled)
+            .filter(p -> !p.getManifestLocation().isEmpty())
+            .map(Plugin::generateManifest)
+            .collect(Collectors.toMap(Manifest::getName, Manifest::getDeck));
+    for (Map.Entry<String, List<String>> entry : pluginMetadata.entrySet()) {
+      for (String location : entry.getValue()) {
+        Map<String, String> resource = new HashMap<>();
+        resource.put("name", entry.getKey());
+        resource.put("location", location);
+        String extension = location.substring(location.lastIndexOf("."));
+        if (extension == "css") {
+          resource.put("type", "css");
+        } else {
+          resource.put("type", "js");
+        }
+        pluginBinding.add(new Gson().toJson(resource));
+      }
+    }
+    bindings.put("plugins", pluginBinding);
+
+    StringResource objectConfigTemplate =
+        new StringResource(configTemplate.setBindings(bindings).toString());
     profile
-        .appendContents(configTemplate.setBindings(bindings).toString())
+        .appendContents(objectConfigTemplate.setBindings(bindings).toString())
         .setRequiredFiles(backupRequiredFiles(uiSecurity, deploymentConfiguration.getName()));
   }
 }

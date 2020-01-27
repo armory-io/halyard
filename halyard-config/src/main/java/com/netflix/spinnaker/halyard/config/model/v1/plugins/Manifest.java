@@ -31,6 +31,7 @@ public class Manifest {
   public String name;
   public String manifestVersion;
   public List<String> jars;
+  public List<String> deck;
   public Map<String, Object> options;
 
   static final String regex = "^[a-zA-Z0-9]+\\/[\\w-]+$";
@@ -38,7 +39,7 @@ public class Manifest {
 
   public void validate() throws HalException {
 
-    if (Stream.of(name, manifestVersion, jars).anyMatch(Objects::isNull)) {
+    if (Stream.of(name, manifestVersion, jars, deck).anyMatch(Objects::isNull)) {
       throw new HalException(
           new ConfigProblemBuilder(
                   Problem.Severity.FATAL, "Invalid plugin manifest, contains null values")
