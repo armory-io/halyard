@@ -61,6 +61,13 @@ public class EchoProfileFactory extends SpringProfileFactory {
     List<String> files = new ArrayList<>();
 
     profile.appendContents("global.spinnaker.timezone: " + deploymentConfiguration.getTimezone());
+
+    // Map<String, Object> spinnakerYaml = new LinkedHashMap<>();
+    // Map<String, Object> exYaml = deploymentConfiguration.getSpinnaker().toMap();
+    // exYaml.put("baseUrl", endpoints.getServiceSettings(Type.DECK).getBaseUrl());
+    // spinnakerYaml.put("spinnaker", exYaml);
+    // profile.appendContents(yamlToString(deploymentConfiguration.getName(), profile,
+    // spinnakerYaml));
     profile.appendContents(
         "spinnaker.baseUrl: " + endpoints.getServiceSettings(Type.DECK).getBaseUrl());
 

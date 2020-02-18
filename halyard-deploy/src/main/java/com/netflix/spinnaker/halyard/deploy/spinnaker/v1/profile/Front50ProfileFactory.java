@@ -60,7 +60,7 @@ public class Front50ProfileFactory extends SpringProfileFactory {
     }
 
     List<String> files = backupRequiredFiles(persistentStorage, deploymentConfiguration.getName());
-    Map<String, Map<String, Object>> persistentStorageMap = new HashMap<>();
+    Map<String, Object> persistentStorageMap = new HashMap<>();
 
     NodeIterator children = persistentStorage.getChildren();
     Node child = children.getNext();
@@ -83,7 +83,7 @@ public class Front50ProfileFactory extends SpringProfileFactory {
 
         PersistentStore.PersistentStoreType persistentStoreType =
             persistentStore.persistentStoreType();
-        Map persistentStoreMap = mapper.convertValue(persistentStore, Map.class);
+        Map<String, Object> persistentStoreMap = mapper.convertValue(persistentStore, Map.class);
         persistentStoreMap.put(
             "enabled", persistentStoreType.equals(persistentStorage.getPersistentStoreType()));
 
@@ -94,6 +94,9 @@ public class Front50ProfileFactory extends SpringProfileFactory {
     }
 
     Map<String, Object> spinnakerObjectMap = new HashMap<>();
+    deploymentConfiguration.getSpinnaker().toMap().entrySet().stream()
+        .forEach(e -> persistentStorageMap.put(e.getKey(), e.getValue()));
+    // Map<String, Object> exYaml = deploymentConfiguration.getSpinnaker().toMap();
     spinnakerObjectMap.put("spinnaker", persistentStorageMap);
 
     super.setProfile(profile, deploymentConfiguration, endpoints);
