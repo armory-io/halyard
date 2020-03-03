@@ -44,11 +44,20 @@ public class SpringProfileFactory extends RegistryBackedProfileFactory {
     profile.appendContents(
         yamlToString(deploymentConfiguration.getName(), profile, spectatorConfig));
 
-    // TODO(link108): need to apply this to all services, must take into account duplicate keys
-    if (!(this.getClass() == EchoProfileFactory.class
-        || this.getClass() == Front50ProfileFactory.class)) {
+    // Front50 contains persistent storage configuration under the spinnaker top level key, so we
+    // add extensibility
+    // configuration for Front50 in Front50ProfileFactory
+    if (this.getClass() != Front50ProfileFactory.class) {
+
       Map<String, Object> spinnakerYaml = new LinkedHashMap<>();
-      spinnakerYaml.put("spinnaker", deploymentConfiguration.getSpinnaker().toMap());
+      Map<String, Object> extensibilityYaml = new LinkedHashMap<>();
+      Map<String, Object> extensibilityContents =
+          deploymentConfiguration.getSpinnaker().getExtensibility().toMap();
+      extensibilityContents.put(
+          "plugins-root-path", "/opt/" + this.getArtifact().toString().toLowerCase() + "/plugins");
+      extensibilityYaml.put("extensibility", extensibilityContents);
+      spinnakerYaml.put("spinnaker", extensibilityYaml);
+
       profile.appendContents(
           yamlToString(deploymentConfiguration.getName(), profile, spinnakerYaml));
     }
