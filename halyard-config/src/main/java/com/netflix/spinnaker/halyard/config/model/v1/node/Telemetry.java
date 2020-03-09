@@ -31,10 +31,24 @@ public class Telemetry extends Node {
     return "telemetry";
   }
 
+  @ValidForSpinnakerVersion(
+      lowerBound = "1.18.0",
+      tooLowMessage = "Telemetry is not available prior to this release.")
   private Boolean enabled = false;
+
   private String endpoint = DEFAULT_TELEMETRY_ENDPOINT;
   private String instanceId = new ULID().nextULID();
   private String spinnakerVersion;
+  private DeploymentMethod deploymentMethod = new DeploymentMethod();
   private int connectionTimeoutMillis = 3000;
   private int readTimeoutMillis = 5000;
+
+  @Data
+  public static class DeploymentMethod {
+
+    public static String HALYARD = "halyard";
+
+    private String type;
+    private String version;
+  }
 }

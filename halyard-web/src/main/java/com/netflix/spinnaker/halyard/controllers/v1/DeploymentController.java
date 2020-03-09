@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -224,7 +225,8 @@ public class DeploymentController extends DeploymentsGrpc.DeploymentsImplBase {
       @ModelAttribute ValidationSettings validationSettings,
       @RequestParam(required = false) List<DeployOption> deployOptions,
       @RequestParam(required = false) List<String> serviceNames,
-      @RequestParam(required = false) List<String> excludeServiceNames) {
+      @RequestParam(required = false) List<String> excludeServiceNames,
+      @RequestParam Optional<Integer> waitForCompletionTimeoutMinutes) {
     List<DeployOption> finalDeployOptions =
         deployOptions != null ? deployOptions : Collections.emptyList();
     List<String> finalServiceNames = serviceNames != null ? serviceNames : Collections.emptyList();
@@ -237,7 +239,8 @@ public class DeploymentController extends DeploymentsGrpc.DeploymentsImplBase {
                     deploymentName,
                     finalDeployOptions,
                     finalServiceNames,
-                    finalExcludeServiceNames));
+                    finalExcludeServiceNames,
+                    waitForCompletionTimeoutMinutes));
     builder.setSeverity(validationSettings.getSeverity());
 
     if (validationSettings.isValidate()) {
@@ -258,7 +261,8 @@ public class DeploymentController extends DeploymentsGrpc.DeploymentsImplBase {
                     request.getName(),
                     Collections.emptyList(),
                     Collections.emptyList(),
-                    Collections.emptyList()));
+                    Collections.emptyList(),
+                    Optional.empty()));
     builder.setValidateResponse(() -> deploymentService.validateDeployment(request.getName()));
     builder.setSeverity(Severity.WARNING);
     builder.setSetup(

@@ -58,6 +58,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -424,19 +425,18 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
 
   default TemplatedResource getProbe(ServiceSettings settings, Integer initialDelaySeconds) {
     TemplatedResource probe;
-    if (StringUtils.isNotEmpty(settings.getHealthEndpoint())) {
-      if (settings.getKubernetes().getUseExecHealthCheck()) {
-        probe = new JinjaJarResource("/kubernetes/manifests/execProbe.yml");
-        probe.addBinding("command", getReadinessExecCommand(settings));
-      } else {
-        probe = new JinjaJarResource("/kubernetes/manifests/httpProbe.yml");
-        probe.addBinding("port", settings.getPort());
-        probe.addBinding("path", settings.getHealthEndpoint());
-        probe.addBinding("scheme", settings.getScheme().toUpperCase());
-      }
-    } else {
+    if (StringUtils.isEmpty(settings.getHealthEndpoint())
+        || settings.getKubernetes().getUseTcpProbe()) {
       probe = new JinjaJarResource("/kubernetes/manifests/tcpSocketProbe.yml");
       probe.addBinding("port", settings.getPort());
+    } else if (settings.getKubernetes().getUseExecHealthCheck()) {
+      probe = new JinjaJarResource("/kubernetes/manifests/execProbe.yml");
+      probe.addBinding("command", getReadinessExecCommand(settings));
+    } else {
+      probe = new JinjaJarResource("/kubernetes/manifests/httpProbe.yml");
+      probe.addBinding("port", settings.getPort());
+      probe.addBinding("path", settings.getHealthEndpoint());
+      probe.addBinding("scheme", settings.getScheme().toUpperCase());
     }
     probe.addBinding("initialDelaySeconds", initialDelaySeconds);
     return probe;
@@ -749,8 +749,8 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     return result;
   }
 
-  default String buildAddress(String namespace) {
-    return Strings.join(".", getServiceName(), namespace);
+  default Optional<String> buildAddress(String namespace) {
+    return Optional.of(Strings.join(".", getServiceName(), namespace));
   }
 
   default ServiceSettings buildServiceSettings(DeploymentConfiguration deploymentConfiguration) {
@@ -759,17 +759,13 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     ServiceSettings settings = defaultServiceSettings(deploymentConfiguration);
     String location = kubernetesSharedServiceSettings.getDeployLocation();
     settings
-        .setAddress(buildAddress(location))
         .setArtifactId(getArtifactId(deploymentConfiguration))
         .setLocation(location)
         .setEnabled(isEnabled(deploymentConfiguration));
+    buildAddress(location).ifPresent(settings::setAddress);
     if (runsOnJvm()) {
       // Use half the available memory allocated to the container for the JVM heap
-      settings
-          .getEnv()
-          .put(
-              "JAVA_OPTS",
-              "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:MaxRAMFraction=2");
+      settings.getEnv().put("JAVA_OPTS", "-XX:MaxRAMPercentage=50.0");
     }
     return settings;
   }
