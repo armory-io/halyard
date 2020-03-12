@@ -1432,35 +1432,33 @@ public class Daemon {
     };
   }
 
-  public static Supplier<Telemetry> getTelemetry(String deploymentName, boolean validate) {
+  public static Supplier<Stats> getStats(String deploymentName, boolean validate) {
     return () -> {
-      Object rawTelemetry =
-          ResponseUnwrapper.get(getService().getTelemetry(deploymentName, validate));
-      return getObjectMapper().convertValue(rawTelemetry, new TypeReference<Telemetry>() {});
+      Object rawStats = ResponseUnwrapper.get(getService().getStats(deploymentName, validate));
+      return getObjectMapper().convertValue(rawStats, new TypeReference<Stats>() {});
     };
   }
 
-  public static Supplier<Void> setTelemetryEnableDisable(
+  public static Supplier<Void> setStatsEnableDisable(
       String deploymentName, boolean validate, boolean enable) {
     return () -> {
-      ResponseUnwrapper.get(getService().setTelemetryEnabled(deploymentName, validate, enable));
+      ResponseUnwrapper.get(getService().setStatsEnabled(deploymentName, validate, enable));
       return null;
     };
   }
 
-  public static Supplier<Void> setTelemetry(
-      String deploymentName, boolean validate, Telemetry telemetry) {
+  public static Supplier<Void> setStats(String deploymentName, boolean validate, Stats stats) {
     return () -> {
-      ResponseUnwrapper.get(getService().setTelemetry(deploymentName, validate, telemetry));
+      ResponseUnwrapper.get(getService().setStats(deploymentName, validate, stats));
       return null;
     };
   }
 
   public static Supplier<String> getManifest(
-      String deploymentName, String serviceName, String apiGroupVersion) {
+          String deploymentName, String serviceName, String apiGroupVersion) {
     return () ->
-        ResponseUnwrapper.get(
-            getService().getManifest(deploymentName, serviceName, apiGroupVersion));
+            ResponseUnwrapper.get(
+                    getService().getManifest(deploymentName, serviceName, apiGroupVersion));
   }
 
   private static DaemonService service;

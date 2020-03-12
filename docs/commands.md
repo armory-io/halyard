@@ -321,7 +321,6 @@
  * [**hal config features edit**](#hal-config-features-edit)
  * [**hal config generate**](#hal-config-generate)
  * [**hal config list**](#hal-config-list)
- * [**hal config manifest**](#hal-config-manifest)
  * [**hal config metric-stores**](#hal-config-metric-stores)
  * [**hal config metric-stores datadog**](#hal-config-metric-stores-datadog)
  * [**hal config metric-stores datadog disable**](#hal-config-metric-stores-datadog-disable)
@@ -591,6 +590,10 @@
  * [**hal config security ui ssl disable**](#hal-config-security-ui-ssl-disable)
  * [**hal config security ui ssl edit**](#hal-config-security-ui-ssl-edit)
  * [**hal config security ui ssl enable**](#hal-config-security-ui-ssl-enable)
+ * [**hal config stats**](#hal-config-stats)
+ * [**hal config stats disable**](#hal-config-stats-disable)
+ * [**hal config stats edit**](#hal-config-stats-edit)
+ * [**hal config stats enable**](#hal-config-stats-enable)
  * [**hal config storage**](#hal-config-storage)
  * [**hal config storage azs**](#hal-config-storage-azs)
  * [**hal config storage azs edit**](#hal-config-storage-azs-edit)
@@ -601,10 +604,6 @@
  * [**hal config storage oracle edit**](#hal-config-storage-oracle-edit)
  * [**hal config storage s3**](#hal-config-storage-s3)
  * [**hal config storage s3 edit**](#hal-config-storage-s3-edit)
- * [**hal config telemetry**](#hal-config-telemetry)
- * [**hal config telemetry disable**](#hal-config-telemetry-disable)
- * [**hal config telemetry edit**](#hal-config-telemetry-edit)
- * [**hal config telemetry enable**](#hal-config-telemetry-enable)
  * [**hal config version**](#hal-config-version)
  * [**hal config version edit**](#hal-config-version-edit)
  * [**hal config webhook**](#hal-config-webhook)
@@ -886,15 +885,14 @@ hal config [parameters] [subcommands]
  * `features`: Display the state of Spinnaker's feature flags.
  * `generate`: Generate the full Spinnaker config for your current deployment. This does _not_ apply that configuration to your running Spinnaker installation. That either needs to be done manually, or with `hal deploy apply`.
  * `list`: Lists all deployments
- * `manifest`: Get SpinnakerService manifest from current configuration
  * `metric-stores`: Configure Spinnaker's metric stores. Metrics stores are used to store metrics for the various Spinnaker micro-services. These metrics are not related in any way to canary deployments. The technologies backing both are similar, but metrics stores are places to push metrics regarding Spinnaker metrics, whereas canary metrics stores are used to pull metrics to analyze deployments. This configuration only affects the publishing of metrics against whichever metric stores you enable (it can be more than one).
  * `notification`: Display the state of Spinnaker's notification settings.
  * `provider`: Configure, validate, and view the specified provider.
  * `pubsub`: Configure, validate, and view the specified pubsub.
  * `repository`: Configure, validate, and view the specified repository.
  * `security`: Configure Spinnaker's security. This includes external SSL, authentication mechanisms, and authorization policies.
+ * `stats`: Show Spinnaker's stats settings.
  * `storage`: Show Spinnaker's persistent storage configuration.
- * `telemetry`: Show Spinnaker's telemetry settings.
  * `version`: Configure & view the current deployment of Spinnaker's version.
  * `webhook`: Show Spinnaker's webhook configuration.
 
@@ -6178,8 +6176,6 @@ Default value: slim
  * `--type`: Distributed: Deploy Spinnaker with one server group per microservice, and a single shared Redis.
 LocalDebian: Download and run the Spinnaker debians on the machine running the Daemon.
 LocalGit: Download and run the Spinnaker git repos on the machine running the Daemon.
-Operator: Deploy Spinnaker via the pre-installed Spinnaker Operator.
-
  * `--update-versions`: When set to "false", any *local* version of Spinnaker components will be used instead of attempting to update. This does not work for distributed installations of Spinnaker, where no *local* version exists.
  * `--vault-address`: The address of a running Vault datastore. See [https://www.vaultproject.io/](https://www.vaultproject.io/). This is only required when Spinnaker is being deployed in non-Kubernetes clustered configuration.
  * `--vault-enabled`: Whether or not to use Vault as a secret storage mechanism to deploy Spinnaker.
@@ -6401,23 +6397,6 @@ hal config list [parameters]
 #### Parameters
  * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
  * `--no-validate`: (*Default*: `false`) Skip validation.
-
-
----
-## hal config manifest
-
-Get SpinnakerService manifest from current configuration
-
-#### Usage
-```
-hal config manifest [parameters]
-```
-
-#### Parameters
- * `--api-group-version`: Non default API group version to retrieve
- * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
- * `--no-validate`: (*Default*: `false`) Skip validation.
- * `--spinnaker-service-name`: SpinnakerService name override
 
 
 ---
@@ -11602,6 +11581,71 @@ hal config security ui ssl enable [parameters]
 
 
 ---
+## hal config stats
+
+Show Spinnaker's stats settings.
+
+#### Usage
+```
+hal config stats [parameters] [subcommands]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+#### Subcommands
+ * `disable`: Set Spinnaker's stats settings to disabled.
+ * `edit`: Edit Spinnaker's stats settings.
+ * `enable`: Set Spinnaker's stats settings to enabled.
+
+---
+## hal config stats disable
+
+Set Spinnaker's stats settings to disabled.
+
+#### Usage
+```
+hal config stats disable [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config stats edit
+
+Edit Spinnaker's stats settings.
+
+#### Usage
+```
+hal config stats edit [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--endpoint`: Set the endpoint for stats metrics.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config stats enable
+
+Set Spinnaker's stats settings to enabled.
+
+#### Usage
+```
+hal config stats enable [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
 ## hal config storage
 
 Show Spinnaker's persistent storage configuration.
@@ -11792,71 +11836,6 @@ Example: "user/spinnaker" or "role/spinnakerManaged"
  * `--root-folder`: The root folder in the chosen bucket to place all of Spinnaker's persistent data in.
  * `--secret-access-key`: (*Sensitive data* - user will be prompted on standard input) Your AWS Secret Key.
  * `--server-side-encryption`: Use Amazon Server-Side Encryption ('x-amz-server-side-encryption' header). Supports 'AES256' (for Amazon S3-managed encryption keys, equivalent to a header value of 'AES256') and 'AWSKMS' (for AWS KMS-managed encryption keys, equivalent to a header value of 'aws:kms'.
-
-
----
-## hal config telemetry
-
-Show Spinnaker's telemetry settings.
-
-#### Usage
-```
-hal config telemetry [parameters] [subcommands]
-```
-
-#### Parameters
- * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
- * `--no-validate`: (*Default*: `false`) Skip validation.
-
-#### Subcommands
- * `disable`: Set Spinnaker's telemetry settings to disabled.
- * `edit`: Edit Spinnaker's telemetry settings.
- * `enable`: Set Spinnaker's telemetry settings to enabled.
-
----
-## hal config telemetry disable
-
-Set Spinnaker's telemetry settings to disabled.
-
-#### Usage
-```
-hal config telemetry disable [parameters]
-```
-
-#### Parameters
- * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
- * `--no-validate`: (*Default*: `false`) Skip validation.
-
-
----
-## hal config telemetry edit
-
-Edit Spinnaker's telemetry settings.
-
-#### Usage
-```
-hal config telemetry edit [parameters]
-```
-
-#### Parameters
- * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
- * `--endpoint`: Set the endpoint for telemetry metrics.
- * `--no-validate`: (*Default*: `false`) Skip validation.
-
-
----
-## hal config telemetry enable
-
-Set Spinnaker's telemetry settings to enabled.
-
-#### Usage
-```
-hal config telemetry enable [parameters]
-```
-
-#### Parameters
- * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
- * `--no-validate`: (*Default*: `false`) Skip validation.
 
 
 ---
