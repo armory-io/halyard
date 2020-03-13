@@ -321,6 +321,7 @@
  * [**hal config features edit**](#hal-config-features-edit)
  * [**hal config generate**](#hal-config-generate)
  * [**hal config list**](#hal-config-list)
+ * [**hal config manifest**](#hal-config-manifest)
  * [**hal config metric-stores**](#hal-config-metric-stores)
  * [**hal config metric-stores datadog**](#hal-config-metric-stores-datadog)
  * [**hal config metric-stores datadog disable**](#hal-config-metric-stores-datadog-disable)
@@ -885,6 +886,7 @@ hal config [parameters] [subcommands]
  * `features`: Display the state of Spinnaker's feature flags.
  * `generate`: Generate the full Spinnaker config for your current deployment. This does _not_ apply that configuration to your running Spinnaker installation. That either needs to be done manually, or with `hal deploy apply`.
  * `list`: Lists all deployments
+ * `manifest`: Get SpinnakerService manifest from current configuration
  * `metric-stores`: Configure Spinnaker's metric stores. Metrics stores are used to store metrics for the various Spinnaker micro-services. These metrics are not related in any way to canary deployments. The technologies backing both are similar, but metrics stores are places to push metrics regarding Spinnaker metrics, whereas canary metrics stores are used to pull metrics to analyze deployments. This configuration only affects the publishing of metrics against whichever metric stores you enable (it can be more than one).
  * `notification`: Display the state of Spinnaker's notification settings.
  * `provider`: Configure, validate, and view the specified provider.
@@ -6176,6 +6178,8 @@ Default value: slim
  * `--type`: Distributed: Deploy Spinnaker with one server group per microservice, and a single shared Redis.
 LocalDebian: Download and run the Spinnaker debians on the machine running the Daemon.
 LocalGit: Download and run the Spinnaker git repos on the machine running the Daemon.
+Operator: Deploy Spinnaker via the pre-installed Spinnaker Operator.
+
  * `--update-versions`: When set to "false", any *local* version of Spinnaker components will be used instead of attempting to update. This does not work for distributed installations of Spinnaker, where no *local* version exists.
  * `--vault-address`: The address of a running Vault datastore. See [https://www.vaultproject.io/](https://www.vaultproject.io/). This is only required when Spinnaker is being deployed in non-Kubernetes clustered configuration.
  * `--vault-enabled`: Whether or not to use Vault as a secret storage mechanism to deploy Spinnaker.
@@ -6397,6 +6401,23 @@ hal config list [parameters]
 #### Parameters
  * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
  * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config manifest
+
+Get SpinnakerService manifest from current configuration
+
+#### Usage
+```
+hal config manifest [parameters]
+```
+
+#### Parameters
+ * `--api-group-version`: Non default API group version to retrieve
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+ * `--spinnaker-service-name`: SpinnakerService name override
 
 
 ---
