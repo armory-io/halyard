@@ -27,7 +27,6 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.yaml.snakeyaml.Yaml;
 
 @Component
 @Slf4j
@@ -41,8 +40,6 @@ public class ProfileRegistry {
   @Autowired GitProfileReader gitProfileReader;
 
   @Autowired LocalDiskProfileReader localDiskProfileReader;
-
-  @Autowired Yaml yamlParser;
 
   @Autowired ObjectMapper relaxedObjectMapper;
 
