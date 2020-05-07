@@ -1712,6 +1712,174 @@ hal config artifact gitrepo enable [parameters]
 
 
 ---
+## hal config artifact gitrepo
+
+Manage and view Spinnaker configuration for the gitrepo provider
+
+#### Usage
+```
+hal config artifact gitrepo [parameters] [subcommands]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+#### Subcommands
+ * `account`: Manage and view Spinnaker configuration for the gitrepo artifact provider's account
+ * `disable`: Set the gitrepo artifact provider as disabled
+ * `enable`: Set the gitrepo artifact provider as enabled
+
+---
+## hal config artifact gitrepo account
+
+Manage and view Spinnaker configuration for the gitrepo artifact provider's account
+
+#### Usage
+```
+hal config artifact gitrepo account ACCOUNT [parameters] [subcommands]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the account to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+#### Subcommands
+ * `add`: Add an artifact account to the gitrepo artifact provider.
+ * `delete`: Delete a specific gitrepo artifact account by name.
+ * `edit`: Edit an artifact account in the gitrepo artifact provider.
+ * `get`: Get the specified account details for the gitrepo provider.
+ * `list`: List the artifact account names for the gitrepo artifact provider.
+
+---
+## hal config artifact gitrepo account add
+
+Add an artifact account to the gitrepo artifact provider.
+
+#### Usage
+```
+hal config artifact gitrepo account add ACCOUNT [parameters]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the account to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+ * `--password`: (*Sensitive data* - user will be prompted on standard input) Git password
+ * `--ssh-known-hosts-file-path`: File containing the known and trusted SSH hosts.
+ * `--ssh-private-key-file-path`: Path to the ssh private key in PEM format
+ * `--ssh-private-key-passphrase`: (*Sensitive data* - user will be prompted on standard input) Passphrase for encrypted private key
+ * `--ssh-trust-unknown-hosts`: Setting this to true allows Spinnaker to authenticate with unknown hosts
+ * `--token`: (*Sensitive data* - user will be prompted on standard input) Git token
+ * `--token-file`: File containing a Git authentication token
+ * `--username`: Git username
+ * `--username-password-file`: File containing "username:password" to use for Git authentication
+
+
+---
+## hal config artifact gitrepo account delete
+
+Delete a specific gitrepo artifact account by name.
+
+#### Usage
+```
+hal config artifact gitrepo account delete ACCOUNT [parameters]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the account to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config artifact gitrepo account edit
+
+Edit an artifact account in the gitrepo artifact provider.
+
+#### Usage
+```
+hal config artifact gitrepo account edit ACCOUNT [parameters]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the account to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+ * `--password`: (*Sensitive data* - user will be prompted on standard input) Git password
+ * `--ssh-known-hosts-file-path`: File containing the known and trusted SSH hosts
+ * `--ssh-private-key-file-path`: Path to the ssh private key in PEM format
+ * `--ssh-private-key-passphrase`: (*Sensitive data* - user will be prompted on standard input) Passphrase for encrypted private key
+ * `--ssh-trust-unknown-hosts`: Setting this to true allows Spinnaker to authenticate with unknown hosts
+ * `--token`: (*Sensitive data* - user will be prompted on standard input) Git token
+ * `--token-file`: File containing a Git authentication token
+ * `--username`: Git username
+ * `--username-password-file`: File containing "username:password" to use for Git authentication
+
+
+---
+## hal config artifact gitrepo account get
+
+Get the specified account details for the gitrepo provider.
+
+#### Usage
+```
+hal config artifact gitrepo account get ACCOUNT [parameters]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the account to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config artifact gitrepo account list
+
+List the artifact account names for the gitrepo artifact provider.
+
+#### Usage
+```
+hal config artifact gitrepo account list [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config artifact gitrepo disable
+
+Set the gitrepo artifact provider as disabled
+
+#### Usage
+```
+hal config artifact gitrepo disable [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config artifact gitrepo enable
+
+Set the gitrepo artifact provider as enabled
+
+#### Usage
+```
+hal config artifact gitrepo enable [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
 ## hal config artifact helm
 
 Manage and view Spinnaker configuration for the helm provider
@@ -3174,6 +3342,162 @@ Set Spinnaker's canary analysis Google service integration to enabled.
 #### Usage
 ```
 hal config canary google enable [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config canary newrelic
+
+Configure your canary analysis New Relic service integration settings for Spinnaker.
+
+#### Usage
+```
+hal config canary newrelic [parameters] [subcommands]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+#### Subcommands
+ * `account`: Manage and view Spinnaker configuration for the newrelic service integration's canary accounts.
+ * `disable`: Set Spinnaker's canary analysis newrelic service integration to disabled.
+ * `enable`: Set Spinnaker's canary analysis newrelic service integration to enabled.
+
+---
+## hal config canary newrelic account
+
+Manage and view Spinnaker configuration for the newrelic service integration's canary accounts.
+
+#### Usage
+```
+hal config canary newrelic account ACCOUNT [parameters] [subcommands]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the canary account to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+#### Subcommands
+ * `add`: Add a canary account to the NewRelic service integration.
+ * `delete`: Delete a specific newrelic canary account by name.
+ * `edit`: Edit a canary account in the newrelic service integration.
+ * `get`: Get the specified canary account details for the newrelic service integration.
+ * `list`: List the canary account names for the newrelic service integration.
+
+---
+## hal config canary newrelic account add
+
+Add a canary account to the NewRelic service integration.
+
+#### Usage
+```
+hal config canary newrelic account add ACCOUNT [parameters]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the canary account to operate on.
+ * `--api-key`: (*Required*) (*Sensitive data* - user will be prompted on standard input) Your account's unique New Relic Insights API key. See [https://docs.newrelic.com/docs/insights/insights-api/get-data/query-insights-event-data-api](https://docs.newrelic.com/docs/insights/insights-api/get-data/query-insights-event-data-api).
+ * `--application-key`: (*Required*) Your New Relic account id. See [https://docs.newrelic.com/docs/accounts/install-new-relic/account-setup/account-id](https://docs.newrelic.com/docs/accounts/install-new-relic/account-setup/account-id).
+ * `--base-url`: (*Required*) The base URL to the New Relic Insights server.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config canary newrelic account delete
+
+Delete a specific newrelic canary account by name.
+
+#### Usage
+```
+hal config canary newrelic account delete ACCOUNT [parameters]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the canary account to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config canary newrelic account edit
+
+Edit a canary account in the newrelic service integration.
+
+#### Usage
+```
+hal config canary newrelic account edit ACCOUNT [parameters]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the canary account to operate on.
+ * `--api-key`: (*Sensitive data* - user will be prompted on standard input) Your account's unique New Relic Insights API key. See [https://docs.newrelic.com/docs/insights/insights-api/get-data/query-insights-event-data-api](https://docs.newrelic.com/docs/insights/insights-api/get-data/query-insights-event-data-api).
+ * `--application-key`: Your New Relic account id. See [https://docs.newrelic.com/docs/accounts/install-new-relic/account-setup/account-id](https://docs.newrelic.com/docs/accounts/install-new-relic/account-setup/account-id).
+ * `--base-url`: The base URL to the New Relic Insights server.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config canary newrelic account get
+
+Get the specified canary account details for the newrelic service integration.
+
+#### Usage
+```
+hal config canary newrelic account get ACCOUNT [parameters]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the canary account to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config canary newrelic account list
+
+List the canary account names for the newrelic service integration.
+
+#### Usage
+```
+hal config canary newrelic account list [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config canary newrelic disable
+
+Set Spinnaker's canary analysis newrelic service integration to disabled.
+
+#### Usage
+```
+hal config canary newrelic disable [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config canary newrelic enable
+
+Set Spinnaker's canary analysis newrelic service integration to enabled.
+
+#### Usage
+```
+hal config canary newrelic enable [parameters]
 ```
 
 #### Parameters
@@ -6358,7 +6682,6 @@ hal config features edit [parameters]
 ```
 
 #### Parameters
- * `--appengine-container-image-url-deployments`: Enable appengine deployments using a container image URL from gcr.io.
  * `--artifacts`: Enable artifact support. Read more at [https://spinnaker.io/reference/artifacts/](https://spinnaker.io/reference/artifacts/)
  * `--artifacts-rewrite`: Enable new artifact support. Read more at [https://www.spinnaker.io/reference/artifacts-with-artifactsrewrite/](https://www.spinnaker.io/reference/artifacts-with-artifactsrewrite/)
  * `--chaos`: Enable Chaos Monkey support. For this to work, you'll need a running Chaos Monkey deployment. Currently, Halyard doesn't configure Chaos Monkey for you; read more instructions here [https://github.com/Netflix/chaosmonkey/wiki](https://github.com/Netflix/chaosmonkey/wiki).
@@ -6369,8 +6692,6 @@ hal config features edit [parameters]
  * `--mine-canary`: Enable canary support. For this to work, you'll need a canary judge configured. Currently, Halyard does not configure canary judge for you.
  * `--no-validate`: (*Default*: `false`) Skip validation.
  * `--pipeline-templates`: Enable pipeline template support. Read more at [https://github.com/spinnaker/dcd-spec](https://github.com/spinnaker/dcd-spec).
- * `--travis`: Enable the Travis CI stage.
- * `--wercker`: Enable the Wercker CI stage.
 
 
 ---
@@ -7642,6 +7963,39 @@ hal config provider aws features edit [parameters]
 
 
 ---
+## hal config provider aws features
+
+Manage and view Spinnaker configuration for the aws features configuration.
+
+#### Usage
+```
+hal config provider aws features [parameters] [subcommands]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+#### Subcommands
+ * `edit`: Edit features for AWS provider
+
+---
+## hal config provider aws features edit
+
+Edit features for AWS provider
+
+#### Usage
+```
+hal config provider aws features edit [parameters]
+```
+
+#### Parameters
+ * `--cloud-formation`: (*Required*) Enable CloudFormation support for AWS.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
 ## hal config provider azure
 
 Manage and view Spinnaker configuration for the azure provider
@@ -8519,7 +8873,7 @@ hal config provider docker-registry account add ACCOUNT [parameters]
  * `--read-permissions`: (*Default*: `[]`) A user must have at least one of these roles in order to view this account's cloud resources.
  * `--repositories`: (*Default*: `[]`) An optional list of repositories to cache images from. If not provided, Spinnaker will attempt to read accessible repositories from the registries _catalog endpoint
  * `--required-group-membership`: (*Default*: `[]`) A user must be a member of at least one specified group in order to make changes to this account's cloud resources.
- * `--sort-tags-by-date`: (*Default*: `false`) Sort tags by creation date.
+ * `--sort-tags-by-date`: (*Default*: `false`) Sort tags by creation date. Not recommended for use with large registries; sorting performance scales poorly due to limitations of the Docker V2 API.
  * `--track-digests`: (*Default*: `false`) Track digest changes. This is not recommended as it consumes a high QPM, and most registries are flaky.
  * `--username`: Your docker registry username
  * `--write-permissions`: (*Default*: `[]`) A user must have at least one of these roles in order to make changes to this account's cloud resources.
@@ -8583,7 +8937,7 @@ hal config provider docker-registry account edit ACCOUNT [parameters]
  * `--remove-write-permission`: Remove this permission to from list of write permissions.
  * `--repositories`: (*Default*: `[]`) An optional list of repositories to cache images from. If not provided, Spinnaker will attempt to read accessible repositories from the registries _catalog endpoint
  * `--required-group-membership`: A user must be a member of at least one specified group in order to make changes to this account's cloud resources.
- * `--sort-tags-by-date`: Sort tags by creation date.
+ * `--sort-tags-by-date`: Sort tags by creation date. Not recommended for use with large registries; sorting performance scales poorly due to limitations of the Docker V2 API.
  * `--track-digests`: Track digest changes. This is not recommended as it consumes a high QPM, and most registries are flaky.
  * `--username`: Your docker registry username
  * `--write-permissions`: A user must have at least one of these roles in order to make changes to this account's cloud resources.
@@ -9162,6 +9516,352 @@ Set the google provider as enabled
 #### Usage
 ```
 hal config provider google enable [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config provider huaweicloud
+
+Manage and view Spinnaker configuration for the huaweicloud provider
+
+#### Usage
+```
+hal config provider huaweicloud [parameters] [subcommands]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+#### Subcommands
+ * `account`: Manage and view Spinnaker configuration for the huaweicloud provider's account
+ * `bakery`: Manage and view Spinnaker configuration for the huaweicloud provider's image bakery configuration.
+ * `disable`: Set the huaweicloud provider as disabled
+ * `enable`: Set the huaweicloud provider as enabled
+
+---
+## hal config provider huaweicloud account
+
+Manage and view Spinnaker configuration for the huaweicloud provider's account
+
+#### Usage
+```
+hal config provider huaweicloud account ACCOUNT [parameters] [subcommands]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the account to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+#### Subcommands
+ * `add`: Add an account to the huaweicloud provider.
+ * `delete`: Delete a specific huaweicloud account by name.
+ * `edit`: Edit an account in the huaweicloud provider.
+ * `get`: Get the specified account details for the huaweicloud provider.
+ * `list`: List the account names for the huaweicloud provider.
+
+---
+## hal config provider huaweicloud account add
+
+Add an account to the huaweicloud provider.
+
+#### Usage
+```
+hal config provider huaweicloud account add ACCOUNT [parameters]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the account to operate on.
+ * `--account-type`: The type of account.
+ * `--auth-url`: (*Required*) The auth url of cloud.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--domain-name`: (*Required*) The domain name of the cloud.
+ * `--environment`: The environment name for the account. Many accounts can share the same environment (e.g. dev, test, prod)
+ * `--insecure`: (*Default*: `false`) Disable certificate validation on SSL connections. Needed if certificates are self signed. Default false.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+ * `--password`: (*Required*) (*Sensitive data* - user will be prompted on standard input) (Sensitive data - user will be prompted on standard input) The password used to access cloud.
+ * `--project-name`: (*Required*) The name of the project within the cloud.
+ * `--read-permissions`: (*Default*: `[]`) A user must have at least one of these roles in order to view this account's cloud resources.
+ * `--regions`: (*Default*: `[]`) (*Required*) The region(s) of the cloud.
+ * `--required-group-membership`: (*Default*: `[]`) A user must be a member of at least one specified group in order to make changes to this account's cloud resources.
+ * `--username`: (*Required*) The username used to access cloud.
+ * `--write-permissions`: (*Default*: `[]`) A user must have at least one of these roles in order to make changes to this account's cloud resources.
+
+
+---
+## hal config provider huaweicloud account delete
+
+Delete a specific huaweicloud account by name.
+
+#### Usage
+```
+hal config provider huaweicloud account delete ACCOUNT [parameters]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the account to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config provider huaweicloud account edit
+
+Edit an account in the huaweicloud provider.
+
+#### Usage
+```
+hal config provider huaweicloud account edit ACCOUNT [parameters]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the account to operate on.
+ * `--account-type`: The type of account.
+ * `--add-read-permission`: Add this permission to the list of read permissions.
+ * `--add-region`: Add this region to the list of managed regions.
+ * `--add-required-group-membership`: Add this group to the list of required group memberships.
+ * `--add-write-permission`: Add this permission to the list of write permissions.
+ * `--auth-url`: The auth url of cloud.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--domain-name`: The domain name of the cloud.
+ * `--environment`: The environment name for the account. Many accounts can share the same environment (e.g. dev, test, prod)
+ * `--insecure`: Disable certificate validation on SSL connections. Needed if certificates are self signed. Default false.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+ * `--password`: (*Sensitive data* - user will be prompted on standard input) (Sensitive data - user will be prompted on standard input) The password used to access cloud.
+ * `--project-name`: The name of the project within the cloud.
+ * `--read-permissions`: A user must have at least one of these roles in order to view this account's cloud resources.
+ * `--regions`: (*Default*: `[]`) The region(s) of the cloud.
+ * `--remove-read-permission`: Remove this permission from the list of read permissions.
+ * `--remove-region`: Remove this region from the list of managed regions.
+ * `--remove-required-group-membership`: Remove this group from the list of required group memberships.
+ * `--remove-write-permission`: Remove this permission to from list of write permissions.
+ * `--required-group-membership`: A user must be a member of at least one specified group in order to make changes to this account's cloud resources.
+ * `--username`: The username used to access cloud.
+ * `--write-permissions`: A user must have at least one of these roles in order to make changes to this account's cloud resources.
+
+
+---
+## hal config provider huaweicloud account get
+
+Get the specified account details for the huaweicloud provider.
+
+#### Usage
+```
+hal config provider huaweicloud account get ACCOUNT [parameters]
+```
+
+#### Parameters
+`ACCOUNT`: The name of the account to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config provider huaweicloud account list
+
+List the account names for the huaweicloud provider.
+
+#### Usage
+```
+hal config provider huaweicloud account list [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config provider huaweicloud bakery
+
+Manage and view Spinnaker configuration for the huaweicloud provider's image bakery configuration.
+
+#### Usage
+```
+hal config provider huaweicloud bakery [parameters] [subcommands]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+#### Subcommands
+ * `base-image`: Manage and view Spinnaker configuration for the huaweicloud provider's base image.
+ * `edit`: Edit the huaweicloud provider's bakery default options.
+
+---
+## hal config provider huaweicloud bakery base-image
+
+Manage and view Spinnaker configuration for the huaweicloud provider's base image.
+
+#### Usage
+```
+hal config provider huaweicloud bakery base-image [parameters] [subcommands]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+#### Subcommands
+ * `add`: Add a base image for the huaweicloud provider's bakery.
+ * `delete`: Delete a specific huaweicloud base image by name.
+ * `edit`: Edit a base image for the huaweicloud provider's bakery.
+ * `get`: Get the specified base image details for the huaweicloud provider.
+ * `list`: List the base image names for the huaweicloud provider.
+
+---
+## hal config provider huaweicloud bakery base-image add
+
+Add a base image for the huaweicloud provider's bakery.
+
+#### Usage
+```
+hal config provider huaweicloud bakery base-image add BASE-IMAGE [parameters]
+```
+
+#### Parameters
+`BASE-IMAGE`: The name of the base image to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--detailed-description`: A long description to help human operators identify the image.
+ * `--eip-type`: (*Required*) The eip type for the baking configuration. See the api doc to get its value
+ * `--instance-type`: (*Required*) The instance type for the baking configuration.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+ * `--package-type`: This is used to help Spinnaker's bakery download the build artifacts you supply it with. For example, specifying 'deb' indicates that your artifacts will need to be fetched from a debian repository.
+ * `--region`: (*Required*) The region for the baking configuration.
+ * `--short-description`: A short description to help human operators identify the image.
+ * `--source-image-id`: (*Required*) The source image ID for the baking configuration.
+ * `--ssh-user-name`: (*Required*) The ssh username for the baking configuration.
+ * `--template-file`: This is the name of the packer template that will be used to bake images from this base image. The template file must be found in this list [https://github.com/spinnaker/rosco/tree/master/rosco-web/config/packer](https://github.com/spinnaker/rosco/tree/master/rosco-web/config/packer), or supplied as described here: [https://spinnaker.io/setup/bakery/](https://spinnaker.io/setup/bakery/)
+
+
+---
+## hal config provider huaweicloud bakery base-image delete
+
+Delete a specific huaweicloud base image by name.
+
+#### Usage
+```
+hal config provider huaweicloud bakery base-image delete BASE-IMAGE [parameters]
+```
+
+#### Parameters
+`BASE-IMAGE`: The name of the base image to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config provider huaweicloud bakery base-image edit
+
+Edit a base image for the huaweicloud provider's bakery.
+
+#### Usage
+```
+hal config provider huaweicloud bakery base-image edit BASE-IMAGE [parameters]
+```
+
+#### Parameters
+`BASE-IMAGE`: The name of the base image to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--detailed-description`: A long description to help human operators identify the image.
+ * `--eip-type`: The eip type for the baking configuration. See the api doc to get its value
+ * `--id`: This is the identifier used by your cloud to find this base image.
+ * `--instance-type`: The instance type for the baking configuration.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+ * `--package-type`: This is used to help Spinnaker's bakery download the build artifacts you supply it with. For example, specifying 'deb' indicates that your artifacts will need to be fetched from a debian repository.
+ * `--region`: The region for the baking configuration.
+ * `--short-description`: A short description to help human operators identify the image.
+ * `--source-image-id`: The source image ID for the baking configuration.
+ * `--ssh-user-name`: The ssh username for the baking configuration.
+ * `--template-file`: This is the name of the packer template that will be used to bake images from this base image. The template file must be found in this list [https://github.com/spinnaker/rosco/tree/master/rosco-web/config/packer](https://github.com/spinnaker/rosco/tree/master/rosco-web/config/packer), or supplied as described here: [https://spinnaker.io/setup/bakery/](https://spinnaker.io/setup/bakery/)
+
+
+---
+## hal config provider huaweicloud bakery base-image get
+
+Get the specified base image details for the huaweicloud provider.
+
+#### Usage
+```
+hal config provider huaweicloud bakery base-image get BASE-IMAGE [parameters]
+```
+
+#### Parameters
+`BASE-IMAGE`: The name of the base image to operate on.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config provider huaweicloud bakery base-image list
+
+List the base image names for the huaweicloud provider.
+
+#### Usage
+```
+hal config provider huaweicloud bakery base-image list [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config provider huaweicloud bakery edit
+
+Edit the huaweicloud provider's bakery default options.
+
+#### Usage
+```
+hal config provider huaweicloud bakery edit [parameters]
+```
+
+#### Parameters
+ * `--auth-url`: (*Required*) Set the default auth URL your images will be baked in.
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--domain-name`: (*Required*) Set the default domainName your images will be baked in.
+ * `--eip-bandwidth-size`: (*Required*) Set the bandwidth size of eip your images will be baked in.
+ * `--insecure`: (*Required*) The security setting (true/false) for connecting to the HuaweiCloud account.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+ * `--password`: (*Required*) (*Sensitive data* - user will be prompted on standard input) Set the default password your images will be baked with.
+ * `--project-name`: (*Required*) Set the default project name your images will be baked in.
+ * `--security-group`: (*Required*) Set the default security group your images will be baked in.
+ * `--subnet-id`: (*Required*) Set the subnet your images will be baked in.
+ * `--template-file`: This is the name of the packer template that will be used to bake images from this base image. The template file must be found in this list [https://github.com/spinnaker/rosco/tree/master/rosco-web/config/packer](https://github.com/spinnaker/rosco/tree/master/rosco-web/config/packer), or supplied as described here: [https://spinnaker.io/setup/bakery/](https://spinnaker.io/setup/bakery/)
+ * `--username`: (*Required*) Set the default username your images will be baked with.
+ * `--vpc-id`: (*Required*) Set the vpc your images will be baked in.
+
+
+---
+## hal config provider huaweicloud disable
+
+Set the huaweicloud provider as disabled
+
+#### Usage
+```
+hal config provider huaweicloud disable [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config provider huaweicloud enable
+
+Set the huaweicloud provider as enabled
+
+#### Usage
+```
+hal config provider huaweicloud enable [parameters]
 ```
 
 #### Parameters
@@ -11667,6 +12367,71 @@ hal config stats enable [parameters]
 
 
 ---
+## hal config stats
+
+Show Spinnaker's stats settings.
+
+#### Usage
+```
+hal config stats [parameters] [subcommands]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+#### Subcommands
+ * `disable`: Set Spinnaker's stats settings to disabled.
+ * `edit`: Edit Spinnaker's stats settings.
+ * `enable`: Set Spinnaker's stats settings to enabled.
+
+---
+## hal config stats disable
+
+Set Spinnaker's stats settings to disabled.
+
+#### Usage
+```
+hal config stats disable [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config stats edit
+
+Edit Spinnaker's stats settings.
+
+#### Usage
+```
+hal config stats edit [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--endpoint`: Set the endpoint for stats metrics.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config stats enable
+
+Set Spinnaker's stats settings to enabled.
+
+#### Usage
+```
+hal config stats enable [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
 ## hal config storage
 
 Show Spinnaker's persistent storage configuration.
@@ -12160,7 +12925,6 @@ hal plugins add PLUGIN [parameters]
  * `--enabled`: To enable or disable the plugin.
  * `--extensions`: A comma separated list of extensions to enable
  * `--no-validate`: (*Default*: `false`) Skip validation.
- * `--ui-resource-location`: The location of the plugin's ui resource.
  * `--version`: The plugin version to use
 
 
@@ -12226,7 +12990,6 @@ hal plugins edit PLUGIN [parameters]
  * `--enabled`: To enable or disable the plugin.
  * `--extensions`: A comma separated list of extensions to create
  * `--no-validate`: (*Default*: `false`) Skip validation.
- * `--ui-resource-location`: The location of the plugin's ui resource.
  * `--version`: The plugin version to use
 
 
