@@ -32,13 +32,18 @@ jobs:
       - name: Build
         id: build
         run: |
-          version=$(./gradlew version --quiet)
-          echo "Building version: $version"
-          ./gradlew -PenableCrossCompilerPlugin=true build javadoc --stacktrace
+          ./gradlew version --quiet
+          version=$(cat build/version | head -1)
+          echo "==== Building version: $version"
+          ./gradlew -PenableCrossCompilerPlugin=true installDist javadoc --stacktrace
           echo "##[set-output name=version;]$version"
       - name: Create Docker image
         run: |
           docker build . -t docker.io/armory/halyard:${{ steps.build.outputs.version }} -f Dockerfile.slim
+      - name: Login to dockerhub
+        run: |
+          echo "Logging in to dockerhub"
+          docker login -u ${{ secrets.DOCKERHUB_USER }} -p "${{ secrets.DOCKERHUB_PASSWORD }}" docker.io
       - name: Push images
         run: |
           docker tag docker.io/armory/halyard:${{ steps.build.outputs.version }} docker.io/armory/halyard:operator-dev

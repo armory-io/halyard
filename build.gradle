@@ -90,6 +90,16 @@ subprojects {
 }
 
 task version() {
+  exec {
+    workingDir projectDir
+    commandLine 'mkdir', '-p', 'build'
+  }
+  def so = new FileOutputStream("build/version")
+  exec {
+    workingDir projectDir
+    commandLine 'echo', "${version.toString().trim()}"
+    standardOutput = so
+  }
   println version
 }
 
