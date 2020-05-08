@@ -10,6 +10,8 @@ env:
 
 jobs:
   branch-build:
+    env:
+      GRADLE_ARGS: -Partifactory_user=${{secrets.ARTIFACTORY_USER}} -Partifactory_password=${{secrets.ARTIFACTORY_PASSWORD}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -44,4 +46,4 @@ jobs:
           docker push docker.io/armory/halyard:operator-dev
       - name: Upload to artifactory
         run: |
-          ./gradlew artifactPublish
+          ./gradlew artifactPublish $GRADLE_ARGS
