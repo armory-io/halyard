@@ -14,31 +14,23 @@
  * limitations under the License.
  */
 
-buildscript {
-  ext {
-    clouddriverVersion = "5.47.1"
-    front50Version = "2.15.0"
-    fiatVersion = "1.13.1"
-  }
-  repositories {
-    jcenter()
-    maven { url "https://spinnaker.bintray.com/gradle" }
-    maven { url "https://plugins.gradle.org/m2/" }
-  }
-  dependencies {
-    classpath 'com.netflix.spinnaker.gradle:spinnaker-dev-plugin:6.5.0'
-    if (Boolean.valueOf(enablePublishing)) {
-      classpath "com.netflix.spinnaker.gradle:spinnaker-gradle-project:6.5.0"
-    }
-    classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.8'
-  }
+plugins {
+  id 'io.spinnaker.project' version "$spinnakerGradleVersion" apply false
+  id 'com.google.protobuf' version "0.8.12" apply false
+  id "com.jfrog.artifactory" version "4.13.0"
 }
 
-allprojects {
+ext {
+  buildVersion = calculateVersion()
+}
+
+subprojects {
   group = "com.netflix.spinnaker.halyard"
-  apply plugin: 'spinnaker.base-project'
+  apply plugin: 'io.spinnaker.project'
   apply plugin: 'java-library'
   apply plugin: 'groovy'
+  apply plugin: 'com.jfrog.artifactory'
+  apply plugin: 'maven-publish'
 
   test {
     testLogging {
@@ -47,6 +39,13 @@ allprojects {
     }
     minHeapSize = "512m"
     maxHeapSize = "512m"
+  }
+
+  if ([korkVersion, fiatVersion, clouddriverVersion, front50Version].any { it.endsWith("-SNAPSHOT") }) {
+    logger.info("Enabling mavenLocal")
+    repositories {
+      mavenLocal()
+    }
   }
 
   dependencies {
@@ -58,30 +57,40 @@ allprojects {
     testAnnotationProcessor "org.projectlombok:lombok"
   }
 
-  configurations.all {
-    resolutionStrategy {
-      force group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.+' // Remove CVE-2019-10173, upgrade xstream dependency
-      force group: 'commons-codec', name: 'commons-codec', version: '1.+' // Remove CVE SONATYPE-2012-0050, upgrade commons-codec dependency
-      force group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.+' // Remove CVE-2019-17267, CVE-2019-16335, CVE-2019-14540, CVE-2019-14540 and CVE-2019-17531 , upgrade jackson-databind dependency
-      force group: 'com.hubspot.jinjava', name: 'jinjava', version: '2.5.+' // Remove CVE-2018-18893, upgrade jinjava dependency
-      force group: 'org.testng', name: 'testng', version: '7.1.+' // Remove CVE SONATYPE-2019-0115, upgrade testng dependency
-      force group: 'com.github.ben-manes.caff eine', name: 'caffeine', version: '2.8.+' // Remove SONATYPE-2019-0282, upgrade caffeine dependency
-      force group: 'org.codehaus.plexus', name: 'plexus-utils', version: '3.3.+' // Remove CVEs SONATYPE-2015-0173 and SONATYPE-2016-0398, upgrade plexus-utils dependency
-      force group: 'org.apache.commons', name: 'commons-compress', version: '1.+' // Remove CVE-2019-12402, upgrade commons-compress dependency
-      force group: 'commons-collections', name: 'commons-collections', version:'3.2.+' // Remove CVE SONATYPE-2015-0002, upgrade commons-collections dependency
-      force group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.1.+' // Remove CVE-2019-10219, upgrade hibernate-validator dependency
-      force group: 'org.jboss.logging', name: 'jboss-logging', version: '3.4.+' // Remove CVE-2017-2595, upgrade jboss-logging
-      force group: 'commons-net', name: 'commons-net', version: '3.+' // Remove apache issue NET-579, upgrade commons-net dependency
-      force group: 'io.netty', name: 'netty-codec-http', version: '4.1.+' // Remove CVE-2019-16869, upgrade netty-codec dependency
-      force group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '9.0.31' // Remove CVE-2020-1938, upgrade tomcat-embed-core dependency
-      force group: 'org.codehaus.plexus', name: 'plexus-utils', version: '3.0.24'
-      force group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.3'
-      force group: 'org.apache.commons', name: 'commons-compress', version: '1.20' // Remove CVE-2019-12402, upgrade commons-compress dependency
-      force group: 'org.springframework', name: 'spring-web', version: '5.2.3.RELEASE'
-      force group: 'org.javassist', name: 'javassist', version: '3.19.0-GA'
-      force group: 'commons-io', name: 'commons-io', version: '2.6'
+  publishing {
+    publications {
+      mavenJava(MavenPublication) {
+        from components.java
+      }
     }
   }
+
+  artifactory {
+    contextUrl = "https://armory.jfrog.io/armory"
+    //The base Artifactory URL if not overridden by the publisher/resolver
+    publish {
+      repository {
+        repoKey = "gradle-dev"
+        username = "${artifactory_user}"
+        password = "${artifactory_password}"
+        maven = true
+      }
+      defaults {
+        publications('mavenJava')
+        publishArtifacts = true
+        publishPom = true
+      }
+    }
+  }
+
+  task setVersion() {
+    logger.info "Setting project version to: ${buildVersion}"
+    project.setVersion(buildVersion)
+  }
+}
+
+task version() {
+  println version
 }
 
 defaultTasks ':halyard-web:run'
@@ -105,11 +114,35 @@ def createScript(project, mainClass, name) {
   }
 }
 
-subprojects { project ->
-  if ([korkVersion, fiatVersion, clouddriverVersion, front50Version].any { it.endsWith("-SNAPSHOT") }) {
-    logger.info("Enabling mavenLocal")
-    repositories {
-      mavenLocal()
-    }
+def calculateVersion() {
+  if (version != 'unspecified') {
+    logger.info "Version already present: ${version}"
+    return version
   }
+  // get git hash
+  def gitHash = new ByteArrayOutputStream().withStream { soHash ->
+    exec {
+      workingDir projectDir
+      commandLine 'git', 'rev-parse', '--short', 'HEAD'
+      standardOutput = soHash
+    }
+    return soHash.toString().trim()
+  }.toString()
+  // determine if the re are uncommitted changes
+  def gitStatus = new ByteArrayOutputStream().withStream { soStatus ->
+    exec {
+      workingDir projectDir
+      commandLine 'git', 'status', '--porcelain'
+      standardOutput = soStatus
+    }
+    return soStatus.toString().trim()
+  }.toString()
+
+  def newVersion = "operator-${gitHash}"
+  if (gitStatus != '') {
+    newVersion += '-uncommitted'
+  }
+  logger.info "Calculated version: ${newVersion}"
+  project.setVersion(newVersion)
+  return newVersion
 }
