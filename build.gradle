@@ -21,22 +21,7 @@ plugins {
 }
 
 ext {
-  buildVersion = new ByteArrayOutputStream().withStream { so ->
-    exec {
-      workingDir projectDir
-      commandLine 'git', 'rev-parse', '--short', 'HEAD'
-      standardOutput = so
-    }
-    if (version == 'unspecified') {
-      def newVersion = "operator-${so.toString().trim()}-dirty"
-      logger.info "Setting project version to: ${newVersion}"
-      project.setVersion(newVersion)
-      ext.buildVersion = newVersion
-    } else {
-      logger.info "Version already present: ${version}"
-      ext.buildVersion = version
-    }
-  }.toString()
+  buildVersion = calculateVersion()
 }
 
 subprojects {
@@ -127,4 +112,37 @@ def createScript(project, mainClass, name) {
       fileMode = 0755
     }
   }
+}
+
+def calculateVersion() {
+  if (version != 'unspecified') {
+    logger.info "Version already present: ${version}"
+    return version
+  }
+  // get git hash
+  def gitHash = new ByteArrayOutputStream().withStream { soHash ->
+    exec {
+      workingDir projectDir
+      commandLine 'git', 'rev-parse', '--short', 'HEAD'
+      standardOutput = soHash
+    }
+    return soHash.toString().trim()
+  }.toString()
+  // determine if the re are uncommitted changes
+  def gitStatus = new ByteArrayOutputStream().withStream { soStatus ->
+    exec {
+      workingDir projectDir
+      commandLine 'git', 'status', '--porcelain'
+      standardOutput = soStatus
+    }
+    return soStatus.toString().trim()
+  }.toString()
+
+  def newVersion = "operator-${gitHash}"
+  if (gitStatus != '') {
+    newVersion += '-uncommitted'
+  }
+  logger.info "Calculated version: ${newVersion}"
+  project.setVersion(newVersion)
+  return newVersion
 }
