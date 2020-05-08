@@ -90,7 +90,7 @@ subprojects {
 }
 
 task version() {
-  println "Version: ${version}"
+  println version
 }
 
 defaultTasks ':halyard-web:run'

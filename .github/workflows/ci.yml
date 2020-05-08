@@ -9,6 +9,8 @@ on:
 
 jobs:
   build:
+    # Only run this on repositories in the 'spinnaker' org, not on forks.
+    if: startsWith(github.repository, 'spinnaker/')
     runs-on: ubuntu-latest
 
     steps:
