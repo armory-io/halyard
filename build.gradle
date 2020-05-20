@@ -81,6 +81,37 @@ subprojects {
         publishPom = true
       }
     }
+
+    configurations.all {
+      resolutionStrategy {
+        force group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.+'
+        force group: 'com.github.ben-manes.caff eine', name: 'caffeine', version: '2.8.+' // Remove SONATYPE-2019-0282, upgrade caffeine dependency
+        force group: 'com.hubspot.jinjava', name: 'jinjava', version: '2.5.+' // Remove CVE-2018-18893, upgrade jinjava dependency
+        force group: 'com.nimbusds', name: 'nimbus-jose-jwt', version: '7.9'// Remove CVE-2019-17195
+        force group: 'com.squareup.okhttp', name: 'okhttp', version: '2.7.+' // Remove CVE-2016-2402
+        force group: 'com.squareup.okhttp', name: 'okhttp-apache', version: '2.7.+'
+        force group: 'com.squareup.okhttp', name: 'okhttp-urlconnection', version: '2.7.+'
+        force group: 'com.thoughtworks.xstream', name: 'xstream', version: '1.4.+' // Remove CVE-2019-10173, upgrade xstream dependency
+        force group: 'commons-codec', name: 'commons-codec', version: '1.+' // Remove CVE SONATYPE-2012-0050, upgrade commons-codec dependency
+        force group: 'commons-collections', name: 'commons-collections4', version:'4.+'
+        force group: 'commons-io', name: 'commons-io', version: '2.6'
+        force group: 'commons-net', name: 'commons-net', version: '3.+' // Remove apache issue NET-579, upgrade commons-net dependency
+        force group: 'io.netty', name: 'netty-codec-http', version: '4.1.+' // Remove CVE-2019-16869, upgrade netty-codec dependency
+        force group: 'io.netty', name: 'netty-codec-http2', version: '4.1.+' // Remove CVE-2019-9518, upgrade netty-codec-http2 dependency
+        force group: 'io.netty', name: 'netty-handler-proxy', version: '4.1.+' // Remove CVE-2019-9518, upgrade netty-handler-proxy dependency
+        force group: 'org.apache.commons', name: 'commons-compress', version: '1.+' // Remove CVE-2019-12402, upgrade commons-compress dependency
+        force group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+        force group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '9.0.31' // Remove CVE-2020-1938, upgrade tomcat-embed-core dependency
+        force group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.10' // Avoid duplicate groovy versions 2.5.7 and 2.5.10
+        force group: 'org.codehaus.plexus', name: 'plexus-utils', version: '3.3.+' // Remove CVEs SONATYPE-2015-0173 and SONATYPE-2016-0398, upgrade plexus-utils dependency
+        force group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.1.+' // Remove CVE-2019-10219, upgrade hibernate-validator depende      force group: 'org.testng', name: 'testng', version: '7.1.+' // Remove CVE SONATYPE-2019-0115, upgrade testng dependency
+        force group: 'org.javassist', name: 'javassist', version: '3.19.0-GA'
+        force group: 'org.jboss.logging', name: 'jboss-logging', version: '3.4.+' // Remove CVE-2017-2595, upgrade jboss-logging
+        force group: 'org.springframework', name: 'spring-web', version: '5.2.3.RELEASE'
+        force group: 'org.testng', name: 'testng', version: '7.1.+' // Remove CVE SONATYPE-2019-0115, upgrade testng dependency
+        force group: 'org.yaml', name: 'snakeyaml', version: '1.26' // Remove CVE-2017-18640
+      }
+    }
   }
 
   task setVersion() {
