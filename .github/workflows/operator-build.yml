@@ -40,15 +40,29 @@ jobs:
       - name: Create Docker image
         run: |
           docker build . -t docker.io/armory/halyard:${{ steps.build.outputs.version }} -f Dockerfile.slim
-      - name: Login to dockerhub
+      - name: Push images
+        id: push_step
         run: |
+          docker tag docker.io/armory/halyard:${{ steps.build.outputs.version }} armory-docker-local.jfrog.io/armory/halyard:${{ steps.build.outputs.version }}
+          echo "Logging in to jfrog"
+          docker login -u ${{ secrets.ARTIFACTORY_USER }} -p "${{ secrets.ARTIFACTORY_PASSWORD }}" armory-docker-local.jfrog.io
+          docker push armory-docker-local.jfrog.io/armory/halyard:${{ steps.build.outputs.version }}
+
           echo "Logging in to dockerhub"
           docker login -u ${{ secrets.DOCKERHUB_USER }} -p "${{ secrets.DOCKERHUB_PASSWORD }}" docker.io
-      - name: Push images
-        run: |
           docker tag docker.io/armory/halyard:${{ steps.build.outputs.version }} docker.io/armory/halyard:operator-dev
           docker push docker.io/armory/halyard:${{ steps.build.outputs.version }}
           docker push docker.io/armory/halyard:operator-dev
+
+          echo "##[set-output name=image;]armory/halyard:${{ steps.build.outputs.version }}"
       - name: Upload to artifactory
         run: |
           ./gradlew artifactPublish $GRADLE_ARGS
+      - name: Run Security Scan
+        uses: armory-io/aquasec-scan-action@master
+        with:
+          username: ${{ secrets.AQUA_USER }}
+          password: ${{ secrets.AQUA_PASSWORD }}
+          url: https://aquasec.armory.io
+          image: ${{ steps.push_step.outputs.image }}
+          registry: Artifactory
