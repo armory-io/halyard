@@ -1,22 +1,22 @@
-FROM alpine:3.11
+FROM python:2.7.18-alpine3.11
 MAINTAINER sig-platform@spinnaker.io
 COPY halyard-web/build/install/halyard /opt/halyard
 
 ENV KUBECTL_RELEASE=1.15.10
 ENV AWS_BINARY_RELEASE_DATE=2020-02-22
-ENV AWS_CLI_VERSION=1.18.18
+ENV AWS_CLI_VERSION=1.18.58
 
 RUN apk --no-cache add --update \
   bash \
   curl \
   openjdk11-jre \
   openssl \
-  py-pip \
-  python
-RUN pip install --upgrade awscli==${AWS_CLI_VERSION}
-RUN apk --purge del \
-  py-pip
-RUN rm -rf /var/cache/apk
+  && pip install --upgrade awscli==${AWS_CLI_VERSION} \
+  && pip uninstall -y pip
+
+RUN apk update \
+    && apk upgrade \
+    && rm -rf /var/cache/apk/*
 
 RUN echo '#!/usr/bin/env bash' > /usr/local/bin/hal && \
   echo '/opt/halyard/bin/hal "$@"' > /usr/local/bin/hal && \
