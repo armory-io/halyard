@@ -99,6 +99,8 @@ subprojects {
         force group: 'io.netty', name: 'netty-codec-http', version: '4.1.+' // Remove CVE-2019-16869, upgrade netty-codec dependency
         force group: 'io.netty', name: 'netty-codec-http2', version: '4.1.+' // Remove CVE-2019-9518, upgrade netty-codec-http2 dependency
         force group: 'io.netty', name: 'netty-handler-proxy', version: '4.1.+' // Remove CVE-2019-9518, upgrade netty-handler-proxy dependency
+        force group: 'org.apache.ant', name: 'ant', version: '1.10.+' // Remove CVE-2020-1945
+        force group: 'org.apache.ant', name: 'ant-launcher', version: '1.10.+'
         force group: 'org.apache.commons', name: 'commons-compress', version: '1.+' // Remove CVE-2019-12402, upgrade commons-compress dependency
         force group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
         force group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '9.0.31' // Remove CVE-2020-1938, upgrade tomcat-embed-core dependency
