@@ -163,7 +163,7 @@ public class DecryptingObjectMapper extends ObjectMapper {
     }
   }
 
-  public static boolean isK8sSecret(String encryptedReference) {
+  private static boolean isK8sSecret(String encryptedReference) {
     if (!EncryptedSecret.isEncryptedSecret(encryptedReference)) {
       return false;
     }
