@@ -103,7 +103,7 @@ subprojects {
         force group: 'org.apache.ant', name: 'ant-launcher', version: '1.10.+'
         force group: 'org.apache.commons', name: 'commons-compress', version: '1.+' // Remove CVE-2019-12402, upgrade commons-compress dependency
         force group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
-        force group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '9.0.31' // Remove CVE-2020-1938, upgrade tomcat-embed-core dependency
+        force group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '9.0.+'
         force group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.10' // Avoid duplicate groovy versions 2.5.7 and 2.5.10
         force group: 'org.codehaus.plexus', name: 'plexus-utils', version: '3.3.+' // Remove CVEs SONATYPE-2015-0173 and SONATYPE-2016-0398, upgrade plexus-utils dependency
         force group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.1.+' // Remove CVE-2019-10219, upgrade hibernate-validator depende      force group: 'org.testng', name: 'testng', version: '7.1.+' // Remove CVE SONATYPE-2019-0115, upgrade testng dependency
