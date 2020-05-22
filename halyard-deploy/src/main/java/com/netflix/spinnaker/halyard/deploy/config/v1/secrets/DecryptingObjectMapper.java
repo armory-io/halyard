@@ -49,6 +49,7 @@ import org.apache.commons.lang3.RandomStringUtils;
  * <p>decryptedOutputDirectory is the path to the decrypted secret files on the service's host.
  */
 public class DecryptingObjectMapper extends ObjectMapper {
+  private static final String K8S_SECRET_ENGINE = "k8s";
 
   protected Profile profile;
   protected Path decryptedOutputDirectory;
@@ -102,7 +103,7 @@ public class DecryptingObjectMapper extends ObjectMapper {
           throws IOException {
         if (value != null) {
           String sValue = value.toString();
-          if (EncryptedSecret.isEncryptedSecret(sValue)) {
+          if (EncryptedSecret.isEncryptedSecret(sValue) && !isK8sSecret(sValue)) {
             gen.writeString(secretSessionManager.decrypt(sValue));
           } else {
             gen.writeString(sValue);
@@ -124,7 +125,7 @@ public class DecryptingObjectMapper extends ObjectMapper {
             // metadataUrl is either a URL or a filepath, so only add prefix if it's a path
             sValue = annotation.prefix() + sValue;
           }
-          if (EncryptedSecret.isEncryptedSecret(sValue) && shouldDecrypt) {
+          if (EncryptedSecret.isEncryptedSecret(sValue) && shouldDecrypt && !isK8sSecret(sValue)) {
             // Decrypt the content of the file and store on the profile under a random
             // generated file name
             String name = newRandomFilePath(beanPropertyWriter.getName());
@@ -160,5 +161,13 @@ public class DecryptingObjectMapper extends ObjectMapper {
     } catch (Exception exception) {
       return false;
     }
+  }
+
+  private static boolean isK8sSecret(String encryptedReference) {
+    if (!EncryptedSecret.isEncryptedSecret(encryptedReference)) {
+      return false;
+    }
+    EncryptedSecret encryptedSecret = EncryptedSecret.parse(encryptedReference);
+    return encryptedSecret.getEngineIdentifier().equals(K8S_SECRET_ENGINE);
   }
 }
