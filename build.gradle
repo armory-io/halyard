@@ -109,7 +109,7 @@ subprojects {
         force group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.1.+' // Remove CVE-2019-10219, upgrade hibernate-validator depende      force group: 'org.testng', name: 'testng', version: '7.1.+' // Remove CVE SONATYPE-2019-0115, upgrade testng dependency
         force group: 'org.javassist', name: 'javassist', version: '3.19.0-GA'
         force group: 'org.jboss.logging', name: 'jboss-logging', version: '3.4.+' // Remove CVE-2017-2595, upgrade jboss-logging
-        force group: 'org.springframework', name: 'spring-web', version: '5.2.3.RELEASE'
+        force group: 'org.springframework', name: 'spring-web', version: '5.2.4.RELEASE'
         force group: 'org.testng', name: 'testng', version: '7.1.+' // Remove CVE SONATYPE-2019-0115, upgrade testng dependency
         force group: 'org.yaml', name: 'snakeyaml', version: '1.26' // Remove CVE-2017-18640
       }

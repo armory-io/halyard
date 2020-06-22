@@ -171,7 +171,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
   }
 
   default String getResourceYaml(
-      KubernetesManifestExecutor executor,
+      KubernetesV2Executor executor,
       AccountDeploymentDetails<KubernetesAccount> details,
       GenerateService.ResolvedConfiguration resolvedConfiguration) {
     ServiceSettings settings = resolvedConfiguration.getServiceSettings(getService());
@@ -202,7 +202,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
   }
 
   default String getPodSpecYaml(
-      KubernetesManifestExecutor executor,
+      KubernetesV2Executor executor,
       AccountDeploymentDetails<KubernetesAccount> details,
       GenerateService.ResolvedConfiguration resolvedConfiguration) {
     SpinnakerRuntimeSettings runtimeSettings = resolvedConfiguration.getRuntimeSettings();
@@ -498,7 +498,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
   }
 
   default List<ConfigSource> stageConfig(
-      KubernetesManifestExecutor executor,
+      KubernetesV2Executor executor,
       AccountDeploymentDetails<KubernetesAccount> details,
       GenerateService.ResolvedConfiguration resolvedConfiguration) {
     Map<String, Profile> profiles =
@@ -566,8 +566,10 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
               .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
       KubernetesV2Utils.SecretSpec spec =
-          executor.createSecretSpec(
-              namespace, getService().getCanonicalName(), secretNamePrefix, files);
+          executor
+              .getKubernetesV2Utils()
+              .createSecretSpec(
+                  namespace, getService().getCanonicalName(), secretNamePrefix, files);
       executor.replace(spec.resource.toString());
       configSources.add(new ConfigSource().setId(spec.name).setMountPath(mountPath).setEnv(env));
     }
@@ -585,8 +587,10 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
           .forEach(s -> files.add(s));
 
       KubernetesV2Utils.SecretSpec spec =
-          executor.createSecretSpec(
-              namespace, getService().getCanonicalName(), secretNamePrefix, files);
+          executor
+              .getKubernetesV2Utils()
+              .createSecretSpec(
+                  namespace, getService().getCanonicalName(), secretNamePrefix, files);
       executor.replace(spec.resource.toString());
       configSources.add(
           new ConfigSource()
