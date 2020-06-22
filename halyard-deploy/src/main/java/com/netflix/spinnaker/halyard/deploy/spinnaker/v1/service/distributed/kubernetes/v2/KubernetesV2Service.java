@@ -32,7 +32,6 @@ import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.core.resource.v1.JinjaJarResource;
 import com.netflix.spinnaker.halyard.core.resource.v1.TemplatedResource;
 import com.netflix.spinnaker.halyard.deploy.deployment.v1.AccountDeploymentDetails;
-import com.netflix.spinnaker.halyard.deploy.deployment.v1.KubernetesManifestExecutor;
 import com.netflix.spinnaker.halyard.deploy.services.v1.GenerateService;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.Profile;
@@ -46,7 +45,6 @@ import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.Sid
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.KubernetesService;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.KubernetesSharedServiceSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.v2.KubernetesV2Utils.SecretMountPair;
-import io.fabric8.utils.Strings;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -758,7 +756,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
   }
 
   default Optional<String> buildAddress(String namespace) {
-    return Optional.of(Strings.join(".", getServiceName(), namespace));
+    return Optional.of(String.join(".", getServiceName(), namespace));
   }
 
   default ServiceSettings buildServiceSettings(DeploymentConfiguration deploymentConfiguration) {
