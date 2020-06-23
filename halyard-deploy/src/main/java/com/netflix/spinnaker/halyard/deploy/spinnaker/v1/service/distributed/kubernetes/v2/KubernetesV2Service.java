@@ -32,7 +32,6 @@ import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.core.resource.v1.JinjaJarResource;
 import com.netflix.spinnaker.halyard.core.resource.v1.TemplatedResource;
 import com.netflix.spinnaker.halyard.deploy.deployment.v1.AccountDeploymentDetails;
-import com.netflix.spinnaker.halyard.deploy.deployment.v1.KubernetesManifestExecutor;
 import com.netflix.spinnaker.halyard.deploy.services.v1.GenerateService;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.SpinnakerRuntimeSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.profile.Profile;
@@ -46,7 +45,6 @@ import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.Sid
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.KubernetesService;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.KubernetesSharedServiceSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.v2.KubernetesV2Utils.SecretMountPair;
-import io.fabric8.utils.Strings;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -173,7 +171,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
   }
 
   default String getResourceYaml(
-      KubernetesManifestExecutor executor,
+      KubernetesV2Executor executor,
       AccountDeploymentDetails<KubernetesAccount> details,
       GenerateService.ResolvedConfiguration resolvedConfiguration) {
     ServiceSettings settings = resolvedConfiguration.getServiceSettings(getService());
@@ -204,7 +202,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
   }
 
   default String getPodSpecYaml(
-      KubernetesManifestExecutor executor,
+      KubernetesV2Executor executor,
       AccountDeploymentDetails<KubernetesAccount> details,
       GenerateService.ResolvedConfiguration resolvedConfiguration) {
     SpinnakerRuntimeSettings runtimeSettings = resolvedConfiguration.getRuntimeSettings();
@@ -500,7 +498,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
   }
 
   default List<ConfigSource> stageConfig(
-      KubernetesManifestExecutor executor,
+      KubernetesV2Executor executor,
       AccountDeploymentDetails<KubernetesAccount> details,
       GenerateService.ResolvedConfiguration resolvedConfiguration) {
     Map<String, Profile> profiles =
@@ -568,8 +566,10 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
               .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
       KubernetesV2Utils.SecretSpec spec =
-          executor.createSecretSpec(
-              namespace, getService().getCanonicalName(), secretNamePrefix, files);
+          executor
+              .getKubernetesV2Utils()
+              .createSecretSpec(
+                  namespace, getService().getCanonicalName(), secretNamePrefix, files);
       executor.replace(spec.resource.toString());
       configSources.add(new ConfigSource().setId(spec.name).setMountPath(mountPath).setEnv(env));
     }
@@ -587,8 +587,10 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
           .forEach(s -> files.add(s));
 
       KubernetesV2Utils.SecretSpec spec =
-          executor.createSecretSpec(
-              namespace, getService().getCanonicalName(), secretNamePrefix, files);
+          executor
+              .getKubernetesV2Utils()
+              .createSecretSpec(
+                  namespace, getService().getCanonicalName(), secretNamePrefix, files);
       executor.replace(spec.resource.toString());
       configSources.add(
           new ConfigSource()
@@ -758,7 +760,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
   }
 
   default Optional<String> buildAddress(String namespace) {
-    return Optional.of(Strings.join(".", getServiceName(), namespace));
+    return Optional.of(String.join(".", getServiceName(), namespace));
   }
 
   default ServiceSettings buildServiceSettings(DeploymentConfiguration deploymentConfiguration) {
