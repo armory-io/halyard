@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - gen-manifests
-    - feat/ubi-image
 
 env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false -Xmx2g -Xms2g
