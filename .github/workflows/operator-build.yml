@@ -40,6 +40,12 @@ jobs:
       - name: Create Docker image
         run: |
           docker build . -t docker.io/armory/halyard:${{ steps.build.outputs.version }} -f Dockerfile.slim
+
+      - name: Create UBI image
+        run: |
+          docker login -u ${{ secrets.REDHATREGISTRY_USER }} -p "${{ secrets.REDHATREGISTRY_PASSWORD }}" registry.redhat.io
+          docker build . -t docker.io/armory/halyard:${{ steps.build.outputs.version }}-ubi -f Dockerfile.ubi
+
       - name: Push images
         id: push_step
         run: |
@@ -54,6 +60,10 @@ jobs:
           docker push docker.io/armory/halyard:${{ steps.build.outputs.version }}
           docker push docker.io/armory/halyard:operator-dev
 
+          docker tag docker.io/armory/halyard:${{ steps.build.outputs.version }}-ubi scan.connect.redhat.com/${{ secrets.REDHAT_PID }}/halyard:${{ steps.build.outputs.version }}-ubi
+          docker login -u unused -p "${{ secrets.REDHATREGISTRY_TOKEN }}" scan.connect.redhat.com
+          docker push scan.connect.redhat.com/${{ secrets.REDHAT_PID }}/halyard:${{ steps.build.outputs.version }}-ubi
+          docker push docker.io/armory/halyard:${{ steps.build.outputs.version }}-ubi
           echo "##[set-output name=image;]armory/halyard:${{ steps.build.outputs.version }}"
       - name: Upload to artifactory
         run: |
