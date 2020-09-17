@@ -174,6 +174,7 @@ public class GenerateService {
     }
 
     return new ResolvedConfiguration()
+        .setBasePath(halconfigDirectoryStructure.getHalconfigDirectory())
         .setStagingDirectory(spinnakerStaging.toString())
         .setServiceProfiles(serviceProfiles)
         .setRuntimeSettings(runtimeSettings);
@@ -234,6 +235,7 @@ public class GenerateService {
     private Map<SpinnakerService.Type, Map<String, Profile>> serviceProfiles = new HashMap<>();
     SpinnakerRuntimeSettings runtimeSettings;
     private String stagingDirectory;
+    private String basePath;
 
     @JsonIgnore
     public ServiceSettings getServiceSettings(SpinnakerService service) {

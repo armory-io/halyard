@@ -80,7 +80,9 @@ public class DeploymentManifestGenerator {
         buildManifestList(serviceProvider, deploymentDetails, resolvedConfiguration, serviceTypes);
 
     try {
-      FileUtils.deleteDirectory(Paths.get(resolvedConfiguration.getStagingDirectory()).toFile());
+      log.info(
+          "Cleaning up the temp configuration directory " + resolvedConfiguration.getBasePath());
+      FileUtils.deleteDirectory(Paths.get(resolvedConfiguration.getBasePath()).toFile());
     } catch (IOException e) {
       throw new HalException(
           new ConfigProblemBuilder(
