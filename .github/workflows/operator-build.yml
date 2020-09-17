@@ -5,7 +5,7 @@ on:
     branches:
     - gen-manifests
   pull_request:
-    - gen-manifests
+
 env:
   GRADLE_OPTS: -Dorg.gradle.daemon=false -Xmx2g -Xms2g
 
