@@ -62,11 +62,11 @@ jobs:
           docker push docker.io/armory/halyard:operator-dev
 
           docker tag docker.io/armory/halyard:${{ steps.build.outputs.version }}-ubi scan.connect.redhat.com/${{ secrets.REDHAT_PID }}/halyard:${{ steps.build.outputs.version }}-ubi
-          docker tag docker.io/armory/halyard:${{ steps.build.outputs.version }}-ubi docker.io/armory/halyard:dev-ubi
+          docker tag docker.io/armory/halyard:${{ steps.build.outputs.version }}-ubi docker.io/armory/halyard:operator-dev-ubi
           docker login -u unused -p "${{ secrets.REDHATREGISTRY_TOKEN }}" scan.connect.redhat.com
           docker push scan.connect.redhat.com/${{ secrets.REDHAT_PID }}/halyard:${{ steps.build.outputs.version }}-ubi
           docker push docker.io/armory/halyard:${{ steps.build.outputs.version }}-ubi
-          docker push docker.io/armory/halyard:dev-ubi
+          docker push docker.io/armory/halyard:operator-dev-ubi
           echo "##[set-output name=image;]armory/halyard:${{ steps.build.outputs.version }}"
       - name: Upload to artifactory
         run: |
