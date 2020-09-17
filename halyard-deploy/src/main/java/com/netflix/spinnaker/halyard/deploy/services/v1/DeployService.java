@@ -16,7 +16,6 @@
 
 package com.netflix.spinnaker.halyard.deploy.services.v1;
 
-import static com.netflix.spinnaker.halyard.config.model.v1.node.Provider.ProviderVersion.V1;
 import static com.netflix.spinnaker.halyard.core.problem.v1.Problem.Severity.FATAL;
 
 import com.netflix.spinnaker.halyard.config.config.v1.HalconfigDirectoryStructure;
@@ -25,7 +24,6 @@ import com.netflix.spinnaker.halyard.config.model.v1.node.Account;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentEnvironment;
 import com.netflix.spinnaker.halyard.config.model.v1.node.NodeDiff;
-import com.netflix.spinnaker.halyard.config.model.v1.node.Provider;
 import com.netflix.spinnaker.halyard.config.services.v1.AccountService;
 import com.netflix.spinnaker.halyard.config.services.v1.DeploymentService;
 import com.netflix.spinnaker.halyard.core.RemoteAction;
