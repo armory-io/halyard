@@ -71,8 +71,11 @@ jobs:
       - name: Upload to artifactory
         run: |
           ./gradlew artifactPublish $GRADLE_ARGS
+
       - name: Run Security Scan
-        uses: armory-io/aquasec-scan-action@master
+        uses: armory-io/aquasec-scan-action@v0.0.10
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           username: ${{ secrets.AQUA_USER }}
           password: ${{ secrets.AQUA_PASSWORD }}
