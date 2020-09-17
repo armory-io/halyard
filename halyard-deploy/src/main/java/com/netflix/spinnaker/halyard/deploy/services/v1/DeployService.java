@@ -347,18 +347,6 @@ public class DeployService {
               "An account name must be "
                   + "specified as the desired place to run your distributed deployment.");
         }
-
-        Account account =
-            accountService.getAnyProviderAccount(deploymentConfiguration.getName(), accountName);
-        Provider.ProviderType providerType = ((Provider) account.getParent()).providerType();
-
-        if (providerType == Provider.ProviderType.KUBERNETES
-            && account.getProviderVersion() == V1) {
-          throw new HalException(
-              Problem.Severity.FATAL,
-              "Distributed deployment is only available for standard Kubernetes (V2) accounts.");
-        }
-
         return kubectlDeployer;
       case Operator:
         return kubectlDeployer;
