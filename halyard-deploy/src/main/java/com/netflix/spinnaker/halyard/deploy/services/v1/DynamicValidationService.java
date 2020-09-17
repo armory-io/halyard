@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
@@ -67,7 +68,10 @@ public class DynamicValidationService {
       }
       return problems;
     } finally {
-      fileRequestService.cleanup();
+      log.info(
+          "Cleaning up the temp configuration directory "
+              + fileRequestService.getBaseDirectory().getAbsolutePath());
+      FileUtils.deleteDirectory(fileRequestService.getBaseDirectory());
     }
   }
 
