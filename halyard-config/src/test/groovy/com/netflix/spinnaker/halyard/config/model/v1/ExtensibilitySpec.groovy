@@ -43,6 +43,7 @@ class ExtensibilitySpec extends Specification {
                 "Test.Plugin": [
                         'enabled': true,
                         'version': '1.2.3',
+                        "config": [:],
                         'extensions': [
                                 "test.plugin": [
                                         "enabled": true,
