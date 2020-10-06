@@ -125,9 +125,6 @@ public class AwsEditAccountCommand extends AbstractEditAccountCommand<AwsAccount
     List<AwsLifecycleHook> hooks = getLifecycleHooks();
     account.setLifecycleHooks(!hooks.isEmpty() ? hooks : account.getLifecycleHooks());
 
-    List<AwsLifecycleHook> hooks = getLifecycleHooks();
-    account.setLifecycleHooks(!hooks.isEmpty() ? hooks : account.getLifecycleHooks());
-
     try {
       List<String> existingRegions =
           account.getRegions().stream()
