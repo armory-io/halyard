@@ -6843,6 +6843,71 @@ hal config notification github-status enable [parameters]
 ---
 ## hal config notification pubsub
 
+Manage and view Spinnaker configuration for the github-status notification
+
+#### Usage
+```
+hal config notification github-status [parameters] [subcommands]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+#### Subcommands
+ * `disable`: Set the github-status notification as disabled
+ * `edit`: Edit the github-status notification type
+ * `enable`: Set the github-status notification as enabled
+
+---
+## hal config notification github-status disable
+
+Set the github-status notification as disabled
+
+#### Usage
+```
+hal config notification github-status disable [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config notification github-status edit
+
+Edit the github-status notification type
+
+#### Usage
+```
+hal config notification github-status edit [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+ * `--token`: (*Sensitive data* - user will be prompted on standard input) Your github account token.
+
+
+---
+## hal config notification github-status enable
+
+Set the github-status notification as enabled
+
+#### Usage
+```
+hal config notification github-status enable [parameters]
+```
+
+#### Parameters
+ * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
+ * `--no-validate`: (*Default*: `false`) Skip validation.
+
+
+---
+## hal config notification pubsub
+
 Configure, validate, and view the specified pubsub.
 
 #### Usage
@@ -7432,6 +7497,7 @@ Example: [http://{{region}}.eureka.url.to.use:8080/eureka-server/v2](http://{{re
 Using {{region}} will make Spinnaker use AWS regions in the hostname to access discovery so that you can have discovery for multiple regions.
  * `--edda`: The endpoint Edda is reachable at. Edda is not a hard dependency of Spinnaker, but is helpful for reducing the request volume against AWS. See [https://github.com/Netflix/edda](https://github.com/Netflix/edda) for more information.
  * `--environment`: The environment name for the account. Many accounts can share the same environment (e.g. dev, test, prod)
+ * `--external-id`: Optional parameter used to identify and control access to AWS resources. Set this to the same value as the ExternalID parameter in the trust policy for the role you want to assume.
  * `--launching-lifecycle-hook-default-result`: (*Default*: `ABANDON`) Defines the action the Auto Scaling group should take when the lifecycle hook timeout elapses or if an unexpected failure occurs. This parameter can be either CONTINUE or ABANDON. The default value is ABANDON.
  * `--launching-lifecycle-hook-heartbeat-timeout-seconds`: (*Default*: `3600`) Set the heartbeat timeout for the lifecycle hook. Instances can " +
           "remain in a wait state for a finite period of time. The default is one hour (3600 seconds).
@@ -7496,6 +7562,7 @@ Example: [http://{{region}}.eureka.url.to.use:8080/eureka-server/v2](http://{{re
 Using {{region}} will make Spinnaker use AWS regions in the hostname to access discovery so that you can have discovery for multiple regions.
  * `--edda`: The endpoint Edda is reachable at. Edda is not a hard dependency of Spinnaker, but is helpful for reducing the request volume against AWS. See [https://github.com/Netflix/edda](https://github.com/Netflix/edda) for more information.
  * `--environment`: The environment name for the account. Many accounts can share the same environment (e.g. dev, test, prod)
+ * `--external-id`: Optional parameter used to identify and control access to AWS resources. Set this to the same value as the ExternalID parameter in the trust policy for the role you want to assume.
  * `--launching-lifecycle-hook-default-result`: (*Default*: `ABANDON`) Defines the action the Auto Scaling group should take when the lifecycle hook timeout elapses or if an unexpected failure occurs. This parameter can be either CONTINUE or ABANDON. The default value is ABANDON.
  * `--launching-lifecycle-hook-heartbeat-timeout-seconds`: (*Default*: `3600`) Set the heartbeat timeout for the lifecycle hook. Instances can " +
           "remain in a wait state for a finite period of time. The default is one hour (3600 seconds).
