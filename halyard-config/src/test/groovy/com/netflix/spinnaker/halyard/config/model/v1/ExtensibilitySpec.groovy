@@ -54,5 +54,4 @@ class ExtensibilitySpec extends Specification {
         ]
         subject == expectedOptions
     }
-
 }
