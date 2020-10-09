@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - gen-manifests
+    - fix/redis-artifact-id
   pull_request:
 
 env:

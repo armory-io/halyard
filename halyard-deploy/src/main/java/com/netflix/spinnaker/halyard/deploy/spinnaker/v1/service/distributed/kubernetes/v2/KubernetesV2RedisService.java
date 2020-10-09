@@ -18,7 +18,10 @@
 
 package com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.v2;
 
+import com.google.common.base.Strings;
+import com.google.gson.Gson;
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
+import com.netflix.spinnaker.halyard.core.registry.v1.Versions;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.RedisService;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.ServiceSettings;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.DistributedService.DeployPriority;
@@ -43,7 +46,21 @@ public class KubernetesV2RedisService extends RedisService implements Kubernetes
   }
 
   public String getArtifactId(DeploymentConfiguration deploymentConfiguration) {
-    return "us-docker.pkg.dev/spinnaker-community/redis/redis-cluster:v2";
+    System.out.println(new Gson().toJson(deploymentConfiguration));
+
+    String deploymentName = deploymentConfiguration.getName();
+    String artifactName = getArtifact().getName();
+    String version = getArtifactService().getArtifactVersion(deploymentName, getArtifact());
+    version = Versions.isLocal(version) ? Versions.fromLocal(version) : version;
+
+    String tag = version;
+
+    String registry = getDockerRegistry(deploymentName, getArtifact());
+    if (!Strings.isNullOrEmpty(registry)) {
+      return String.format("%s/%s:%s", registry, artifactName, tag);
+    } else {
+      return String.format("docker.io/armory/%s:%s", artifactName, tag);
+    }
   }
 
   @Override
