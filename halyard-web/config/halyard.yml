@@ -1,5 +1,8 @@
 server:
   port: 8064
+  compression:
+    enabled: true
+    mime-types: application/json
 
 grpc:
   enabled: false

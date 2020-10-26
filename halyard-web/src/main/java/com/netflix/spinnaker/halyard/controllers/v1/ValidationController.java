@@ -18,12 +18,16 @@ package com.netflix.spinnaker.halyard.controllers.v1;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.deploy.services.v1.DynamicValidationService;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/v1/validation")
@@ -36,9 +40,13 @@ public class ValidationController {
       @RequestParam(required = false) List<String> skipValidators,
       @RequestParam boolean failFast)
       throws IOException {
+    Instant start = Instant.now();
     if (skipValidators == null) {
       skipValidators = new ArrayList<>();
     }
-    return validationService.validate(request, skipValidators, failFast);
+    List<Problem> res = validationService.validate(request, skipValidators, failFast);
+    Instant end = Instant.now();
+    log.info(String.format("Time elapsed: %s", Duration.between(start, end)));
+    return res;
   }
 }

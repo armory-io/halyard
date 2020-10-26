@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - gen-manifests
+    - fix/timeout
   pull_request:
 
 env:
