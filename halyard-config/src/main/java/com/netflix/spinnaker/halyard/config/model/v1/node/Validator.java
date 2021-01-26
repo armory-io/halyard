@@ -34,7 +34,7 @@ public abstract class Validator<T extends Node> {
           + ". Make sure that user can read the requested file.";
 
   @Autowired protected SecretSessionManager secretSessionManager;
-  @Autowired private FileService fileService;
+  @Autowired protected FileService fileService;
 
   public abstract void validate(ConfigProblemSetBuilder p, T n);
 
