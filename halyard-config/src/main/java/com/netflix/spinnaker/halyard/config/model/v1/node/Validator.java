@@ -24,6 +24,7 @@ import com.netflix.spinnaker.halyard.core.secrets.v1.SecretSessionManager;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
+import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class Validator<T extends Node> {
@@ -48,7 +49,11 @@ public abstract class Validator<T extends Node> {
 
   protected byte[] validatingFileDecryptBytes(ConfigProblemSetBuilder p, String filePath) {
     try {
-      return fileService.getFileContentBytes(filePath);
+      var contentBytes = fileService.getFileContentBytes(filePath);
+      if (Base64.isBase64(contentBytes)) {
+        contentBytes = Base64.decodeBase64(contentBytes);
+      }
+      return contentBytes;
     } catch (FileNotFoundException e) {
       buildProblem(p, "Cannot find provided path: " + e.getMessage() + ".", e);
     } catch (IOException e) {
