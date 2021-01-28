@@ -4,7 +4,6 @@ on:
   push:
     branches:
     - gen-manifests
-    - fix/decode-base64-secrets
   pull_request:
 
 env:
