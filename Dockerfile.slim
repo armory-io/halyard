@@ -49,8 +49,6 @@ RUN wget https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_RE
 
 COPY halyard-web/build/install/halyard /opt/halyard
 
-COPY ./install/docker/halyard.yml /opt/spinnaker/config/
-
 RUN echo '#!/usr/bin/env bash' | tee /usr/local/bin/hal > /dev/null && \
   echo '/opt/halyard/bin/hal "$@"' | tee -a /usr/local/bin/hal > /dev/null
 
