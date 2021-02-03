@@ -56,10 +56,6 @@ RUN chmod +x /usr/local/bin/hal
 
 RUN adduser -D -S spinnaker
 
-# setup bash for users
-COPY ./install/docker/.bashrc /root/.bashrc
-RUN hal --print-bash-completion > /usr/share/bash-completion/completions/hal
-
 USER spinnaker
-COPY ./install/docker/.bashrc /home/spinnaker/.bashrc
+
 CMD ["/opt/halyard/bin/halyard"]
