@@ -103,15 +103,18 @@ subprojects {
         force group: 'org.apache.ant', name: 'ant-launcher', version: '1.10.+'
         force group: 'org.apache.commons', name: 'commons-compress', version: '1.+' // Remove CVE-2019-12402, upgrade commons-compress dependency
         force group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
-        force group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '9.0.+'
+        force group: 'org.apache.tomcat.embed', name: 'tomcat-embed-core', version: '9.0.41' // Remove CVE-2020-13934, CVE-2020-9484
         force group: 'org.codehaus.groovy', name: 'groovy-all', version: '2.5.10' // Avoid duplicate groovy versions 2.5.7 and 2.5.10
         force group: 'org.codehaus.plexus', name: 'plexus-utils', version: '3.3.+' // Remove CVEs SONATYPE-2015-0173 and SONATYPE-2016-0398, upgrade plexus-utils dependency
         force group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.1.+' // Remove CVE-2019-10219, upgrade hibernate-validator depende      force group: 'org.testng', name: 'testng', version: '7.1.+' // Remove CVE SONATYPE-2019-0115, upgrade testng dependency
         force group: 'org.javassist', name: 'javassist', version: '3.19.0-GA'
         force group: 'org.jboss.logging', name: 'jboss-logging', version: '3.4.+' // Remove CVE-2017-2595, upgrade jboss-logging
         force group: 'org.springframework', name: 'spring-web', version: '5.2.9.RELEASE'
+        force group: 'org.springframework.security', name: 'spring-security-crypto', version: '5.2.4.RELEASE' // Remove CVE-2020-5408
         force group: 'org.testng', name: 'testng', version: '7.1.+' // Remove CVE SONATYPE-2019-0115, upgrade testng dependency
         force group: 'org.yaml', name: 'snakeyaml', version: '1.26' // Remove CVE-2017-18640
+        force group: 'com.google.guava', name: 'guava', version: '30.0-jre'
+
       }
     }
   }
