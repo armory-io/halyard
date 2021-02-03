@@ -47,7 +47,7 @@ RUN wget https://storage.googleapis.com/kubernetes-release/release/v${KUBECTL_RE
 	&& mv ./aws-iam-authenticator /usr/local/bin/aws-iam-authenticator
 
 
-COPY ./halyard-package/build/install/halyard /opt/halyard
+COPY halyard-web/build/install/halyard /opt/halyard
 
 COPY ./install/docker/halyard.yml /opt/spinnaker/config/
 
