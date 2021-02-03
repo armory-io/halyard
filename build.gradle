@@ -114,7 +114,6 @@ subprojects {
         force group: 'org.springframework.security', name: 'spring-security-crypto', version: '5.2.4.RELEASE' // Remove CVE-2020-5408
         force group: 'org.testng', name: 'testng', version: '7.1.+' // Remove CVE SONATYPE-2019-0115, upgrade testng dependency
         force group: 'org.yaml', name: 'snakeyaml', version: '1.26' // Remove CVE-2017-18640
-        force group: 'com.google.guava', name: 'guava', version: '24.1.1-jre'
         force group: 'org.springframework.cloud', name: 'spring-cloud-config-server', version: '2.2.3.RELEASE' // CVE-2020-5410
 
       }
