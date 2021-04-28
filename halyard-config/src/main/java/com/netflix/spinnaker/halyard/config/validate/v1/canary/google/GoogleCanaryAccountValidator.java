@@ -16,28 +16,31 @@
 
 package com.netflix.spinnaker.halyard.config.validate.v1.canary.google;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.auth.Credentials;
+import com.google.cloud.storage.Storage;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.netflix.spectator.api.Registry;
 import com.netflix.spinnaker.clouddriver.google.security.GoogleNamedAccountCredentials;
+import com.netflix.spinnaker.front50.config.GcsProperties;
 import com.netflix.spinnaker.front50.model.GcsStorageService;
-import com.netflix.spinnaker.front50.model.StorageService;
 import com.netflix.spinnaker.halyard.config.model.v1.canary.google.GoogleCanaryAccount;
 import com.netflix.spinnaker.halyard.config.problem.v1.ConfigProblemSetBuilder;
-import com.netflix.spinnaker.halyard.config.services.v1.FileService;
 import com.netflix.spinnaker.halyard.config.validate.v1.canary.CanaryAccountValidator;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem.Severity;
 import com.netflix.spinnaker.halyard.core.secrets.v1.SecretSessionManager;
 import com.netflix.spinnaker.halyard.core.tasks.v1.DaemonTaskHandler;
 import java.nio.file.Path;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.TaskScheduler;
-import org.springframework.stereotype.Component;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-@Component
 public class GoogleCanaryAccountValidator extends CanaryAccountValidator<GoogleCanaryAccount> {
 
   private String halyardVersion;
@@ -53,16 +56,15 @@ public class GoogleCanaryAccountValidator extends CanaryAccountValidator<GoogleC
   private int jitterMultiplier = 1000;
   private int maxRetries = 10;
 
-  GoogleCanaryAccountValidator(
-      SecretSessionManager secretSessionManager, FileService fileService, Registry registry) {
+  GoogleCanaryAccountValidator(SecretSessionManager secretSessionManager) {
     this.secretSessionManager = secretSessionManager;
-    this.fileService = fileService;
-    this.registry = registry;
   }
 
   @Override
   public void validate(ConfigProblemSetBuilder p, GoogleCanaryAccount n) {
     super.validate(p, n);
+
+    GoogleCanaryAccount canaryAccount = (GoogleCanaryAccount) n;
 
     DaemonTaskHandler.message(
         "Validating "
@@ -70,38 +72,40 @@ public class GoogleCanaryAccountValidator extends CanaryAccountValidator<GoogleC
             + " with "
             + GoogleCanaryAccountValidator.class.getSimpleName());
 
-    GoogleNamedAccountCredentials credentials = getNamedAccountCredentials(p, n);
+    GoogleNamedAccountCredentials credentials =
+        canaryAccount.getNamedAccountCredentials(halyardVersion, secretSessionManager, p);
 
     if (credentials == null) {
       return;
     }
 
-    Path jsonPath = validatingFileDecryptPath(n.getJsonPath());
+    GcsProperties gcsProperties = getGoogleCloudStorageProperties(n);
 
     try {
-      StorageService storageService =
+      Credentials gcsCredentials = GCSConfig.getGcsCredentials(gcsProperties);
+      Storage googleCloudStorage = GCSConfig.getGoogleCloudStorage(gcsCredentials, gcsProperties);
+      ExecutorService executor =
+          Executors.newCachedThreadPool(
+              new ThreadFactoryBuilder()
+                  .setNameFormat(GcsStorageService.class.getName() + "-%s")
+                  .build());
+      GcsStorageService storageService =
           new GcsStorageService(
+              googleCloudStorage,
               n.getBucket(),
               n.getBucketLocation(),
               n.getRootFolder(),
               n.getProject(),
-              jsonPath != null ? jsonPath.toString() : "",
-              "halyard",
-              connectTimeoutSec,
-              readTimeoutSec,
-              maxWaitInterval,
-              retryIntervalBase,
-              jitterMultiplier,
-              maxRetries,
-              taskScheduler,
-              registry);
+              new ObjectMapper(),
+              executor);
 
       storageService.ensureBucketExists();
+
     } catch (Exception e) {
       p.addProblem(
           Severity.ERROR,
           "Failed to ensure the required bucket \""
-              + n.getBucket()
+              + canaryAccount.getBucket()
               + "\" exists: "
               + e.getMessage());
     }
@@ -143,5 +147,15 @@ public class GoogleCanaryAccountValidator extends CanaryAccountValidator<GoogleC
                   + "?");
       return null;
     }
+  }
+
+  public GcsProperties getGoogleCloudStorageProperties(GoogleCanaryAccount n) {
+    GcsProperties gcsProperties = new GcsProperties();
+    Path jsonPath = validatingFileDecryptPath(n.getJsonPath());
+    gcsProperties.setJsonPath(jsonPath.toString());
+    gcsProperties.setProject(n.getProject());
+    gcsProperties.setBucket(n.getBucket());
+    gcsProperties.setBucketLocation(n.getBucketLocation());
+    return gcsProperties;
   }
 }

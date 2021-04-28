@@ -103,7 +103,7 @@ public class DecryptingObjectMapper extends ObjectMapper {
           throws IOException {
         if (value != null) {
           String sValue = value.toString();
-          if (EncryptedSecret.isEncryptedSecret(sValue) && !isK8sSecret(sValue)) {
+          if (EncryptedSecret.isEncryptedSecret(sValue)) {
             gen.writeString(secretSessionManager.decrypt(sValue));
           } else {
             gen.writeString(sValue);
