@@ -21,7 +21,6 @@ import com.netflix.spinnaker.halyard.config.model.v1.canary.google.GoogleCanaryA
 import com.netflix.spinnaker.halyard.config.model.v1.canary.google.GoogleCanaryServiceIntegration;
 import com.netflix.spinnaker.halyard.config.model.v1.node.Validator;
 import com.netflix.spinnaker.halyard.config.problem.v1.ConfigProblemSetBuilder;
-import com.netflix.spinnaker.halyard.config.services.v1.FileService;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.core.secrets.v1.SecretSessionManager;
 import java.util.List;
@@ -39,18 +38,16 @@ public class GoogleCanaryValidator extends Validator<GoogleCanaryServiceIntegrat
 
   @Setter TaskScheduler taskScheduler;
 
-  public GoogleCanaryValidator(
-      SecretSessionManager secretSessionManager, FileService fileService, Registry registry) {
+  public GoogleCanaryValidator(SecretSessionManager secretSessionManager) {
     this.secretSessionManager = secretSessionManager;
-    this.fileService = fileService;
-    this.registry = registry;
   }
 
   @Override
   public void validate(ConfigProblemSetBuilder p, GoogleCanaryServiceIntegration n) {
     GoogleCanaryAccountValidator googleCanaryAccountValidator =
-        new GoogleCanaryAccountValidator(secretSessionManager, fileService, registry)
+        new GoogleCanaryAccountValidator(secretSessionManager)
             .setHalyardVersion(halyardVersion)
+            .setRegistry(registry)
             .setTaskScheduler(taskScheduler);
 
     if (n.isGcsEnabled()) {

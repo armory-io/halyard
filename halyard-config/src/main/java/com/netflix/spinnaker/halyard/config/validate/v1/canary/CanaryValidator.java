@@ -72,8 +72,9 @@ public class CanaryValidator extends Validator<Canary> {
         GoogleCanaryServiceIntegration googleCanaryServiceIntegration =
             (GoogleCanaryServiceIntegration) s;
 
-        new GoogleCanaryValidator(secretSessionManager, fileService, registry)
+        new GoogleCanaryValidator(secretSessionManager)
             .setHalyardVersion(halyardVersion)
+            .setRegistry(registry)
             .setTaskScheduler(taskScheduler)
             .validate(p, googleCanaryServiceIntegration);
 

@@ -24,6 +24,7 @@ import com.netflix.spectator.api.Registry;
 import com.netflix.spinnaker.clouddriver.google.security.GoogleNamedAccountCredentials;
 import com.netflix.spinnaker.front50.config.GcsProperties;
 import com.netflix.spinnaker.front50.model.GcsStorageService;
+import com.netflix.spinnaker.halyard.config.config.v1.GCSConfig;
 import com.netflix.spinnaker.halyard.config.model.v1.canary.google.GoogleCanaryAccount;
 import com.netflix.spinnaker.halyard.config.problem.v1.ConfigProblemSetBuilder;
 import com.netflix.spinnaker.halyard.config.validate.v1.canary.CanaryAccountValidator;
@@ -72,8 +73,7 @@ public class GoogleCanaryAccountValidator extends CanaryAccountValidator<GoogleC
             + " with "
             + GoogleCanaryAccountValidator.class.getSimpleName());
 
-    GoogleNamedAccountCredentials credentials =
-        canaryAccount.getNamedAccountCredentials(halyardVersion, secretSessionManager, p);
+    GoogleNamedAccountCredentials credentials = getNamedAccountCredentials(p, n);
 
     if (credentials == null) {
       return;
@@ -105,7 +105,7 @@ public class GoogleCanaryAccountValidator extends CanaryAccountValidator<GoogleC
       p.addProblem(
           Severity.ERROR,
           "Failed to ensure the required bucket \""
-              + canaryAccount.getBucket()
+              + n.getBucket()
               + "\" exists: "
               + e.getMessage());
     }
