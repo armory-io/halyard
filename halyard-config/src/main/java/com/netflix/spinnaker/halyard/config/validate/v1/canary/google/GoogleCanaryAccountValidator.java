@@ -27,6 +27,7 @@ import com.netflix.spinnaker.front50.model.GcsStorageService;
 import com.netflix.spinnaker.halyard.config.config.v1.GCSConfig;
 import com.netflix.spinnaker.halyard.config.model.v1.canary.google.GoogleCanaryAccount;
 import com.netflix.spinnaker.halyard.config.problem.v1.ConfigProblemSetBuilder;
+import com.netflix.spinnaker.halyard.config.services.v1.FileService;
 import com.netflix.spinnaker.halyard.config.validate.v1.canary.CanaryAccountValidator;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem.Severity;
@@ -39,9 +40,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.scheduling.TaskScheduler;
+import org.springframework.stereotype.Component;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
+@Component
 public class GoogleCanaryAccountValidator extends CanaryAccountValidator<GoogleCanaryAccount> {
 
   private String halyardVersion;
@@ -57,15 +60,16 @@ public class GoogleCanaryAccountValidator extends CanaryAccountValidator<GoogleC
   private int jitterMultiplier = 1000;
   private int maxRetries = 10;
 
-  GoogleCanaryAccountValidator(SecretSessionManager secretSessionManager) {
+  GoogleCanaryAccountValidator(
+      SecretSessionManager secretSessionManager, FileService fileService, Registry registry) {
     this.secretSessionManager = secretSessionManager;
+    this.fileService = fileService;
+    this.registry = registry;
   }
 
   @Override
   public void validate(ConfigProblemSetBuilder p, GoogleCanaryAccount n) {
     super.validate(p, n);
-
-    GoogleCanaryAccount canaryAccount = (GoogleCanaryAccount) n;
 
     DaemonTaskHandler.message(
         "Validating "
