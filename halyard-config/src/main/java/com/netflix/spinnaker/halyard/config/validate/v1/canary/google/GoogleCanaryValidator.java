@@ -51,7 +51,6 @@ public class GoogleCanaryValidator extends Validator<GoogleCanaryServiceIntegrat
     GoogleCanaryAccountValidator googleCanaryAccountValidator =
         new GoogleCanaryAccountValidator(secretSessionManager, fileService, registry)
             .setHalyardVersion(halyardVersion)
-            .setRegistry(registry)
             .setTaskScheduler(taskScheduler);
 
     if (n.isGcsEnabled()) {
