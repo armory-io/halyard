@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - gen-manifests
+    - fix/k8s
   pull_request:
 
 env:
