@@ -18,10 +18,7 @@
 
 package com.netflix.spinnaker.halyard.config.model.v1.node;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import lombok.Data;
 
 @Data
@@ -34,6 +31,10 @@ public class SidecarConfig {
   List<String> command = new ArrayList<>();
   List<ConfigMapVolumeMount> configMapVolumeMounts = new ArrayList<>();
   List<SecretVolumeMount> secretVolumeMounts = new ArrayList<>();
+  Resources resources;
+  LivenessProbe livenessProbe;
+  ReadinessProbe readinessProbe;
+  StartupProbe startupProbe;
   String mountPath;
   SecurityContext securityContext;
 
@@ -52,5 +53,44 @@ public class SidecarConfig {
   public static class SecretVolumeMount {
     String secretName;
     String mountPath;
+  }
+
+  @Data
+  public static class Resources {
+    Map<String, String> requests = new HashMap<>();
+    Map<String, String> limits = new HashMap<>();
+  }
+
+  @Data
+  public static class LivenessProbe {
+    HttpProbe httpProbe;
+    HttpGet httpGet;
+  }
+
+  @Data
+  public static class ReadinessProbe {
+    HttpProbe httpProbe;
+    HttpGet httpGet;
+    Integer successThreshold;
+  }
+
+  @Data
+  public static class StartupProbe {
+    HttpProbe httpProbe;
+    HttpGet httpGet;
+  }
+
+  @Data
+  static class HttpGet {
+    String path;
+    Integer port;
+  }
+
+  @Data
+  static class HttpProbe {
+    Integer initialDelaySeconds;
+    Integer periodSeconds;
+    Integer timeoutSeconds;
+    Integer failureThreshold;
   }
 }

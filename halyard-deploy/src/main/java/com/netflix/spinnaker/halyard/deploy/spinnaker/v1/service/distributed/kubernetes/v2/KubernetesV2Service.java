@@ -336,16 +336,27 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
       container.addBinding("port", null);
     }
 
+    TemplatedResource resources = new JinjaJarResource("/kubernetes/manifests/resources.yml");
+    SidecarConfig.Resources configResources = config.getResources();
+    if (configResources != null) {
+      if (configResources.getRequests() != null) {
+        resources.addBinding("requests", configResources.getRequests().toString());
+      }
+      if (configResources.getLimits() != null) {
+        resources.addBinding("limits", configResources.getLimits().toString());
+      }
+    }
+
     container.addBinding("name", config.getName());
     container.addBinding("imageId", config.getDockerImage());
     container.addBinding("command", config.getCommand());
     container.addBinding("args", config.getArgs());
     container.addBinding("volumeMounts", volumeMounts);
-    container.addBinding("readinessProbe", null);
-    container.addBinding("livenessProbe", null);
+    container.addBinding("readinessProbe", config.getReadinessProbe());
+    container.addBinding("livenessProbe", config.getLivenessProbe());
     container.addBinding("lifecycle", null);
     container.addBinding("env", config.getEnv());
-    container.addBinding("resources", null);
+    container.addBinding("resources", resources);
 
     return container.toString();
   }
