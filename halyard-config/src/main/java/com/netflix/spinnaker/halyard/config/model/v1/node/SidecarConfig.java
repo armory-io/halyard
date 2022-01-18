@@ -32,9 +32,9 @@ public class SidecarConfig {
   List<ConfigMapVolumeMount> configMapVolumeMounts = new ArrayList<>();
   List<SecretVolumeMount> secretVolumeMounts = new ArrayList<>();
   Resources resources;
-  LivenessProbe livenessProbe;
-  ReadinessProbe readinessProbe;
-  StartupProbe startupProbe;
+  HttpProbe livenessProbe;
+  HttpProbe readinessProbe;
+  HttpProbe startupProbe;
   String mountPath;
   SecurityContext securityContext;
 
@@ -59,21 +59,6 @@ public class SidecarConfig {
   public static class Resources {
     Map<String, String> requests = new HashMap<>();
     Map<String, String> limits = new HashMap<>();
-  }
-
-  @Data
-  public static class LivenessProbe {
-    HttpProbe httpProbe;
-  }
-
-  @Data
-  public static class ReadinessProbe {
-    HttpProbe httpProbe;
-  }
-
-  @Data
-  public static class StartupProbe {
-    HttpProbe httpProbe;
   }
 
   @Data

@@ -346,21 +346,21 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     }
 
     if (config.getReadinessProbe() != null) {
-      TemplatedResource readinessProbe = getSidecarProbe(config.getReadinessProbe().getHttpProbe());
+      TemplatedResource readinessProbe = getSidecarProbe(config.getReadinessProbe());
       container.addBinding("readinessProbe", readinessProbe.toString());
     } else {
       container.addBinding("readinessProbe", null);
     }
 
     if (config.getLivenessProbe() != null) {
-      TemplatedResource livenessProbe = getSidecarProbe(config.getLivenessProbe().getHttpProbe());
+      TemplatedResource livenessProbe = getSidecarProbe(config.getLivenessProbe());
       container.addBinding("livenessProbe", livenessProbe.toString());
     } else {
       container.addBinding("livenessProbe", null);
     }
 
     if (config.getStartupProbe() != null) {
-      TemplatedResource startupProbe = getSidecarProbe(config.getStartupProbe().getHttpProbe());
+      TemplatedResource startupProbe = getSidecarProbe(config.getStartupProbe());
       container.addBinding("startupProbe", startupProbe.toString());
     } else {
       container.addBinding("startupProbe", null);
