@@ -345,62 +345,28 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
       container.addBinding("resources", null);
     }
 
-    TemplatedResource livenessProbe = new JinjaJarResource("/kubernetes/manifests/httpProbe.yml");
-    if (config.getLivenessProbe() != null) {
-      livenessProbe.addBinding("port", config.getLivenessProbe().getHttpGet().getPort());
-      livenessProbe.addBinding("path", config.getLivenessProbe().getHttpGet().getPath());
-      livenessProbe.addBinding("scheme", config.getLivenessProbe().getHttpGet().getScheme());
-      livenessProbe.addBinding(
-          "initialDelaySeconds", config.getLivenessProbe().getHttpProbe().getInitialDelaySeconds());
-      livenessProbe.addBinding(
-          "periodSeconds", config.getLivenessProbe().getHttpProbe().getPeriodSeconds());
-      livenessProbe.addBinding(
-          "timeoutSeconds", config.getLivenessProbe().getHttpProbe().getTimeoutSeconds());
-      livenessProbe.addBinding(
-          "successThreshold", config.getLivenessProbe().getHttpProbe().getSuccessThreshold());
-      livenessProbe.addBinding(
-          "failureThreshold", config.getLivenessProbe().getHttpProbe().getFailureThreshold());
-      container.addBinding("livenessProbe", livenessProbe.toString());
-    } else {
-      container.addBinding("livenessProbe", null);
-    }
-
-    TemplatedResource readinessProbe = new JinjaJarResource("/kubernetes/manifests/httpProbe.yml");
     if (config.getReadinessProbe() != null) {
-      readinessProbe.addBinding("port", config.getReadinessProbe().getHttpGet().getPort());
-      readinessProbe.addBinding("path", config.getReadinessProbe().getHttpGet().getPath());
-      readinessProbe.addBinding("scheme", config.getReadinessProbe().getHttpGet().getScheme());
-      readinessProbe.addBinding(
-          "initialDelaySeconds",
-          config.getReadinessProbe().getHttpProbe().getInitialDelaySeconds());
-      readinessProbe.addBinding(
-          "periodSeconds", config.getReadinessProbe().getHttpProbe().getPeriodSeconds());
-      readinessProbe.addBinding(
-          "timeoutSeconds", config.getReadinessProbe().getHttpProbe().getTimeoutSeconds());
-      readinessProbe.addBinding(
-          "failureThreshold", config.getReadinessProbe().getHttpProbe().getFailureThreshold());
-      readinessProbe.addBinding(
-          "successThreshold", config.getReadinessProbe().getHttpProbe().getSuccessThreshold());
+      TemplatedResource readinessProbe =
+          getSidecarProbe(
+              config.getReadinessProbe().getHttpProbe(), config.getReadinessProbe().getHttpGet());
       container.addBinding("readinessProbe", readinessProbe.toString());
     } else {
       container.addBinding("readinessProbe", null);
     }
 
-    TemplatedResource startupProbe = new JinjaJarResource("/kubernetes/manifests/httpProbe.yml");
+    if (config.getLivenessProbe() != null) {
+      TemplatedResource livenessProbe =
+          getSidecarProbe(
+              config.getLivenessProbe().getHttpProbe(), config.getLivenessProbe().getHttpGet());
+      container.addBinding("livenessProbe", livenessProbe.toString());
+    } else {
+      container.addBinding("livenessProbe", null);
+    }
+
     if (config.getStartupProbe() != null) {
-      startupProbe.addBinding("port", config.getStartupProbe().getHttpGet().getPort());
-      startupProbe.addBinding("path", config.getStartupProbe().getHttpGet().getPath());
-      startupProbe.addBinding("scheme", config.getStartupProbe().getHttpGet().getScheme());
-      startupProbe.addBinding(
-          "initialDelaySeconds", config.getStartupProbe().getHttpProbe().getInitialDelaySeconds());
-      startupProbe.addBinding(
-          "periodSeconds", config.getStartupProbe().getHttpProbe().getPeriodSeconds());
-      startupProbe.addBinding(
-          "timeoutSeconds", config.getStartupProbe().getHttpProbe().getTimeoutSeconds());
-      startupProbe.addBinding(
-          "failureThreshold", config.getStartupProbe().getHttpProbe().getFailureThreshold());
-      startupProbe.addBinding(
-          "successThreshold", config.getStartupProbe().getHttpProbe().getSuccessThreshold());
+      TemplatedResource startupProbe =
+          getSidecarProbe(
+              config.getStartupProbe().getHttpProbe(), config.getStartupProbe().getHttpGet());
       container.addBinding("startupProbe", startupProbe.toString());
     } else {
       container.addBinding("startupProbe", null);
@@ -415,6 +381,20 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     container.addBinding("env", config.getEnv());
 
     return container.toString();
+  }
+
+  default TemplatedResource getSidecarProbe(
+      SidecarConfig.HttpProbe httpProbe, SidecarConfig.HttpGet httpGet) {
+    TemplatedResource probe = new JinjaJarResource("/kubernetes/manifests/httpProbe.yml");
+    probe.addBinding("port", httpGet.getPort());
+    probe.addBinding("path", httpGet.getPath());
+    probe.addBinding("scheme", httpGet.getScheme());
+    probe.addBinding("initialDelaySeconds", httpProbe.getInitialDelaySeconds());
+    probe.addBinding("periodSeconds", httpProbe.getPeriodSeconds());
+    probe.addBinding("timeoutSeconds", httpProbe.getTimeoutSeconds());
+    probe.addBinding("failureThreshold", httpProbe.getFailureThreshold());
+    probe.addBinding("successThreshold", httpProbe.getSuccessThreshold());
+    return probe;
   }
 
   default String buildContainer(
