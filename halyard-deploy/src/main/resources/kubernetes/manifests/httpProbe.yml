@@ -2,7 +2,28 @@
   "httpGet": {
     "port": {{ port }},
     "path": "{{ path }}",
-    "scheme": "{{ scheme }}"
+    {% if scheme != null %}
+      "scheme": "{{ scheme }}"
+    {% endif %}
   },
-  "initialDelaySeconds": {{ initialDelaySeconds }}
+
+  {% if initialDelaySeconds != null %}
+    "initialDelaySeconds": {{ initialDelaySeconds }}
+  {% endif %}
+
+  {% if periodSeconds != null %}
+    "periodSeconds": {{ periodSeconds }}
+  {% endif %}
+
+  {% if timeoutSeconds != null %}
+    "timeoutSeconds": {{ timeoutSeconds }}
+  {% endif %}
+
+  {% if failureThreshold != null %}
+    "failureThreshold": {{ failureThreshold }}
+  {% endif %}
+
+  {% if successThreshold != null %}
+    "successThreshold": {{ successThreshold }}
+  {% endif %}
 }

@@ -71,7 +71,6 @@ public class SidecarConfig {
   public static class ReadinessProbe {
     HttpProbe httpProbe;
     HttpGet httpGet;
-    Integer successThreshold;
   }
 
   @Data
@@ -81,16 +80,18 @@ public class SidecarConfig {
   }
 
   @Data
-  static class HttpGet {
-    String path;
+  public static class HttpGet {
     Integer port;
+    String path;
+    String scheme;
   }
 
   @Data
-  static class HttpProbe {
+  public static class HttpProbe {
     Integer initialDelaySeconds;
     Integer periodSeconds;
     Integer timeoutSeconds;
+    Integer successThreshold;
     Integer failureThreshold;
   }
 }
