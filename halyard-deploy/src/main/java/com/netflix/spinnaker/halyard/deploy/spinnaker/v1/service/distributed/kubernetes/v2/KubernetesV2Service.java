@@ -388,7 +388,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     TemplatedResource probe = new JinjaJarResource("/kubernetes/manifests/httpProbe.yml");
     probe.addBinding("port", httpGet.getPort());
     probe.addBinding("path", httpGet.getPath());
-    probe.addBinding("scheme", httpGet.getScheme());
+    probe.addBinding("scheme", httpGet.getScheme().toUpperCase());
     probe.addBinding("initialDelaySeconds", httpProbe.getInitialDelaySeconds());
     probe.addBinding("periodSeconds", httpProbe.getPeriodSeconds());
     probe.addBinding("timeoutSeconds", httpProbe.getTimeoutSeconds());
