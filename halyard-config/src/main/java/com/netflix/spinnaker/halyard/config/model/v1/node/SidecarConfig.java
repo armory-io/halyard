@@ -64,26 +64,16 @@ public class SidecarConfig {
   @Data
   public static class LivenessProbe {
     HttpProbe httpProbe;
-    HttpGet httpGet;
   }
 
   @Data
   public static class ReadinessProbe {
     HttpProbe httpProbe;
-    HttpGet httpGet;
   }
 
   @Data
   public static class StartupProbe {
     HttpProbe httpProbe;
-    HttpGet httpGet;
-  }
-
-  @Data
-  public static class HttpGet {
-    Integer port;
-    String path;
-    String scheme;
   }
 
   @Data
@@ -93,5 +83,13 @@ public class SidecarConfig {
     Integer timeoutSeconds;
     Integer successThreshold;
     Integer failureThreshold;
+    HttpGet httpGet;
+  }
+
+  @Data
+  public static class HttpGet {
+    Integer port;
+    String path;
+    String scheme;
   }
 }

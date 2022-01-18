@@ -346,27 +346,21 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     }
 
     if (config.getReadinessProbe() != null) {
-      TemplatedResource readinessProbe =
-          getSidecarProbe(
-              config.getReadinessProbe().getHttpProbe(), config.getReadinessProbe().getHttpGet());
+      TemplatedResource readinessProbe = getSidecarProbe(config.getReadinessProbe().getHttpProbe());
       container.addBinding("readinessProbe", readinessProbe.toString());
     } else {
       container.addBinding("readinessProbe", null);
     }
 
     if (config.getLivenessProbe() != null) {
-      TemplatedResource livenessProbe =
-          getSidecarProbe(
-              config.getLivenessProbe().getHttpProbe(), config.getLivenessProbe().getHttpGet());
+      TemplatedResource livenessProbe = getSidecarProbe(config.getLivenessProbe().getHttpProbe());
       container.addBinding("livenessProbe", livenessProbe.toString());
     } else {
       container.addBinding("livenessProbe", null);
     }
 
     if (config.getStartupProbe() != null) {
-      TemplatedResource startupProbe =
-          getSidecarProbe(
-              config.getStartupProbe().getHttpProbe(), config.getStartupProbe().getHttpGet());
+      TemplatedResource startupProbe = getSidecarProbe(config.getStartupProbe().getHttpProbe());
       container.addBinding("startupProbe", startupProbe.toString());
     } else {
       container.addBinding("startupProbe", null);
@@ -383,12 +377,11 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     return container.toString();
   }
 
-  default TemplatedResource getSidecarProbe(
-      SidecarConfig.HttpProbe httpProbe, SidecarConfig.HttpGet httpGet) {
+  default TemplatedResource getSidecarProbe(SidecarConfig.HttpProbe httpProbe) {
     TemplatedResource probe = new JinjaJarResource("/kubernetes/manifests/httpProbe.yml");
-    probe.addBinding("port", httpGet.getPort());
-    probe.addBinding("path", httpGet.getPath());
-    probe.addBinding("scheme", httpGet.getScheme().toUpperCase());
+    probe.addBinding("port", httpProbe.getHttpGet().getPort());
+    probe.addBinding("path", httpProbe.getHttpGet().getPath());
+    probe.addBinding("scheme", httpProbe.getHttpGet().getScheme().toUpperCase());
     probe.addBinding("initialDelaySeconds", httpProbe.getInitialDelaySeconds());
     probe.addBinding("periodSeconds", httpProbe.getPeriodSeconds());
     probe.addBinding("timeoutSeconds", httpProbe.getTimeoutSeconds());
