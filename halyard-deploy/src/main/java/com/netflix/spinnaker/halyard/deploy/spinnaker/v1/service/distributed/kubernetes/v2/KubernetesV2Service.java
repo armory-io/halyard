@@ -386,6 +386,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     probe.addBinding("timeoutSeconds", httpProbe.getTimeoutSeconds());
     probe.addBinding("failureThreshold", httpProbe.getFailureThreshold());
     probe.addBinding("successThreshold", httpProbe.getSuccessThreshold());
+    probe.addBinding("httpHeaders", httpProbe.getHttpGet().getHttpHeaders());
     if (httpProbe.getHttpGet().getScheme() != null) {
       probe.addBinding("scheme", httpProbe.getHttpGet().getScheme().toUpperCase());
     }

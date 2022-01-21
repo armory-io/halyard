@@ -76,5 +76,12 @@ public class SidecarConfig {
     Integer port;
     String path;
     String scheme;
+    List<HttpHeaders> httpHeaders = new ArrayList<>();
+  }
+
+  @Data
+  public static class HttpHeaders {
+    String name;
+    String value;
   }
 }

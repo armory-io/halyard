@@ -1,29 +1,37 @@
 {
-  "httpGet": {
-    "port": {{ port }},
-    "path": "{{ path }}",
-    {% if scheme != null %}
-      "scheme": "{{ scheme }}"
-    {% endif %}
-  },
-
   {% if initialDelaySeconds != null %}
-    "initialDelaySeconds": {{ initialDelaySeconds }}
+  "initialDelaySeconds": {{ initialDelaySeconds }},
   {% endif %}
 
   {% if periodSeconds != null %}
-    "periodSeconds": {{ periodSeconds }}
+  "periodSeconds": {{ periodSeconds }},
   {% endif %}
 
   {% if timeoutSeconds != null %}
-    "timeoutSeconds": {{ timeoutSeconds }}
+  "timeoutSeconds": {{ timeoutSeconds }},
   {% endif %}
 
   {% if failureThreshold != null %}
-    "failureThreshold": {{ failureThreshold }}
+  "failureThreshold": {{ failureThreshold }},
   {% endif %}
 
   {% if successThreshold != null %}
-    "successThreshold": {{ successThreshold }}
+  "successThreshold": {{ successThreshold }},
   {% endif %}
+
+  "httpGet": {
+    {% if httpHeaders != null }
+    "httpHeaders": [
+      {% for header in httpHeaders %}
+      { "name": "{{ header.name }}", "value": "{{ header.value }}" } {% if not loop.last %} , {% endif %}
+      {% endfor %}
+    ],
+    {% endif %}
+
+    {% if scheme != null %}
+    "scheme": "{{ scheme }}",
+    {% endif %}
+    "port": "{{ port }}",
+    "path": "{{ path }}"
+  }
 }
