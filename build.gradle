@@ -50,10 +50,6 @@ subprojects {
 
   dependencies {
     implementation platform("io.spinnaker.kork:kork-bom:$korkVersion")
-
-    // use 4.7.2 to provide access to Container::startupProbe
-    api(enforcedPlatform("io.fabric8:kubernetes-client:4.7.2"))
-
     annotationProcessor platform("io.spinnaker.kork:kork-bom:$korkVersion")
     annotationProcessor "org.projectlombok:lombok"
     testAnnotationProcessor platform("io.spinnaker.kork:kork-bom:$korkVersion")

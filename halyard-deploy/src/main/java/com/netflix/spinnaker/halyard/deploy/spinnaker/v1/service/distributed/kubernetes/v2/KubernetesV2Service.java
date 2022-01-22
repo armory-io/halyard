@@ -377,20 +377,31 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     return container.toString();
   }
 
-  default TemplatedResource getSidecarProbe(SidecarConfig.HttpProbe httpProbe) {
-    TemplatedResource probe = new JinjaJarResource("/kubernetes/manifests/httpProbe.yml");
-    probe.addBinding("port", httpProbe.getHttpGet().getPort());
-    probe.addBinding("path", httpProbe.getHttpGet().getPath());
-    probe.addBinding("initialDelaySeconds", httpProbe.getInitialDelaySeconds());
-    probe.addBinding("periodSeconds", httpProbe.getPeriodSeconds());
-    probe.addBinding("timeoutSeconds", httpProbe.getTimeoutSeconds());
-    probe.addBinding("failureThreshold", httpProbe.getFailureThreshold());
-    probe.addBinding("successThreshold", httpProbe.getSuccessThreshold());
-    probe.addBinding("httpHeaders", httpProbe.getHttpGet().getHttpHeaders());
-    if (httpProbe.getHttpGet().getScheme() != null) {
-      probe.addBinding("scheme", httpProbe.getHttpGet().getScheme().toUpperCase());
+  default TemplatedResource getSidecarProbe(SidecarConfig.Probe probe) {
+    TemplatedResource tr;
+    if (probe.getHttpGet() != null) {
+      tr = new JinjaJarResource("/kubernetes/manifests/httpProbe.yml");
+      tr.addBinding("port", probe.getHttpGet().getPort());
+      tr.addBinding("path", probe.getHttpGet().getPath());
+      tr.addBinding("httpHeaders", probe.getHttpGet().getHttpHeaders());
+      if (probe.getHttpGet().getScheme() != null) {
+        tr.addBinding("scheme", probe.getHttpGet().getScheme().toUpperCase());
+      }
+    } else if (probe.getTcpSocket() != null) {
+      tr = new JinjaJarResource("/kubernetes/manifests/tcpSocketProbe.yml");
+      tr.addBinding("port", probe.getTcpSocket().getPort());
+    } else {
+      tr = new JinjaJarResource("/kubernetes/manifests/execProbe.yml");
+      tr.addBinding("command", probe.getExec().getCommand());
     }
-    return probe;
+
+    tr.addBinding("initialDelaySeconds", probe.getInitialDelaySeconds());
+    tr.addBinding("periodSeconds", probe.getPeriodSeconds());
+    tr.addBinding("timeoutSeconds", probe.getTimeoutSeconds());
+    tr.addBinding("failureThreshold", probe.getFailureThreshold());
+    tr.addBinding("successThreshold", probe.getSuccessThreshold());
+
+    return tr;
   }
 
   default String buildContainer(

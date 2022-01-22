@@ -32,9 +32,9 @@ public class SidecarConfig {
   List<ConfigMapVolumeMount> configMapVolumeMounts = new ArrayList<>();
   List<SecretVolumeMount> secretVolumeMounts = new ArrayList<>();
   Resources resources;
-  HttpProbe livenessProbe;
-  HttpProbe readinessProbe;
-  HttpProbe startupProbe;
+  Probe livenessProbe;
+  Probe readinessProbe;
+  Probe startupProbe;
   String mountPath;
   SecurityContext securityContext;
 
@@ -62,13 +62,20 @@ public class SidecarConfig {
   }
 
   @Data
-  public static class HttpProbe {
+  public static class Probe {
     Integer initialDelaySeconds;
     Integer periodSeconds;
     Integer timeoutSeconds;
     Integer successThreshold;
     Integer failureThreshold;
     HttpGet httpGet;
+    TcpSocket tcpSocket;
+    Exec exec;
+  }
+
+  @Data
+  public static class TcpSocket {
+    Integer port;
   }
 
   @Data
@@ -77,6 +84,11 @@ public class SidecarConfig {
     String path;
     String scheme;
     List<HttpHeaders> httpHeaders = new ArrayList<>();
+  }
+
+  @Data
+  public static class Exec {
+    List<String> command = new ArrayList<>();
   }
 
   @Data
