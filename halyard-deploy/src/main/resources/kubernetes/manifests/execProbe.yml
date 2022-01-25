@@ -1,10 +1,29 @@
 {
+  {% if initialDelaySeconds != null %}
+  "initialDelaySeconds": {{ initialDelaySeconds }},
+  {% endif %}
+
+  {% if periodSeconds != null %}
+  "periodSeconds": {{ periodSeconds }},
+  {% endif %}
+
+  {% if timeoutSeconds != null %}
+  "timeoutSeconds": {{ timeoutSeconds }},
+  {% endif %}
+
+  {% if failureThreshold != null %}
+  "failureThreshold": {{ failureThreshold }},
+  {% endif %}
+
+  {% if successThreshold != null %}
+  "successThreshold": {{ successThreshold }},
+  {% endif %}
+
   "exec": {
     "command": [
       {% for token in command %}
-              "{{ token }}"{% if not loop.last %}, {% endif %}
+      "{{ token }}"{% if not loop.last %}, {% endif %}
       {% endfor %}
     ]
-  },
-  "initialDelaySeconds": {{ initialDelaySeconds }}
+  }
 }

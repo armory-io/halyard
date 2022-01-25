@@ -1,6 +1,22 @@
 {
+  "initialDelaySeconds": {{ initialDelaySeconds }},
   "tcpSocket": {
     "port": {{ port }}
   },
-  "initialDelaySeconds": {{ initialDelaySeconds }}
+
+  {% if periodSeconds != null %}
+  "periodSeconds": {{ periodSeconds }},
+  {% endif %}
+
+  {% if timeoutSeconds != null %}
+  "timeoutSeconds": {{ timeoutSeconds }},
+  {% endif %}
+
+  {% if successThreshold != null %}
+  "successThreshold": {{ successThreshold }},
+  {% endif %}
+
+  {% if failureThreshold != null %}
+  "failureThreshold": {{ failureThreshold }}
+  {% endif %}
 }

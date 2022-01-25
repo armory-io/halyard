@@ -25,6 +25,8 @@
 
   "livenessProbe": {{ livenessProbe }},
 
+  "startupProbe": {{ startupProbe }},
+
   "securityContext": {{ securityContext }},
 
   "volumeMounts": [

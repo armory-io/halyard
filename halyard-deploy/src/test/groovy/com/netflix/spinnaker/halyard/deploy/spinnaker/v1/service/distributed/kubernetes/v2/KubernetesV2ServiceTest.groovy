@@ -420,11 +420,10 @@ class KubernetesV2ServiceTest extends Specification {
 
         then:
         yaml.contains('''"readinessProbe": {
+  "initialDelaySeconds": ,
   "tcpSocket": {
     "port": 8000
   },
-  "initialDelaySeconds": 
-}
 ''')
     }
 

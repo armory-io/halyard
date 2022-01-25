@@ -336,18 +336,72 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
       container.addBinding("port", null);
     }
 
+    TemplatedResource resources = new JinjaJarResource("/kubernetes/manifests/resources.yml");
+    if (config.getResources() != null) {
+      resources.addBinding("requests", config.getResources().getRequests());
+      resources.addBinding("limits", config.getResources().getLimits());
+      container.addBinding("resources", resources.toString());
+    } else {
+      container.addBinding("resources", null);
+    }
+
+    if (config.getReadinessProbe() != null) {
+      TemplatedResource readinessProbe = getSidecarProbe(config.getReadinessProbe());
+      container.addBinding("readinessProbe", readinessProbe.toString());
+    } else {
+      container.addBinding("readinessProbe", null);
+    }
+
+    if (config.getLivenessProbe() != null) {
+      TemplatedResource livenessProbe = getSidecarProbe(config.getLivenessProbe());
+      container.addBinding("livenessProbe", livenessProbe.toString());
+    } else {
+      container.addBinding("livenessProbe", null);
+    }
+
+    if (config.getStartupProbe() != null) {
+      TemplatedResource startupProbe = getSidecarProbe(config.getStartupProbe());
+      container.addBinding("startupProbe", startupProbe.toString());
+    } else {
+      container.addBinding("startupProbe", null);
+    }
+
     container.addBinding("name", config.getName());
     container.addBinding("imageId", config.getDockerImage());
     container.addBinding("command", config.getCommand());
     container.addBinding("args", config.getArgs());
     container.addBinding("volumeMounts", volumeMounts);
-    container.addBinding("readinessProbe", null);
-    container.addBinding("livenessProbe", null);
     container.addBinding("lifecycle", null);
     container.addBinding("env", config.getEnv());
-    container.addBinding("resources", null);
 
     return container.toString();
+  }
+
+  default TemplatedResource getSidecarProbe(SidecarConfig.Probe probe) {
+    TemplatedResource tr;
+    if (probe.getHttpGet() != null) {
+      tr = new JinjaJarResource("/kubernetes/manifests/httpProbe.yml");
+      tr.addBinding("port", probe.getHttpGet().getPort());
+      tr.addBinding("path", probe.getHttpGet().getPath());
+      tr.addBinding("httpHeaders", probe.getHttpGet().getHttpHeaders());
+      if (probe.getHttpGet().getScheme() != null) {
+        tr.addBinding("scheme", probe.getHttpGet().getScheme().toUpperCase());
+      }
+    } else if (probe.getTcpSocket() != null) {
+      tr = new JinjaJarResource("/kubernetes/manifests/tcpSocketProbe.yml");
+      tr.addBinding("port", probe.getTcpSocket().getPort());
+    } else {
+      tr = new JinjaJarResource("/kubernetes/manifests/execProbe.yml");
+      tr.addBinding("command", probe.getExec().getCommand());
+    }
+
+    tr.addBinding("initialDelaySeconds", probe.getInitialDelaySeconds());
+    tr.addBinding("periodSeconds", probe.getPeriodSeconds());
+    tr.addBinding("timeoutSeconds", probe.getTimeoutSeconds());
+    tr.addBinding("failureThreshold", probe.getFailureThreshold());
+    tr.addBinding("successThreshold", probe.getSuccessThreshold());
+
+    return tr;
   }
 
   default String buildContainer(
@@ -412,6 +466,9 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
 
     TemplatedResource readinessProbe = getProbe(settings, null);
     container.addBinding("readinessProbe", readinessProbe.toString());
+
+    TemplatedResource startupProbe = getProbe(settings, null);
+    container.addBinding("startupProbe", startupProbe.toString());
 
     DeploymentEnvironment.LivenessProbeConfig livenessProbeConfig =
         deploymentEnvironment.getLivenessProbeConfig();
