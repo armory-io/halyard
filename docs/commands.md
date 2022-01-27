@@ -986,6 +986,8 @@ hal config artifact bitbucket account add ACCOUNT [parameters]
  * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
  * `--no-validate`: (*Default*: `false`) Skip validation.
  * `--password`: (*Sensitive data* - user will be prompted on standard input) Bitbucket password
+ * `--token`: (*Sensitive data* - user will be prompted on standard input) Bitbucket Server token
+ * `--token-file`: File containing a Bitbucket Server authentication token
  * `--username`: Bitbucket username
  * `--username-password-file`: File containing "username:password" to use for Bitbucket authentication
 
@@ -1021,6 +1023,8 @@ hal config artifact bitbucket account edit ACCOUNT [parameters]
  * `--deployment`: If supplied, use this Halyard deployment. This will _not_ create a new deployment.
  * `--no-validate`: (*Default*: `false`) Skip validation.
  * `--password`: (*Sensitive data* - user will be prompted on standard input) Bitbucket password
+ * `--token`: (*Sensitive data* - user will be prompted on standard input) Bitbucket Server token
+ * `--token-file`: File containing a Bitbucket Server authentication token
  * `--username`: Bitbucket username
  * `--username-password-file`: File containing "username:password" to use for Bitbucket authentication
 
