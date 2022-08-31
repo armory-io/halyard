@@ -20,12 +20,7 @@ package com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.ku
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.netflix.spinnaker.halyard.config.model.v1.node.AffinityConfig;
-import com.netflix.spinnaker.halyard.config.model.v1.node.CustomSizing;
-import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration;
-import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentEnvironment;
-import com.netflix.spinnaker.halyard.config.model.v1.node.SidecarConfig;
-import com.netflix.spinnaker.halyard.config.model.v1.node.Toleration;
+import com.netflix.spinnaker.halyard.config.model.v1.node.*;
 import com.netflix.spinnaker.halyard.config.model.v1.providers.kubernetes.KubernetesAccount;
 import com.netflix.spinnaker.halyard.core.error.v1.HalException;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
@@ -346,21 +341,21 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     }
 
     if (config.getReadinessProbe() != null) {
-      TemplatedResource readinessProbe = getSidecarProbe(config.getReadinessProbe());
+      TemplatedResource readinessProbe = getProbe(config.getReadinessProbe());
       container.addBinding("readinessProbe", readinessProbe.toString());
     } else {
       container.addBinding("readinessProbe", null);
     }
 
     if (config.getLivenessProbe() != null) {
-      TemplatedResource livenessProbe = getSidecarProbe(config.getLivenessProbe());
+      TemplatedResource livenessProbe = getProbe(config.getLivenessProbe());
       container.addBinding("livenessProbe", livenessProbe.toString());
     } else {
       container.addBinding("livenessProbe", null);
     }
 
     if (config.getStartupProbe() != null) {
-      TemplatedResource startupProbe = getSidecarProbe(config.getStartupProbe());
+      TemplatedResource startupProbe = getProbe(config.getStartupProbe());
       container.addBinding("startupProbe", startupProbe.toString());
     } else {
       container.addBinding("startupProbe", null);
@@ -377,7 +372,7 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     return container.toString();
   }
 
-  default TemplatedResource getSidecarProbe(SidecarConfig.Probe probe) {
+  default TemplatedResource getProbe(KubernetesProbe probe) {
     TemplatedResource tr;
     if (probe.getHttpGet() != null) {
       tr = new JinjaJarResource("/kubernetes/manifests/httpProbe.yml");
@@ -464,20 +459,52 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     container.addBinding("port", port.toString());
     container.addBinding("volumeMounts", volumeMounts);
 
-    TemplatedResource readinessProbe = getProbe(settings, null);
-    container.addBinding("readinessProbe", readinessProbe.toString());
+    KubernetesSettings kubernetesSettings = settings.getKubernetes();
 
-    TemplatedResource startupProbe = getProbe(settings, null);
-    container.addBinding("startupProbe", startupProbe.toString());
+    if (kubernetesSettings.getReadinessProbe() != null) {
+      TemplatedResource readinessProbe = getProbe(kubernetesSettings.getReadinessProbe());
+      container.addBinding("readinessProbe", readinessProbe.toString());
+    } else {
+      if (kubernetesSettings.getReadinessProbe() != null) {
+        TemplatedResource readinessProbe = getProbe(kubernetesSettings.getReadinessProbe());
+        container.addBinding("readinessProbe", readinessProbe.toString());
+      } else {
+        KubernetesProbe defaultReadinessProbe = new KubernetesProbe();
 
-    DeploymentEnvironment.LivenessProbeConfig livenessProbeConfig =
-        deploymentEnvironment.getLivenessProbeConfig();
-    if (livenessProbeConfig != null
-        && livenessProbeConfig.isEnabled()
-        && livenessProbeConfig.getInitialDelaySeconds() != null) {
-      TemplatedResource livenessProbe =
-          getProbe(settings, livenessProbeConfig.getInitialDelaySeconds());
+        if (StringUtils.isEmpty(settings.getHealthEndpoint())
+            || settings.getKubernetes().getUseTcpProbe()) {
+          KubernetesProbe.TcpSocket tcpSocket = new KubernetesProbe.TcpSocket();
+          tcpSocket.setPort(settings.getPort());
+          defaultReadinessProbe.setTcpSocket(tcpSocket);
+        } else if (kubernetesSettings.getUseExecHealthCheck()) {
+          KubernetesProbe.Exec exec = new KubernetesProbe.Exec();
+          exec.setCommand(getReadinessExecCommand(settings));
+          defaultReadinessProbe.setExec(exec);
+        } else {
+          KubernetesProbe.HttpGet httpGet = new KubernetesProbe.HttpGet();
+          httpGet.setPath(settings.getHealthEndpoint());
+          httpGet.setPort(settings.getPort());
+          httpGet.setScheme(settings.getScheme().toUpperCase());
+          defaultReadinessProbe.setHttpGet(httpGet);
+        }
+
+        TemplatedResource readinessProbe = getProbe(defaultReadinessProbe);
+        container.addBinding("readinessProbe", readinessProbe.toString());
+      }
+    }
+
+    if (kubernetesSettings.getLivenessProbe() != null) {
+      TemplatedResource livenessProbe = getProbe(kubernetesSettings.getLivenessProbe());
       container.addBinding("livenessProbe", livenessProbe.toString());
+    } else {
+      container.addBinding("livenessProbe", null);
+    }
+
+    if (kubernetesSettings.getStartupProbe() != null) {
+      TemplatedResource startupProbe = getProbe(kubernetesSettings.getStartupProbe());
+      container.addBinding("startupProbe", startupProbe.toString());
+    } else {
+      container.addBinding("startupProbe", null);
     }
 
     container.addBinding("lifecycle", lifecycle);
@@ -485,25 +512,6 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     container.addBinding("resources", resources.toString());
 
     return container.toString();
-  }
-
-  default TemplatedResource getProbe(ServiceSettings settings, Integer initialDelaySeconds) {
-    TemplatedResource probe;
-    if (StringUtils.isEmpty(settings.getHealthEndpoint())
-        || settings.getKubernetes().getUseTcpProbe()) {
-      probe = new JinjaJarResource("/kubernetes/manifests/tcpSocketProbe.yml");
-      probe.addBinding("port", settings.getPort());
-    } else if (settings.getKubernetes().getUseExecHealthCheck()) {
-      probe = new JinjaJarResource("/kubernetes/manifests/execProbe.yml");
-      probe.addBinding("command", getReadinessExecCommand(settings));
-    } else {
-      probe = new JinjaJarResource("/kubernetes/manifests/httpProbe.yml");
-      probe.addBinding("port", settings.getPort());
-      probe.addBinding("path", settings.getHealthEndpoint());
-      probe.addBinding("scheme", settings.getScheme().toUpperCase());
-    }
-    probe.addBinding("initialDelaySeconds", initialDelaySeconds);
-    return probe;
   }
 
   default String getNamespace(ServiceSettings settings) {

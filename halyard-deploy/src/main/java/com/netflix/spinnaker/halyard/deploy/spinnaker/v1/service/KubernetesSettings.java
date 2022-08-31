@@ -16,6 +16,7 @@
 
 package com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service;
 
+import com.netflix.spinnaker.halyard.config.model.v1.node.KubernetesProbe;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -41,4 +42,8 @@ public class KubernetesSettings {
   Boolean useTcpProbe = false;
   KubernetesSecurityContext securityContext = null;
   DeploymentStrategy deploymentStrategy = null;
+
+  KubernetesProbe livenessProbe;
+  KubernetesProbe readinessProbe;
+  KubernetesProbe startupProbe;
 }

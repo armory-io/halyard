@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.netflix.spinnaker.halyard.config.config.v1.StrictObjectMapper
 import com.netflix.spinnaker.halyard.config.model.v1.node.AffinityConfig
 import com.netflix.spinnaker.halyard.config.model.v1.node.DeploymentConfiguration
+import com.netflix.spinnaker.halyard.config.model.v1.node.KubernetesProbe
 import com.netflix.spinnaker.halyard.config.model.v1.node.SidecarConfig
 import com.netflix.spinnaker.halyard.config.model.v1.node.Toleration
 import com.netflix.spinnaker.halyard.config.model.v1.providers.kubernetes.KubernetesAccount
@@ -408,7 +409,7 @@ class KubernetesV2ServiceTest extends Specification {
         podSpecYaml.contains('"serviceAccountName": customServiceAccount')
     }
 
-    def "Can we use TCP probe"() {
+    def "should use default TCP probe"() {
         setup:
         def settings = new KubernetesSettings()
         settings.useTcpProbe = true
@@ -427,13 +428,14 @@ class KubernetesV2ServiceTest extends Specification {
 ''')
     }
 
-    def "Readiness probe"() {
+    def "should use default readiness probe"() {
         setup:
         def settings = new KubernetesSettings()
         serviceSettings.kubernetes = settings
         serviceSettings.port = 8000
         serviceSettings.scheme = "http"
         serviceSettings.healthEndpoint = "/health"
+
         if (tcpProbe != null) {
             settings.useTcpProbe = tcpProbe
         }
@@ -442,7 +444,7 @@ class KubernetesV2ServiceTest extends Specification {
         }
 
         when:
-        String yaml = testService.getProbe(serviceSettings, null).toString()
+        String yaml = testService.buildContainer("orca", details, serviceSettings, new ArrayList<>(), new HashMap<>())
 
         then:
         yaml.contains(readinessProbeResult)
@@ -453,6 +455,192 @@ class KubernetesV2ServiceTest extends Specification {
         "tcpProbe on"       | true       | null         | "tcpSocket"
         "tcpProbe off"      | false      | null         | "exec"
         "exec probe on"     | null       | true         | "exec"
-        "exec probe off"    | null      | false       | "http"
+        "exec probe off"    | null       | false        | "http"
+    }
+
+    def "should use overridden readiness HTTP probe"() {
+        setup:
+        def httpGet = new KubernetesProbe.HttpGet()
+        httpGet.setPath("/health")
+        httpGet.setPort(8000)
+        httpGet.setScheme("http")
+
+        def probe = new KubernetesProbe()
+        probe.setHttpGet(httpGet)
+
+        def settings = new KubernetesSettings()
+        settings.setReadinessProbe(probe)
+
+        serviceSettings.kubernetes = settings
+
+        when:
+        String yaml = testService.buildContainer("orca", details, serviceSettings, new ArrayList<>(), new HashMap<>())
+
+        then:
+        yaml.contains("http")
+    }
+
+    def "should use overridden readiness TCP Socket probe"() {
+        setup:
+        def tcpSocket = new KubernetesProbe.TcpSocket()
+        tcpSocket.setPort(8000)
+
+        def probe = new KubernetesProbe()
+        probe.setTcpSocket(tcpSocket)
+
+        def settings = new KubernetesSettings()
+        settings.setReadinessProbe(probe)
+
+        serviceSettings.kubernetes = settings
+
+        when:
+        String yaml = testService.buildContainer("orca", details, serviceSettings, new ArrayList<>(), new HashMap<>())
+
+        then:
+        yaml.contains("tcpSocket")
+    }
+
+    def "should use overridden readiness Exec probe"() {
+        setup:
+        def exec = new KubernetesProbe.Exec()
+        exec.setCommand(["- wget", "--no-check-certificate", "--spider", "-q", "http://localhost:8000/health"])
+
+        def probe = new KubernetesProbe()
+        probe.setExec(exec)
+
+        def settings = new KubernetesSettings()
+        settings.setReadinessProbe(probe)
+
+        serviceSettings.kubernetes = settings
+
+        when:
+        String yaml = testService.buildContainer("orca", details, serviceSettings, new ArrayList<>(), new HashMap<>())
+
+        then:
+        yaml.contains("exec")
+    }
+
+    def "should use overridden liveness HTTP probe"() {
+        setup:
+        def httpGet = new KubernetesProbe.HttpGet()
+        httpGet.setPath("/health")
+        httpGet.setPort(8000)
+        httpGet.setScheme("http")
+
+        def probe = new KubernetesProbe()
+        probe.setHttpGet(httpGet)
+
+        def settings = new KubernetesSettings()
+        settings.setLivenessProbe(probe)
+
+        serviceSettings.kubernetes = settings
+
+        when:
+        String yaml = testService.buildContainer("orca", details, serviceSettings, new ArrayList<>(), new HashMap<>())
+
+        then:
+        yaml.contains("http")
+    }
+
+    def "should use overridden liveness TCP Socket probe"() {
+        setup:
+        def tcpSocket = new KubernetesProbe.TcpSocket()
+        tcpSocket.setPort(8000)
+
+        def probe = new KubernetesProbe()
+        probe.setTcpSocket(tcpSocket)
+
+        def settings = new KubernetesSettings()
+        settings.setLivenessProbe(probe)
+
+        serviceSettings.kubernetes = settings
+
+        when:
+        String yaml = testService.buildContainer("orca", details, serviceSettings, new ArrayList<>(), new HashMap<>())
+
+        then:
+        yaml.contains("tcpSocket")
+    }
+
+    def "should use overridden liveness Exec probe"() {
+        setup:
+        def exec = new KubernetesProbe.Exec()
+        exec.setCommand(["- wget", "--no-check-certificate", "--spider", "-q", "http://localhost:8000/health"])
+
+        def probe = new KubernetesProbe()
+        probe.setExec(exec)
+
+        def settings = new KubernetesSettings()
+        settings.setLivenessProbe(probe)
+
+        serviceSettings.kubernetes = settings
+
+        when:
+        String yaml = testService.buildContainer("orca", details, serviceSettings, new ArrayList<>(), new HashMap<>())
+
+        then:
+        yaml.contains("exec")
+    }
+
+    def "should use overridden startup HTTP probe"() {
+        setup:
+        def httpGet = new KubernetesProbe.HttpGet()
+        httpGet.setPath("/health")
+        httpGet.setPort(8000)
+        httpGet.setScheme("http")
+
+        def probe = new KubernetesProbe()
+        probe.setHttpGet(httpGet)
+
+        def settings = new KubernetesSettings()
+        settings.setStartupProbe(probe)
+
+        serviceSettings.kubernetes = settings
+
+        when:
+        String yaml = testService.buildContainer("orca", details, serviceSettings, new ArrayList<>(), new HashMap<>())
+
+        then:
+        yaml.contains("http")
+    }
+
+    def "should use overridden startup TCP Socket probe"() {
+        setup:
+        def tcpSocket = new KubernetesProbe.TcpSocket()
+        tcpSocket.setPort(8000)
+
+        def probe = new KubernetesProbe()
+        probe.setTcpSocket(tcpSocket)
+
+        def settings = new KubernetesSettings()
+        settings.setStartupProbe(probe)
+
+        serviceSettings.kubernetes = settings
+
+        when:
+        String yaml = testService.buildContainer("orca", details, serviceSettings, new ArrayList<>(), new HashMap<>())
+
+        then:
+        yaml.contains("tcpSocket")
+    }
+
+    def "should use overridden startup Exec probe"() {
+        setup:
+        def exec = new KubernetesProbe.Exec()
+        exec.setCommand(["- wget", "--no-check-certificate", "--spider", "-q", "http://localhost:8000/health"])
+
+        def probe = new KubernetesProbe()
+        probe.setExec(exec)
+
+        def settings = new KubernetesSettings()
+        settings.setStartupProbe(probe)
+
+        serviceSettings.kubernetes = settings
+
+        when:
+        String yaml = testService.buildContainer("orca", details, serviceSettings, new ArrayList<>(), new HashMap<>())
+
+        then:
+        yaml.contains("exec")
     }
 }
