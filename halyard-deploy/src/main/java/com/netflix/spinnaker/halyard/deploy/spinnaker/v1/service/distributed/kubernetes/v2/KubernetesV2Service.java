@@ -465,32 +465,27 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
       TemplatedResource readinessProbe = getProbe(kubernetesSettings.getReadinessProbe());
       container.addBinding("readinessProbe", readinessProbe.toString());
     } else {
-      if (kubernetesSettings.getReadinessProbe() != null) {
-        TemplatedResource readinessProbe = getProbe(kubernetesSettings.getReadinessProbe());
-        container.addBinding("readinessProbe", readinessProbe.toString());
+      KubernetesProbe defaultReadinessProbe = new KubernetesProbe();
+
+      if (StringUtils.isEmpty(settings.getHealthEndpoint())
+          || settings.getKubernetes().getUseTcpProbe()) {
+        KubernetesProbe.TcpSocket tcpSocket = new KubernetesProbe.TcpSocket();
+        tcpSocket.setPort(settings.getPort());
+        defaultReadinessProbe.setTcpSocket(tcpSocket);
+      } else if (kubernetesSettings.getUseExecHealthCheck()) {
+        KubernetesProbe.Exec exec = new KubernetesProbe.Exec();
+        exec.setCommand(getReadinessExecCommand(settings));
+        defaultReadinessProbe.setExec(exec);
       } else {
-        KubernetesProbe defaultReadinessProbe = new KubernetesProbe();
-
-        if (StringUtils.isEmpty(settings.getHealthEndpoint())
-            || settings.getKubernetes().getUseTcpProbe()) {
-          KubernetesProbe.TcpSocket tcpSocket = new KubernetesProbe.TcpSocket();
-          tcpSocket.setPort(settings.getPort());
-          defaultReadinessProbe.setTcpSocket(tcpSocket);
-        } else if (kubernetesSettings.getUseExecHealthCheck()) {
-          KubernetesProbe.Exec exec = new KubernetesProbe.Exec();
-          exec.setCommand(getReadinessExecCommand(settings));
-          defaultReadinessProbe.setExec(exec);
-        } else {
-          KubernetesProbe.HttpGet httpGet = new KubernetesProbe.HttpGet();
-          httpGet.setPath(settings.getHealthEndpoint());
-          httpGet.setPort(settings.getPort());
-          httpGet.setScheme(settings.getScheme().toUpperCase());
-          defaultReadinessProbe.setHttpGet(httpGet);
-        }
-
-        TemplatedResource readinessProbe = getProbe(defaultReadinessProbe);
-        container.addBinding("readinessProbe", readinessProbe.toString());
+        KubernetesProbe.HttpGet httpGet = new KubernetesProbe.HttpGet();
+        httpGet.setPath(settings.getHealthEndpoint());
+        httpGet.setPort(settings.getPort());
+        httpGet.setScheme(settings.getScheme().toUpperCase());
+        defaultReadinessProbe.setHttpGet(httpGet);
       }
+
+      TemplatedResource readinessProbe = getProbe(defaultReadinessProbe);
+      container.addBinding("readinessProbe", readinessProbe.toString());
     }
 
     if (kubernetesSettings.getLivenessProbe() != null) {
