@@ -24,6 +24,13 @@ ext {
   buildVersion = calculateVersion()
 }
 
+allprojects {
+  repositories {
+    mavenCentral()
+    jcenter()
+  }
+}
+
 subprojects {
   group = "com.netflix.spinnaker.halyard"
   apply plugin: 'io.spinnaker.project'
@@ -126,6 +133,7 @@ subprojects {
   }
 }
 
+/*
 task version() {
   exec {
     workingDir projectDir
@@ -138,7 +146,7 @@ task version() {
     standardOutput = so
   }
   println version
-}
+}*/
 
 defaultTasks ':halyard-web:run'
 
