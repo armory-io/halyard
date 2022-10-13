@@ -14,13 +14,13 @@ import org.apache.commons.io.IOUtils;
 
 public abstract class KubernetesManifestExecutor {
 
-  public KubernetesV2Utils.SecretSpec createSecretSpec(
+  public KubernetesV2Utils.ResourceSpec createSecretSpec(
       String namespace,
       String clusterName,
       String name,
-      List<KubernetesV2Utils.SecretMountPair> files) {
+      List<KubernetesV2Utils.ResourceMountPair> files) {
     Map<String, String> contentMap = new HashMap<>();
-    for (KubernetesV2Utils.SecretMountPair pair : files) {
+    for (KubernetesV2Utils.ResourceMountPair pair : files) {
       String contents;
       if (pair.getContentBytes() != null) {
         contents = new String(Base64.getEncoder().encode(pair.getContentBytes()));
@@ -44,7 +44,7 @@ public abstract class KubernetesManifestExecutor {
       contentMap.put(pair.getName(), contents);
     }
 
-    KubernetesV2Utils.SecretSpec spec = new KubernetesV2Utils.SecretSpec();
+    KubernetesV2Utils.ResourceSpec spec = new KubernetesV2Utils.ResourceSpec();
     spec.setName(name + "-" + Math.abs(contentMap.hashCode()));
 
     spec.setResource(new JinjaJarResource("/kubernetes/manifests/secret.yml"));
