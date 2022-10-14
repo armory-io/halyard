@@ -1,0 +1,17 @@
+{
+  "apiVersion": "v1",
+  "kind": "ConfigMap",
+  "metadata": {
+    "name": "{{ name }}",
+    "namespace": "{{ namespace }}",
+    "labels": {
+      "app": "spin",
+      "cluster": "spin-{{ clusterName }}"
+    }
+  },
+  "data": {
+    {% for file, contents in files.items() %}
+    "{{ file }}": "{{ contents }}" {% if not loop.last %} , {% endif %}
+    {% endfor %}
+  }
+}

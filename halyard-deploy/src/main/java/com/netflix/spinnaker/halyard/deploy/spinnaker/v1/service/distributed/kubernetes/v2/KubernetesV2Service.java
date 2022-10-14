@@ -39,7 +39,7 @@ import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.Dis
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.SidecarService;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.KubernetesService;
 import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.KubernetesSharedServiceSettings;
-import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.v2.KubernetesV2Utils.SecretMountPair;
+import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.distributed.kubernetes.v2.KubernetesV2Utils.ResourceMountPair;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -609,13 +609,13 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
     for (Entry<String, Set<Profile>> entry : profilesByDirectory.entrySet()) {
       Set<Profile> profilesInDirectory = entry.getValue();
       String mountPath = entry.getKey();
-      List<SecretMountPair> files =
+      List<ResourceMountPair> files =
           profilesInDirectory.stream()
               .map(
                   p -> {
                     File input = new File(p.getStagedFile(stagingPath));
                     File output = new File(p.getOutputFile());
-                    return new SecretMountPair(input, output);
+                    return new ResourceMountPair(input, output);
                   })
               .collect(Collectors.toList());
 
@@ -626,36 +626,42 @@ public interface KubernetesV2Service<T> extends HasServiceSettings<T>, Kubernete
               .flatMap(Collection::stream)
               .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
 
-      KubernetesV2Utils.SecretSpec spec =
+      KubernetesV2Utils.ResourceSpec spec =
           executor
               .getKubernetesV2Utils()
-              .createSecretSpec(
-                  namespace, getService().getCanonicalName(), secretNamePrefix, files);
-      executor.replace(spec.resource.toString());
-      configSources.add(new ConfigSource().setId(spec.name).setMountPath(mountPath).setEnv(env));
-    }
-
-    if (!requiredFiles.isEmpty() || !requiredEncryptedFiles.isEmpty()) {
-      List<SecretMountPair> files =
-          requiredFiles.stream()
-              .map(File::new)
-              .map(SecretMountPair::new)
-              .collect(Collectors.toList());
-
-      // Add in memory decrypted files
-      requiredEncryptedFiles.keySet().stream()
-          .map(k -> new SecretMountPair(k, requiredEncryptedFiles.get(k)))
-          .forEach(s -> files.add(s));
-
-      KubernetesV2Utils.SecretSpec spec =
-          executor
-              .getKubernetesV2Utils()
-              .createSecretSpec(
+              .createResourceSpec(
                   namespace, getService().getCanonicalName(), secretNamePrefix, files);
       executor.replace(spec.resource.toString());
       configSources.add(
           new ConfigSource()
               .setId(spec.name)
+              .setType(spec.type)
+              .setMountPath(mountPath)
+              .setEnv(env));
+    }
+
+    if (!requiredFiles.isEmpty() || !requiredEncryptedFiles.isEmpty()) {
+      List<ResourceMountPair> files =
+          requiredFiles.stream()
+              .map(File::new)
+              .map(ResourceMountPair::new)
+              .collect(Collectors.toList());
+
+      // Add in memory decrypted files
+      requiredEncryptedFiles.keySet().stream()
+          .map(k -> new ResourceMountPair(k, requiredEncryptedFiles.get(k)))
+          .forEach(s -> files.add(s));
+
+      KubernetesV2Utils.ResourceSpec spec =
+          executor
+              .getKubernetesV2Utils()
+              .createResourceSpec(
+                  namespace, getService().getCanonicalName(), secretNamePrefix, files);
+      executor.replace(spec.resource.toString());
+      configSources.add(
+          new ConfigSource()
+              .setId(spec.name)
+              .setType(spec.type)
               .setMountPath(getSpinnakerStagingDependenciesPath(details.getDeploymentName())));
     }
 

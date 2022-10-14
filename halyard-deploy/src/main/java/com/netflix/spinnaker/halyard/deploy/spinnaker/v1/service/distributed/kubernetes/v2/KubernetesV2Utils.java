@@ -27,6 +27,7 @@ import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.core.resource.v1.JinjaJarResource;
 import com.netflix.spinnaker.halyard.core.resource.v1.TemplatedResource;
 import com.netflix.spinnaker.halyard.core.secrets.v1.SecretSessionManager;
+import com.netflix.spinnaker.halyard.deploy.spinnaker.v1.service.ConfigSource;
 import com.netflix.spinnaker.kork.configserver.CloudConfigResourceService;
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,6 +42,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -50,6 +52,8 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 public class KubernetesV2Utils {
   private final ObjectMapper mapper = new ObjectMapper();
 
+  private final ConfigSource.Type configSourceType;
+
   private final SecretSessionManager secretSessionManager;
 
   private final CloudConfigResourceService cloudConfigResourceService;
@@ -57,9 +61,11 @@ public class KubernetesV2Utils {
   private final FileService fileService;
 
   public KubernetesV2Utils(
+      @Value("${halyard.configSourceType:secret}") ConfigSource.Type configSourceType,
       SecretSessionManager secretSessionManager,
       CloudConfigResourceService cloudConfigResourceService,
       FileService fileService) {
+    this.configSourceType = configSourceType;
     this.secretSessionManager = secretSessionManager;
     this.cloudConfigResourceService = cloudConfigResourceService;
     this.fileService = fileService;
@@ -120,10 +126,10 @@ public class KubernetesV2Utils {
     return command;
   }
 
-  public SecretSpec createSecretSpec(
-      String namespace, String clusterName, String name, List<SecretMountPair> files) {
+  public ResourceSpec createResourceSpec(
+      String namespace, String clusterName, String name, List<ResourceMountPair> files) {
     Map<String, String> contentMap = new HashMap<>();
-    for (SecretMountPair pair : files) {
+    for (ResourceMountPair pair : files) {
       String contents;
       if (pair.getContentBytes() != null) {
         contents = new String(Base64.getEncoder().encode(pair.getContentBytes()));
@@ -147,10 +153,18 @@ public class KubernetesV2Utils {
       contentMap.put(pair.getName(), contents);
     }
 
-    SecretSpec spec = new SecretSpec();
+    ResourceSpec spec = new ResourceSpec();
     spec.name = name + "-" + Math.abs(contentMap.hashCode());
+    spec.type = configSourceType;
 
-    spec.resource = new JinjaJarResource("/kubernetes/manifests/secret.yml");
+    if (configSourceType == ConfigSource.Type.configMap) {
+      spec.resource = new JinjaJarResource("/kubernetes/manifests/configMap.yml");
+    }
+
+    if (configSourceType == ConfigSource.Type.secret) {
+      spec.resource = new JinjaJarResource("/kubernetes/manifests/secret.yml");
+    }
+
     Map<String, Object> bindings = new HashMap<>();
 
     bindings.put("files", contentMap);
@@ -174,27 +188,28 @@ public class KubernetesV2Utils {
   }
 
   @Data
-  public static class SecretSpec {
+  public static class ResourceSpec {
     TemplatedResource resource;
     String name;
+    ConfigSource.Type type;
   }
 
   @Data
-  public static class SecretMountPair {
+  public static class ResourceMountPair {
     File contents;
     byte[] contentBytes;
     String name;
 
-    public SecretMountPair(File inputFile) {
+    public ResourceMountPair(File inputFile) {
       this(inputFile, inputFile);
     }
 
-    public SecretMountPair(File inputFile, File outputFile) {
+    public ResourceMountPair(File inputFile, File outputFile) {
       this.contents = inputFile;
       this.name = outputFile.getName();
     }
 
-    public SecretMountPair(String name, byte[] contentBytes) {
+    public ResourceMountPair(String name, byte[] contentBytes) {
       this.contentBytes = contentBytes;
       this.name = name;
     }
