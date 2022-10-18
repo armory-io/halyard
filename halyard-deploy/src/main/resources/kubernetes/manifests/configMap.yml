@@ -9,7 +9,7 @@
       "cluster": "spin-{{ clusterName }}"
     }
   },
-  "data": {
+  "binaryData": {
     {% for file, contents in files.items() %}
     "{{ file }}": "{{ contents }}" {% if not loop.last %} , {% endif %}
     {% endfor %}
