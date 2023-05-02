@@ -11,7 +11,7 @@ pull_request_rules:
       - base=master
       - status-success=build
       - "label=ready to merge"
-      - "approved-reviews-by=@oss-approvers"
+      - "#approved-reviews-by>=1"
     actions:
       queue:
         method: squash
@@ -23,7 +23,7 @@ pull_request_rules:
       - base~=^release-
       - status-success=build
       - "label=ready to merge"
-      - "approved-reviews-by=@release-managers"
+      - "#approved-reviews-by>=1"
     actions:
       queue:
         method: squash
@@ -37,7 +37,7 @@ pull_request_rules:
       - base~=^release-
       - status-success=continuous-integration/travis-ci/pr
       - "label=ready to merge"
-      - "approved-reviews-by=@release-managers"
+      - "#approved-reviews-by>=1"
     actions:
       queue:
         method: squash
@@ -49,7 +49,7 @@ pull_request_rules:
       - base=master
       - status-success=build
       - "label=ready to merge"
-      - "author=@oss-approvers"
+      - "#approved-reviews-by>=1"
     actions:
       queue:
         method: squash
@@ -68,11 +68,3 @@ pull_request_rules:
         name: default
       label:
         add: ["auto merged"]
-  - name: Request reviews for autobump PRs on CI failure
-    conditions:
-      - base=master
-      - status-failure=build
-      - "label~=autobump-*"
-    actions:
-      request_reviews:
-        teams: ["oss-approvers"]
