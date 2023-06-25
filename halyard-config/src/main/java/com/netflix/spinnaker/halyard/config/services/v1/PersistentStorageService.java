@@ -32,13 +32,14 @@ import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import com.netflix.spinnaker.halyard.core.problem.v1.ProblemSet;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PersistentStorageService {
   @Autowired private LookupService lookupService;
 
-  @Autowired private DeploymentService deploymentService;
+  @Lazy @Autowired private DeploymentService deploymentService;
 
   @Autowired private ValidateService validateService;
 

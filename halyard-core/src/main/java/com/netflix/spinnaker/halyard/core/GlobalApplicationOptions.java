@@ -26,6 +26,7 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -52,7 +53,7 @@ public class GlobalApplicationOptions {
 
   public static GlobalApplicationOptions getInstance() {
     if (GlobalApplicationOptions.options == null) {
-      Yaml yamlParser = new Yaml(new SafeConstructor());
+      Yaml yamlParser = new Yaml(new SafeConstructor(new LoaderOptions()));
       ObjectMapper objectMapper = new ObjectMapper();
 
       objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

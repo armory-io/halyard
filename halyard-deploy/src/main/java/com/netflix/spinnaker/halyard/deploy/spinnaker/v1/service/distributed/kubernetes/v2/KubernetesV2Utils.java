@@ -44,6 +44,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -178,12 +179,12 @@ public class KubernetesV2Utils {
   }
 
   public String prettify(String input) {
-    Yaml yaml = new Yaml(new SafeConstructor());
+    Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
     return yaml.dump(yaml.load(input));
   }
 
   public Map<String, Object> parseManifest(String input) {
-    Yaml yaml = new Yaml(new SafeConstructor());
+    Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
     return mapper.convertValue(yaml.load(input), new TypeReference<Map<String, Object>>() {});
   }
 

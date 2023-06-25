@@ -11,13 +11,14 @@ import com.netflix.spinnaker.halyard.core.problem.v1.Problem.Severity;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EcsAccountValidator extends Validator<EcsAccount> {
-  @Autowired ProviderService providerService;
+  @Lazy @Autowired ProviderService providerService;
 
-  @Autowired AccountService accountService;
+  @Lazy @Autowired AccountService accountService;
 
   @Autowired ConfigService configService;
 
