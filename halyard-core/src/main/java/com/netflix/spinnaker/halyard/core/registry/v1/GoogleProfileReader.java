@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.Yaml;
 
@@ -44,9 +45,9 @@ import org.yaml.snakeyaml.Yaml;
 public class GoogleProfileReader implements ProfileReader {
   @Autowired String spinconfigBucket;
 
-  @Autowired Storage applicationDefaultGoogleStorage;
+  @Lazy @Autowired Storage applicationDefaultGoogleStorage;
 
-  @Autowired Storage unauthenticatedGoogleStorage;
+  @Lazy @Autowired Storage unauthenticatedGoogleStorage;
 
   @Autowired ObjectMapper relaxedObjectMapper;
 

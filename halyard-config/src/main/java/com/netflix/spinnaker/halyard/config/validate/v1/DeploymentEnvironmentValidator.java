@@ -32,12 +32,13 @@ import com.netflix.spinnaker.halyard.core.problem.v1.Problem;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
 public class DeploymentEnvironmentValidator extends Validator<DeploymentEnvironment> {
-  @Autowired AccountService accountService;
+  @Lazy @Autowired AccountService accountService;
 
   @Autowired KubernetesAccountValidator kubernetesAccountValidator;
 

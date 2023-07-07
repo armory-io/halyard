@@ -28,6 +28,7 @@ import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import org.yaml.snakeyaml.representer.Representer;
@@ -102,7 +103,8 @@ public class ResourceConfig {
     DumperOptions options = new DumperOptions();
     options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
     options.setDefaultScalarStyle(DumperOptions.ScalarStyle.PLAIN);
-    return new Yaml(new SafeConstructor(), new Representer(), options);
+    return new Yaml(
+        new SafeConstructor(new LoaderOptions()), new Representer(new DumperOptions()), options);
   }
 
   private String normalizePath(String path) {

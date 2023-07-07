@@ -27,12 +27,13 @@ import com.netflix.spinnaker.halyard.config.problem.v1.ConfigProblemSetBuilder;
 import com.netflix.spinnaker.halyard.config.services.v1.ProviderService;
 import com.netflix.spinnaker.halyard.core.problem.v1.Problem.Severity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AwsAccountValidator extends Validator<AwsAccount> {
 
-  @Autowired ProviderService providerService;
+  @Lazy @Autowired ProviderService providerService;
 
   @Override
   public void validate(ConfigProblemSetBuilder p, AwsAccount awsAccount) {

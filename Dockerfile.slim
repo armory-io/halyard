@@ -25,7 +25,7 @@ RUN apk add --update --upgrade \
 RUN apk update \
     && apk upgrade \
     && rm -rf /var/cache/apk/* \
-    && apk add musl=1.2.3-r4 \
+    && apk add musl=1.2.3-r5 \
     && apk add krb5-libs=1.20.1-r0
 
 # Google cloud SDK with anthos removed for CVE and because we don't need it

@@ -33,12 +33,13 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 
 @Component
 public class GCSValidator extends Validator<GcsPersistentStore> {
-  @Autowired private AccountService accountService;
+  @Lazy @Autowired private AccountService accountService;
 
   @Autowired private Registry registry;
 

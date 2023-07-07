@@ -26,6 +26,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Delegate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Data
@@ -35,7 +36,7 @@ public class KubernetesV2MonitoringDaemonService extends SpinnakerMonitoringDaem
     implements KubernetesV2Service<SpinnakerMonitoringDaemonService.SpinnakerMonitoringDaemon> {
   final DeployPriority deployPriority = new DeployPriority(0);
 
-  @Delegate @Autowired KubernetesV2ServiceDelegate serviceDelegate;
+  @Lazy @Delegate @Autowired KubernetesV2ServiceDelegate serviceDelegate;
 
   @Override
   public boolean runsOnJvm() {

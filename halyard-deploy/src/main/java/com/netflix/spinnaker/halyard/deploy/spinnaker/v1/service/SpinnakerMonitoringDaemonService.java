@@ -31,6 +31,7 @@ import java.util.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @EqualsAndHashCode(callSuper = true)
@@ -47,7 +48,7 @@ public abstract class SpinnakerMonitoringDaemonService
 
   @Autowired MetricRegistryProfileFactoryBuilder metricRegistryProfileFactoryBuilder;
 
-  @Autowired List<SpinnakerService> services;
+  @Lazy @Autowired List<SpinnakerService> services;
 
   @Override
   public SpinnakerArtifact getArtifact() {
